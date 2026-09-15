@@ -90,6 +90,7 @@ public:
 	void EvaluateTarget(CEntity*, CEntity**, float*, float, float, bool);
 	bool FindNextWeaponLockOnTarget(CEntity*, bool);
 	bool FindWeaponLockOnTarget(void);
+	bool FindNearestWeaponLockOnTarget();
 	void ProcessAnimGroups(void);
 	void ProcessPlayerWeapon(CPad*);
 	void PlayerControlZelda(CPad*);

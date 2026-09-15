@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ClassicAxis.h"
 
 #include "main.h"
 #include "RpAnimBlend.h"
@@ -249,6 +250,12 @@ CPed::ClearPointGunAt(void)
 	if (animAssoc) {
 		animAssoc->flags |= ASSOC_DELETEFADEDOUT;
 		animAssoc->blendDelta = -4.0f;
+	}
+	// Leaving aim fades the crouched firing pose. Restore VC's crouch idle
+	// before Duck() concludes that the missing animation means we stood up.
+	if(CClassicAxis::Active(this) && bIsDucking && bCrouchWhenShooting && m_nPedState != PED_JUMP) {
+		CAnimBlendAssociation *duck = CAnimManager::BlendAnimation(GetClump(), ASSOCGRP_STD, ANIM_STD_DUCK_WEAPON, 4.0f);
+		duck->flags &= ~ASSOC_FADEOUTWHENDONE;
 	}
 }
 

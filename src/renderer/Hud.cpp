@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ClassicAxis.h"
 
 #include "Camera.h"
 #include "DMAudio.h"
@@ -293,6 +294,9 @@ void CHud::Draw()
 				}
 			}
 		}
+
+		if(CClassicAxis::Enabled() && !TheCamera.Using1stPersonWeaponMode())
+			DrawCrossHairPC = CClassicAxis::Aiming(playerPed) && !playerPed->m_pPointGunAt && !TheCamera.m_bPlayerIsInGarage;
 
 		if (DrawCrossHair || DrawCrossHairPC) {
 			RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void *)rwFILTERLINEAR);
@@ -1369,7 +1373,10 @@ void CHud::Draw()
 					CFont::SetDropShadowPosition(0);
 					CFont::SetBackgroundColor(CRGBA(0, 0, 0, fAlpha * 0.9f));
 					CFont::SetColor(CRGBA(175, 175, 175, 255));
-					CFont::PrintString(SCREEN_SCALE_X(34.0f), SCREEN_SCALE_Y(28.0f + (150.0f - PagerXOffset) * 0.6f), m_HelpMessageToPrint);
+					wchar currentHelp[HELP_MSG_LENGTH];
+					CMessages::WideStringCopy(currentHelp, m_HelpMessageToPrint, HELP_MSG_LENGTH);
+					CMessages::InsertPlayerControlKeysInString(currentHelp);
+					CFont::PrintString(SCREEN_SCALE_X(34.0f), SCREEN_SCALE_Y(28.0f + (150.0f - PagerXOffset) * 0.6f), currentHelp);
 					CFont::SetAlphaFade(255.0f);
 					CFont::SetWrapx(SCREEN_WIDTH);
 				}
@@ -1931,7 +1938,7 @@ void CHud::SetHelpMessage(wchar *message, bool quick, bool displayForever)
 		}
 
 		CMessages::WideStringCopy(m_HelpMessage, message, HELP_MSG_LENGTH);
-		CMessages::InsertPlayerControlKeysInString(m_HelpMessage);
+// Resolve help action tokens when drawing, so input and icon changes are live.
 		if (m_HelpMessageState == 0 || !CMessages::WideStringCompare(m_HelpMessage, m_HelpMessageToPrint, HELP_MSG_LENGTH)) {
 			for (int i = 0; i < HELP_MSG_LENGTH; i++) {
 				m_LastHelpMessage[i] = 0;

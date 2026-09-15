@@ -1,4 +1,5 @@
 #include "common.h"
+#include "XboxHands.h"
 
 #include "General.h"
 #include "Pad.h"
@@ -1054,6 +1055,7 @@ CStreaming::RequestSpecialModel(int32 modelId, const char *modelName, int32 flag
 void
 CStreaming::RequestSpecialChar(int32 charId, const char *modelName, int32 flags)
 {
+	CXboxHands::Request(charId, modelName);
 	RequestSpecialModel(charId + MI_SPECIAL01, modelName, flags);
 }
 

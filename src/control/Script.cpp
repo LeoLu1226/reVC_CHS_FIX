@@ -998,8 +998,7 @@ void CTheScripts::Process()
 			CPlayerPed* pPlayerPed = FindPlayerPed();
 			if (pPlayerPed) {
 				CPlayerInfo* pPlayerInfo = pPlayerPed->GetPlayerInfoForThisPlayerPed();
-				if (pPlayerInfo) 
-					//pPlayerPed->SetHealth(pPlayerInfo->m_nMaxHealth);
+				if (pPlayerInfo)
 					pPlayerPed->m_fHealth = pPlayerInfo->m_nMaxHealth;
 			}
 		}

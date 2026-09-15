@@ -244,6 +244,10 @@ local function addSrcFiles( prefix )
 end
 
 project "reVC"
+	cppdialect "C++17"
+	filter "system:windows"
+		buildoptions { "/utf-8", "/wd4828" }
+	filter {}
 	kind "WindowedApp"
 	targetname "reVC"
 	targetdir "bin/%{cfg.platform}/%{cfg.buildcfg}"

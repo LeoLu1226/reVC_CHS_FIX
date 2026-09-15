@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ClassicAxis.h"
 
 #include "Weapon.h"
 #include "AnimBlendAssociation.h"
@@ -971,7 +972,7 @@ CWeapon::FireInstantHit(CEntity *shooter, CVector *fireSource)
 			CPlayerPed* shooterPed = (CPlayerPed*)shooter;
 			Find3rdPersonCamTargetVectorFromCachedVectors(info->m_fRange, *fireSource, source, target, shooterPed->m_cachedCamSource, shooterPed->m_cachedCamFront, shooterPed->m_cachedCamUp);
 
-			if ((shooterPed->m_pedIK.m_flags & CPedIK::GUN_POINTED_SUCCESSFULLY) == 0) {
+			if (!CClassicAxis::Aiming(shooterPed) && (shooterPed->m_pedIK.m_flags & CPedIK::GUN_POINTED_SUCCESSFULLY) == 0) {
 				target.x = info->m_fRange;
 				target.y = 0.0f;
 				target.z = 0.0f;

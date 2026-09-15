@@ -1,4 +1,5 @@
 #include "common.h"
+#include "XboxHands.h"
 
 #include "main.h"
 #include "RwHelper.h"
@@ -150,8 +151,12 @@ CCutsceneObject::PreRender(void)
 void
 CCutsceneObject::Render(void)
 {
+	if (bDoNotRender) return;
 	SetCullMode(rwCULLMODECULLNONE);
+	// Update immediately before drawing; shadow/attachment passes may rebuild bones.
+	CXboxHands::PreRender(this);
 	CObject::Render();
+	CXboxHands::Render(this);
 	SetCullMode(rwCULLMODECULLBACK);
 }
 

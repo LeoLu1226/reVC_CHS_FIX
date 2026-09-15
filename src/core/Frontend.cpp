@@ -627,6 +627,9 @@ CMenuManager::Initialise(void)
 void
 CMenuManager::CentreMousePointer()
 {
+	if (!IsForegroundApp())
+		return;
+
 	if (SCREEN_WIDTH * 0.5f != 0.0f && 0.0f != SCREEN_HEIGHT * 0.5f) {
 #if defined RW_D3D9 || defined RWLIBS
 		tagPOINT Point;
@@ -3556,6 +3559,72 @@ CMenuManager::AdditionalOptionInput(bool &goBack)
 		case MENUPAGE_MAP:
 		{
 			static uint32 lastMapTick = 0;
+#ifdef MAP_ENHANCEMENTS
+			static bool justResetPointer = false;
+			static bool previousMapController = false;
+			bool mapController = false;
+#ifdef DETECT_PAD_INPUT_SWITCH
+			mapController = CPad::IsAffectedByController;
+#endif
+			if(mapController != previousMapController) {
+				justResetPointer = false;
+				m_nMouseOldPosX = m_nMousePosX;
+				m_nMouseOldPosY = m_nMousePosY;
+			}
+			previousMapController = mapController;
+			CPad *mapPad = CPad::GetPad(0);
+			if(!mapController && (mapPad->GetMouseX() != 0.0f || mapPad->GetMouseY() != 0.0f ||
+			   mapPad->GetLeftMouse() || mapPad->GetRightMouse() || mapPad->GetMouseWheelUp() || mapPad->GetMouseWheelDown()))
+				m_bShowMouse = true;
+			// Resolve this frame's cursor before waypoint placement and zoom.
+			mapCrosshair = !mapController && m_bShowMouse ? CVector2D(m_nMousePosX, m_nMousePosY) :
+			               CVector2D(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
+#endif
+
+#if defined(MAP_ENHANCEMENTS) && defined(DETECT_PAD_INPUT_SWITCH)
+			// Use the MenuMap III layout independently of gameplay control presets.
+			// Read raw menu inputs: player controls are disabled while paused.
+			if(CPad::IsAffectedByController) {
+				CPad *pad = CPad::GetPad(0);
+				uint32 now = CTimer::GetTimeInMillisecondsPauseMode();
+				float dt = Min((now - lastMapTick) * 0.001f, 0.05f);
+				lastMapTick = now;
+				m_bShowMouse = false;
+				mapCrosshair = CVector2D(SCREEN_WIDTH / 2.0f, SCREEN_HEIGHT / 2.0f);
+				if(m_nMenuFadeAlpha != 255) break;
+				if(pad->GetLeftShoulder1JustDown())
+					m_PrefsShowLegends = !m_PrefsShowLegends;
+
+				float right = (pad->GetDPadRight() ? 1.0f : 0.0f) - (pad->GetDPadLeft() ? 1.0f : 0.0f);
+				float down = (pad->GetDPadDown() ? 1.0f : 0.0f) - (pad->GetDPadUp() ? 1.0f : 0.0f);
+				if(Abs(pad->GetLeftStickX()) > 12) right += pad->GetLeftStickX() / 128.0f;
+				if(Abs(pad->GetLeftStickY()) > 12) down += pad->GetLeftStickY() / 128.0f;
+				m_fMapCenterX -= Clamp(right, -1.0f, 1.0f) * SCREEN_HEIGHT * (500.0f / 480.0f) * dt;
+				m_fMapCenterY -= Clamp(down, -1.0f, 1.0f) * SCREEN_HEIGHT * (500.0f / 480.0f) * dt;
+
+				// R2/RT zooms in; L2/LT zooms out, anchored at the centre cursor.
+				int zoom = (pad->NewState.RightShoulder2 > 30 ? 1 : 0) - (pad->NewState.LeftShoulder2 > 30 ? 1 : 0);
+				float newSize = Clamp(m_fMapSize * expf(zoom * dt * 1.8f), MENU_Y(MAP_MIN_SIZE), MENU_Y(1000.0f));
+				float factor = m_fMapSize > 0.0f ? newSize / m_fMapSize : 1.0f;
+				m_fMapCenterX += (mapCrosshair.x - m_fMapCenterX) * (1.0f - factor);
+				m_fMapCenterY += (mapCrosshair.y - m_fMapCenterY) * (1.0f - factor);
+				m_fMapSize = newSize;
+				// The controller cursor is fixed at screen centre. Allow the full
+				// map to pass under it, including its edges at minimum zoom.
+				// Mouse viewport margins would make those positions unreachable.
+				m_fMapCenterX = Clamp(m_fMapCenterX, mapCrosshair.x - m_fMapSize, mapCrosshair.x + m_fMapSize);
+				m_fMapCenterY = Clamp(m_fMapCenterY, mapCrosshair.y - m_fMapSize, mapCrosshair.y + m_fMapSize);
+
+				if(pad->GetSquareJustDown()) {
+					// Keep VC's world/map transformation and waypoint toggle behavior.
+					float x = ((mapCrosshair.x - (m_fMapCenterX - m_fMapSize)) / (m_fMapSize * 2)) * (WORLD_SIZE_X / MENU_MAP_WIDTH_SCALE) - (WORLD_SIZE_X / 2 + MENU_MAP_LEFT_OFFSET * MENU_MAP_LENGTH_UNIT);
+					float y = (WORLD_SIZE_Y / 2 - MENU_MAP_TOP_OFFSET * MENU_MAP_LENGTH_UNIT) - ((mapCrosshair.y - (m_fMapCenterY - m_fMapSize)) / (m_fMapSize * 2)) * (WORLD_SIZE_Y / MENU_MAP_HEIGHT_SCALE);
+					CRadar::ToggleTargetMarker(x, y);
+					DMAudio.PlayFrontEndSound(SOUND_FRONTEND_ENTER_OR_ADJUST, 0);
+				}
+				break;
+			}
+#endif
 
 			// FIX: All those macros were hardcoded values originally.
 
@@ -3618,9 +3687,8 @@ CMenuManager::AdditionalOptionInput(bool &goBack)
 					ZOOM(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, true);
 			}
 			
-			static bool justResetPointer = false;
 			if (CPad::GetPad(0)->GetLeftMouse()) {
-				if (!justResetPointer) {
+				if (!justResetPointer && !CPad::GetPad(0)->GetLeftMouseJustDown()) {
 					m_fMapCenterX += m_nMousePosX - m_nMouseOldPosX;
 					m_fMapCenterY += m_nMousePosY - m_nMouseOldPosY;
 					m_fMapCenterX = Clamp(m_fMapCenterX, SCREEN_WIDTH/2 - (m_fMapSize - MENU_X(MAP_MIN_SIZE)), m_fMapSize - MENU_X(MAP_MIN_SIZE) + SCREEN_WIDTH/2);
@@ -4374,13 +4442,13 @@ CMenuManager::UserInput(void)
 	} else {
 		AdditionalOptionInput(goBack);
 
-		if (m_AllowNavigation &&
+		if (m_AllowNavigation && m_nCurrScreen != MENUPAGE_MAP &&
 			(CPad::GetPad(0)->GetDownJustDown() || CPad::GetPad(0)->GetAnaloguePadDown() || CPad::GetPad(0)->GetDPadDownJustDown())) {
 			m_bShowMouse = false;
 			goDown = true;
 			m_nOptionHighlightTransitionBlend = 0;
 
-		} else if (m_AllowNavigation &&
+		} else if (m_AllowNavigation && m_nCurrScreen != MENUPAGE_MAP &&
 			(CPad::GetPad(0)->GetUpJustDown() || CPad::GetPad(0)->GetAnaloguePadUp() || CPad::GetPad(0)->GetDPadUpJustDown())) {
 			m_bShowMouse = false;
 			goUp = true;
@@ -4393,7 +4461,7 @@ CMenuManager::UserInput(void)
 				optionSelected = true;
 			}
 		} else {
-			if (CPad::GetPad(0)->GetEnterJustDown() || CPad::GetPad(0)->GetCrossJustDown()) {
+			if (CPad::GetPad(0)->GetEnterJustDown() || (m_nCurrScreen != MENUPAGE_MAP && CPad::GetPad(0)->GetCrossJustDown())) {
 				m_bShowMouse = false;
 				optionSelected = true;
 			}
@@ -5584,6 +5652,7 @@ CMenuManager::SwitchMenuOnAndOff()
 		if ((CPad::GetPad(0)->GetStartJustDown() || CPad::GetPad(0)->GetEscapeJustDown())
 			&& (!m_bMenuActive || m_nCurrScreen == MENUPAGE_PAUSE_MENU || m_nCurrScreen == MENUPAGE_CHOOSE_SAVE_SLOT || m_nCurrScreen == MENUPAGE_SAVE_CHEAT_WARNING)
 			|| m_bShutDownFrontEndRequested || m_bStartUpFrontEndRequested
+			|| (m_bMenuActive && !m_bGameNotLoaded && m_nCurrScreen == MENUPAGE_PAUSE_MENU && CPad::GetPad(0)->GetCircleJustDown())
 #ifdef REGISTER_START_BUTTON
 			|| CPad::GetPad(0)->GetStartJustDown() && !m_bGameNotLoaded
 #endif
@@ -5917,7 +5986,7 @@ CMenuManager::PrintMap(void)
 	}
 
 #ifdef MAP_ENHANCEMENTS
-	if (m_nMenuFadeAlpha != 255 && !m_bShowMouse) {
+	if (!m_bShowMouse) {
 		mapCrosshair.x = SCREEN_WIDTH / 2;
 		mapCrosshair.y = SCREEN_HEIGHT / 2;
 	} else if (m_bShowMouse) {

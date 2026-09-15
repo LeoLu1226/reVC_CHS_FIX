@@ -1400,6 +1400,21 @@ void CRunningScript::DoDeatharrestCheck()
 int16 CRunningScript::GetPadState(uint16 pad, uint16 button)
 {
 	CPad* pPad = CPad::GetPad(pad);
+	// VC scripts refer to the original layout's actions, including the phone
+	// and vehicle tutorials. Preserve raw pressure even when scripts disable
+	// ordinary player movement while waiting for an input.
+	if(pad == 0 && CPad::IsStandardControls()) {
+		bool vehicle = FindPlayerPed() && FindPlayerPed()->bInVehicle;
+		switch(button) {
+		case 5: return vehicle ? pPad->NewState.LeftShoulder1 : pPad->NewState.DPadLeft;
+		case 6: return vehicle ? pPad->NewState.Cross : pPad->NewState.LeftShoulder2;
+		case 7: return vehicle ? pPad->NewState.RightShoulder1 : pPad->NewState.DPadRight;
+		case 14: return vehicle ? pPad->NewState.LeftShoulder2 : pPad->NewState.Square;
+		case 16: return vehicle ? pPad->NewState.RightShoulder2 : pPad->NewState.Cross;
+		case 17: return vehicle || (FindPlayerPed() && FindPlayerPed()->GetWeapon()->IsTypeMelee()) ?
+		                pPad->NewState.Circle : pPad->NewState.RightShoulder2;
+		}
+	}
 	switch (button) {
 	case 0: return pPad->NewState.LeftStickX;
 	case 1: return pPad->NewState.LeftStickY;

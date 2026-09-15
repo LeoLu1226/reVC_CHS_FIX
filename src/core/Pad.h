@@ -217,6 +217,8 @@ public:
 	void StopShaking(int16 pad);
 	
 	static CPad *GetPad(int32 pad);
+	static bool IsStandardControls();
+	bool GetStandardLockOn();
 	
 	int16 GetSteeringLeftRight(void);
 	int16 GetSteeringUpDown(void);

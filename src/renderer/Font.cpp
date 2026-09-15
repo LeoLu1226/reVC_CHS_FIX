@@ -870,7 +870,7 @@ CFont::RenderFontBuffer()
 			textPosY = RenderState.fTextPosY;
 			color = RenderState.color;
 		}
-		if(*pRenderStateBufPointer.pStr == '~') {
+		while(*pRenderStateBufPointer.pStr == '~') {
 #ifdef BUTTON_ICONS
 			PS2Symbol = BUTTON_NONE;
 #endif
@@ -890,6 +890,10 @@ CFont::RenderFontBuffer()
 				Details.color.alpha = Details.bFlashState ? 0 : 255;
 			}
 			if(!RenderState.bIsShadow) RenderState.color = color;
+		}
+		if(!*pRenderStateBufPointer.pStr) {
+			--pRenderStateBufPointer.pStr;
+			continue; // Let the next iteration advance to the next buffered string.
 		}
 		wchar c = *pRenderStateBufPointer.pStr;
 		c -= ' ';
@@ -996,7 +1000,7 @@ CFont::RenderFontBuffer_Chs()
 			// pbuffer.addr += 0x30;
 		}
 
-		if(*pRenderStateBufPointer.pStr == '~') {
+		while(*pRenderStateBufPointer.pStr == '~') {
 			// pbuffer.ptext = fpParseTokenEPtR5CRGBARbRb.fun(pbuffer.ptext, var_14, var_E, var_D);
 #ifdef BUTTON_ICONS
 			PS2Symbol = BUTTON_NONE;
@@ -1033,6 +1037,10 @@ CFont::RenderFontBuffer_Chs()
 			if(!RenderState.bIsShadow) RenderState.color = bColor;
 		}
 
+		if(!*pRenderStateBufPointer.pStr) {
+			--pRenderStateBufPointer.pStr;
+			continue; // Let the next iteration advance to the next buffered string.
+		}
 		wchar c = *pRenderStateBufPointer.pStr;
 
 		// c -= ' ';
@@ -1882,6 +1890,19 @@ float CFont::GetCharacterSize(wchar c)
 #endif // MORE_LANGUAGES
 }
 
+// Chinese wrapping must reserve the same width used by DrawButton.
+static bool IsControllerIconToken(const wchar *s)
+{
+#ifdef BUTTON_ICONS
+	if(s[0] != '~' || !s[1] || s[2] != '~') return false;
+	switch(s[1]) {
+	case 'U': case 'D': case '<': case '>': case 'X': case 'O':
+	case 'Q': case 'T': case 'K': case 'M': case 'A': case 'J':
+	case 'V': case 'C': case 'H': case 'L': case '(': case ')': return true;
+	}
+#endif
+	return false;
+}
 float CFont::GetStringWidth_Chs(wchar *s, bool spaces)
 {
 	float result = 0.0f;
@@ -1895,6 +1916,10 @@ float CFont::GetStringWidth_Chs(wchar *s, bool spaces)
 			}
 		} else if(*s == '~') {
 			if(result == 0.0f || spaces) {
+				if(IsControllerIconToken(s)) {
+					result += Details.scaleY * 17.0f;
+					if(!spaces) return result;
+				}
 				do {
 					++s;
 				} while(*s != '~');
@@ -2030,6 +2055,7 @@ CFont::GetNextSpace_Chs(wchar *s)
 	while(*temp != ' ' && *temp != '\0') {
 		if(*temp == '~') {
 			if(temp == s) {
+				if(IsControllerIconToken(temp)) return temp + 3;
 				do {
 					++temp;
 				} while(*temp != '~');
@@ -2191,7 +2217,7 @@ CFont::ParseToken(wchar *str, CRGBA &color, bool &flash, bool &bold)
 		}
 	}
 	while(*s != '~') ++s;
-	if(*(++s) == '~') s = ParseToken(s, color, flash, bold);
+	++s;
 	return s;
 }
 

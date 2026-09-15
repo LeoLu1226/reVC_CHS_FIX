@@ -552,7 +552,13 @@ cMusicManager::ServiceGameMode()
 				}
 			}
 #endif
-			if (CPad::GetPad(0)->ChangeStationJustDown())
+			if (CPad::IsStandardControls() && !CPad::GetPad(0)->ArePlayerControlsDisabled() && CPad::GetPad(0)->GetDPadLeftJustDown()) {
+				if (!UsesPoliceRadio(vehicle) && !UsesTaxiRadio(vehicle)) {
+					--gNumRetunePresses;
+					gRetuneCounter = 20;
+					RadioStaticCounter = 0;
+				}
+			} else if (CPad::GetPad(0)->ChangeStationJustDown())
 			{
 				if (!UsesPoliceRadio(vehicle) && !UsesTaxiRadio(vehicle)) {
 					gNumRetunePresses++;

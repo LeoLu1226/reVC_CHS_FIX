@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ClassicAxis.h"
 
 #include "main.h"
 #include "Draw.h"
@@ -182,7 +183,7 @@ CCam::Process(void)
 		break;
 	case MODE_FOLLOWPED:
 #ifdef PC_PLAYER_CONTROLS
-		if(CCamera::m_bUseMouse3rdPerson)
+		if(CCamera::m_bUseMouse3rdPerson || CClassicAxis::Enabled())
 			Process_FollowPedWithMouse(CameraTarget, TargetOrientation, SpeedVar, TargetSpeedVar);
 		else
 #endif
@@ -863,7 +864,7 @@ CCam::KeepTrackOfTheSpeed(const CVector &source, const CVector &target, const CV
 bool
 CCam::Using3rdPersonMouseCam(void) 
 {
-	return CCamera::m_bUseMouse3rdPerson && Mode == MODE_FOLLOWPED;
+	return (CCamera::m_bUseMouse3rdPerson || CClassicAxis::Enabled()) && Mode == MODE_FOLLOWPED;
 }
 
 bool
@@ -1348,7 +1349,7 @@ float fMouseAvoidGeomReturnRate = 0.92f;
 void
 CCam::Process_FollowPedWithMouse(const CVector &CameraTarget, float TargetOrientation, float, float)
 {
-	FOV = DefaultFOV;
+	if(!CClassicAxis::Enabled() || ResetStatics) FOV = DefaultFOV;
 
 	if(!CamTargetEntity->IsPed())
 		return;
@@ -1445,6 +1446,7 @@ CCam::Process_FollowPedWithMouse(const CVector &CameraTarget, float TargetOrient
 	if(OnTrain)
 		Beta = TargetOrientation;
 
+	CClassicAxis::Camera(*this, TargetCoors, CamDist);
 	Front.x = Cos(Alpha) * -Cos(Beta);
 	Front.y = Cos(Alpha) * -Sin(Beta);
 	Front.z = Sin(Alpha);

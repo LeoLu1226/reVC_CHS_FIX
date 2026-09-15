@@ -601,7 +601,7 @@ void CGarage::Update()
 						CStats::KgsOfExplosivesUsed += KGS_OF_EXPLOSIVES_IN_BOMB;
 					}
 #ifdef DETECT_PAD_INPUT_SWITCH
-					int16 Mode = CPad::IsAffectedByController ? CPad::GetPad(0)->Mode : 0;
+					int16 Mode = CPad::IsStandardControls() ? 0 : (CPad::IsAffectedByController ? CPad::GetPad(0)->Mode : 0);
 #else
 					int16 Mode = CPad::GetPad(0)->Mode;
 #endif

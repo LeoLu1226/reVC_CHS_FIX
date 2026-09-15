@@ -15,6 +15,7 @@
 #include "Pad.h"
 #include "PathFind.h"
 #include "PlayerInfo.h"
+#include "PlayerHealth.h"
 #include "PlayerPed.h"
 #include "PlayerSkin.h"
 #include "ProjectileInfo.h"
@@ -85,7 +86,7 @@ CPlayerInfo::Clear(void)
 	m_bInfiniteSprint = false;
 	m_bFastReload = false;
 	m_bFireproof = false;
-	m_nMaxHealth = 255;
+	m_nMaxHealth = DEFAULT_PLAYER_MAX_HEALTH;
 	m_nMaxArmour = 100;
 	m_bGetOutOfJailFree = false;
 	m_bGetOutOfHospitalFree = false;
@@ -579,6 +580,10 @@ CPlayerInfo::LoadPlayerInfo(uint8 *buf, uint32 size)
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_bFastReload);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_bFireproof);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_nMaxHealth);
+	// Repair saves made with the former 255 default, including uint8 overflow
+	// after the original game's +50 maximum-health rewards. Preserve other caps.
+	uint8 &maxHealth = CWorld::Players[CWorld::PlayerInFocus].m_nMaxHealth;
+	maxHealth = RestorePlayerMaxHealth(maxHealth);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_nMaxArmour);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_bGetOutOfJailFree);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_bGetOutOfHospitalFree);

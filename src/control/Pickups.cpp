@@ -130,7 +130,7 @@ ModifyStringLabelForControlSetting(char *str)
 	if (str[len - 2] != '_')
 		return;
 
-	switch (CPad::GetPad(0)->Mode) {
+	switch (CPad::IsStandardControls() ? 0 : CPad::GetPad(0)->Mode) {
 		case 0:
 		case 1:
 			str[len - 1] = 'L';
@@ -389,7 +389,7 @@ CPickup::Update(CPlayerPed *player, CVehicle *vehicle, int playerId)
 								}
 							}
 							if (!m_bWasControlMessageShown) {
-								switch (CPad::GetPad(0)->Mode)
+								switch (CPad::IsStandardControls() ? 0 : CPad::GetPad(0)->Mode)
 								{
 								case 0:
 								case 1:

@@ -1,4 +1,5 @@
 #include "common.h"
+#include "ClassicAxis.h"
 
 #include "RwHelper.h"
 #include "PlayerPed.h"
@@ -54,6 +55,7 @@ CPlayerPed::~CPlayerPed()
 
 CPlayerPed::CPlayerPed(void) : CPed(PEDTYPE_PLAYER1)
 {
+	CClassicAxis::Reset();
 	m_fMoveSpeed = 0.0f;
 	SetModelIndex(MI_PLAYER);
 #ifdef FIX_BUGS
@@ -315,6 +317,7 @@ CPlayerPed::SetInitialState(void)
 void
 CPlayerPed::SetRealMoveAnim(void)
 {
+	m_fMoveSpeed = Min(m_fMoveSpeed, CClassicAxis::MoveLimit(this));
 	CAnimBlendAssociation *curWalkAssoc = RpAnimBlendClumpGetAssociation(GetClump(), ANIM_STD_WALK);
 	CAnimBlendAssociation *curRunAssoc = RpAnimBlendClumpGetAssociation(GetClump(), ANIM_STD_RUN);
 	CAnimBlendAssociation *curSprintAssoc = RpAnimBlendClumpGetAssociation(GetClump(), ANIM_STD_RUNFAST);
@@ -880,7 +883,7 @@ CPlayerPed::PlayerControl1stPersonRunAround(CPad *padUsed)
 	float padMove = CVector2D(leftRight, upDown).Magnitude();
 	float padMoveInGameUnit = padMove / PAD_MOVE_TO_GAME_WORLD_MOVE;
 	if (padMoveInGameUnit > 0.0f) {
-		m_fRotationDest = CGeneral::LimitRadianAngle(TheCamera.Orientation);
+		m_fRotationDest = CClassicAxis::Aiming(this) ? m_fRotationCur : CGeneral::LimitRadianAngle(TheCamera.Orientation);
 		m_fMoveSpeed = Min(padMoveInGameUnit, 0.07f * CTimer::GetTimeStep() + m_fMoveSpeed);
 	} else {
 		m_fMoveSpeed = 0.0f;
@@ -1155,6 +1158,30 @@ CPlayerPed::FindWeaponLockOnTarget(void)
 	return true;
 }
 
+bool
+CPlayerPed::FindNearestWeaponLockOnTarget()
+{
+	CPed *nearest = nil;
+	float best = SQR(CWeaponInfo::GetWeaponInfo(GetWeapon()->m_eWeaponType)->m_fRange);
+	for(int i = CPools::GetPedPool()->GetSize() - 1; i >= 0; --i) {
+		CPed *ped = CPools::GetPedPool()->GetSlot(i);
+		if(!ped || ped == this || ped->DyingOrDead() || ped->m_fHealth <= 0.0f ||
+		   ped->m_leader == this || ped->bNeverEverTargetThisPed) continue;
+#ifndef AIMING_VEHICLE_OCCUPANTS
+		if(ped->bInVehicle && (!ped->m_pMyVehicle || !ped->m_pMyVehicle->IsBike())) continue;
+#endif
+		float distance = (ped->GetPosition() - GetPosition()).MagnitudeSqr();
+		if(distance < best && OurPedCanSeeThisOne(ped) && CanIKReachThisTarget(ped->GetPosition(), GetWeapon(), true)) {
+			best = distance;
+			nearest = ped;
+		}
+	}
+	if(!nearest) return false;
+	SetWeaponLockOnTarget(nearest);
+	bDontAllowWeaponChange = true;
+	SetPointGunAt(nearest);
+	return true;
+}
 void
 CPlayerPed::ProcessAnimGroups(void)
 {
@@ -1248,6 +1275,10 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 #endif
 		bCrouchWhenShooting = true;
 		SetDuck(60000, true);
+		if(CClassicAxis::Active(this) && !weaponInfo->IsFlagSet(WEAPONFLAG_CROUCHFIRE) && !GetWeapon()->IsTypeMelee()) {
+			bCrouchWhenShooting = false;
+			ClearWeaponTarget();
+		}
 	} else if (bIsDucking && (padUsed->DuckJustDown() || m_nMoveState == PEDMOVE_SPRINT ||
 		padUsed->GetSprint() || padUsed->JumpJustDown() || padUsed->ExitVehicleJustDown())) {
 
@@ -1258,6 +1289,7 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 #endif
 		ClearDuck(true);
 		bCrouchWhenShooting = false;
+		if(CClassicAxis::Active(this)) ClearPointGunAt();
 	}
 
 	if(weaponInfo->IsFlagSet(WEAPONFLAG_CANAIM))
@@ -1267,10 +1299,10 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 
 	if (!m_pFire) {
 		eWeaponType weapon = GetWeapon()->m_eWeaponType;
-		if (weapon == WEAPONTYPE_ROCKETLAUNCHER || weapon == WEAPONTYPE_SNIPERRIFLE ||
+		if ((!CClassicAxis::Enabled() || !CClassicAxis::SupportsWeapon(this)) && (weapon == WEAPONTYPE_ROCKETLAUNCHER || weapon == WEAPONTYPE_SNIPERRIFLE ||
 			weapon == WEAPONTYPE_LASERSCOPE || weapon == WEAPONTYPE_M4 ||
 			weapon == WEAPONTYPE_RUGER || weapon == WEAPONTYPE_M60 ||
-			weapon == WEAPONTYPE_CAMERA) {
+			weapon == WEAPONTYPE_CAMERA)) {
 
 			if (padUsed->TargetJustDown() || TheCamera.m_bJustJumpedOutOf1stPersonBecauseOfTarget) {
 #ifdef FREE_CAM
@@ -1349,7 +1381,7 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 	if (pointedGun == 2) pointedGun = 1;
 
 	// Rotate player/arm when shooting. We don't have auto-rotation anymore
-	if (CCamera::m_bUseMouse3rdPerson && CCamera::bFreeCam &&
+	if (!CClassicAxis::Aiming(this) && CCamera::m_bUseMouse3rdPerson && CCamera::bFreeCam &&
 		m_nSelectedWepSlot == m_currentWeapon && m_nMoveState != PEDMOVE_SPRINT) {
 
 #define CAN_AIM_WITH_ARM (weaponInfo->IsFlagSet(WEAPONFLAG_CANAIM_WITHARM) && !bIsDucking && !bCrouchWhenShooting)
@@ -1417,6 +1449,7 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 	}
 #endif
 
+	if (!CClassicAxis::Active(this)) {
 	if (padUsed->GetTarget() && m_nSelectedWepSlot == m_currentWeapon && m_nMoveState != PEDMOVE_SPRINT && !TheCamera.Using1stPersonWeaponMode() && weaponInfo->IsFlagSet(WEAPONFLAG_CANAIM)) {
 		if (m_pPointGunAt) {
 			// what??
@@ -1464,6 +1497,8 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 		}
 	} else if (m_pPointGunAt) {
 		ClearWeaponTarget();
+	}
+
 	}
 
 	if (m_pPointGunAt) {
@@ -1700,6 +1735,7 @@ CPlayerPed::ProcessControl(void)
 	if (m_nDrunkenness != 0) {
 		CMBlur::SetDrunkBlur(m_nDrunkenness / 255.f);
 	}
+	CClassicAxis::Update(this);
 	CPed::ProcessControl();
 	SetNearbyPedsToInteractWithPlayer();
 	if (bWasPostponed)
@@ -1808,11 +1844,11 @@ CPlayerPed::ProcessControl(void)
 					if (padUsed)
 						PlayerControlSniper(padUsed);
 
-				} else if (TheCamera.Cams[0].Using3rdPersonMouseCam()
+				} else if (CClassicAxis::Aiming(this) || (TheCamera.Cams[0].Using3rdPersonMouseCam()
 #ifdef FREE_CAM
 					&& !CCamera::bFreeCam
 #endif
-					) {
+					)) {
 					if (padUsed)
 						PlayerControl1stPersonRunAround(padUsed);
 

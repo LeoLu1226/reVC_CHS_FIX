@@ -1,4 +1,5 @@
 #include "common.h"
+#include "XboxHands.h"
 
 #include "General.h"
 #include "CutsceneMgr.h"
@@ -157,6 +158,7 @@ CalculateBoundingSphereRadiusCB(RpAtomic *atomic, void *data)
 void
 CCutsceneMgr::Initialise(void)
 {
+	CXboxHands::Init();
 	ms_numCutsceneObjs = 0;
 	ms_loaded = false;
 	ms_wasCutsceneSkipped = false;
@@ -175,6 +177,7 @@ CCutsceneMgr::Initialise(void)
 void
 CCutsceneMgr::Shutdown(void)
 {
+	CXboxHands::Shutdown();
 	delete ms_pCutsceneDir;
 }
 

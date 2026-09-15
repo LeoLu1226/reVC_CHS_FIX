@@ -1,5 +1,6 @@
 //#include "CLEOScriptLib.h"
 #include <common.h>
+#include <algorithm>
 #include <Script.h>
 #include "ScriptCommands.h"
 #ifdef VC_CLEO

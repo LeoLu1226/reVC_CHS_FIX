@@ -319,6 +319,9 @@ psTimer(void)
 void
 psMouseSetPos(RwV2d *pos)
 {
+	if (!IsForegroundApp())
+		return;
+
 	POINT point;
 
 	point.x = (RwInt32) pos->x;
@@ -1394,7 +1397,9 @@ InitApplication(HANDLE instance)
 
 RwBool IsForegroundApp()
 {
-	return !!ForegroundApp;
+	// Rendering can remain available while another application has focus
+	// (notably during cutscenes, where the pause menu cannot open).
+	return ForegroundApp && PSGLOBAL(window) != nil && GetForegroundWindow() == PSGLOBAL(window);
 }
 
 UINT GetBestRefreshRate(UINT width, UINT height, UINT depth)
