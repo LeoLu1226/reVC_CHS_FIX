@@ -83,7 +83,7 @@ All font settings are read at startup from `[Fonts]` in the game directory's `re
 |---|---|---|
 | `3` | **DirectWrite (default, recommended)** | Dynamic glyphs, supplementary-plane characters, colour emoji (COLR/CPAL) and variable weights |
 | `2` | **GDI** | Dynamic glyphs through GDI `GetGlyphOutlineW`, for compatibility; no colour emoji or variable-weight axes |
-| `1` | **TXD (legacy)** | Static `MODELS\CHINESE.TXD` and `Chinese.dat`, as supplied in `gamefiles/chinese_text_file`; no dynamic glyph generation |
+| `1` | **TXD (legacy)** | Static `models/CHINESE.txd` and `data/Chinese.dat` in the corresponding `gamefiles` subdirectories; no dynamic glyph generation |
 
 Legacy string values (`TXD` / `GDI`) are also accepted. Invalid or absent values fall back to DirectWrite.
 
@@ -129,7 +129,7 @@ GDI can also cover supplementary code points through the stb_truetype fallback c
 TextRenderer=1
 ```
 
-Copy `MODELS\CHINESE.TXD` and `Chinese.dat` from `gamefiles/chinese_text_file/` to their corresponding game locations. The two dynamic modes do not require them.
+Chinese resources are now merged into the main `gamefiles` directory. Copy `models/CHINESE.txd`, `data/Chinese.dat` and `TEXT/chinese.gxt` from there to the game root, preserving the directory structure. The first two files are required by the static TXD renderer; dynamic modes do not require them, but still need the Chinese GXT text.
 
 ### GXT hot reload (development/debugging)
 

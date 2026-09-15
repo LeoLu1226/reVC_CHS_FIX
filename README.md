@@ -91,7 +91,7 @@ CLEO已经支持，部分涉及读写内存的暂未实现，因为和原版不�
 |---|---|---|
 | `3` | **DirectWrite（默认，推荐）** | 动态字库。任意中文 + 生僻字（𰻞 U+30EDE 等扩展平面）+ 彩色 Emoji（COLR/CPAL）+ 可变字重，全部支持 |
 | `2` | **GDI** | GDI `GetGlyphOutlineW` 动态字库，兼容老机器；不支持彩色 Emoji 与可变字重轴 |
-| `1` | **TXD（最老）** | 静态 `MODELS\CHINESE.TXD` + `Chinese.dat` 贴图字库（即 gamefiles/chinese_text_file 里那套），无动态能力 |
+| `1` | **TXD（最老）** | 静态 `models/CHINESE.txd` + `data/Chinese.dat` 贴图字库（位于 `gamefiles` 对应子目录），无动态能力 |
 
 也兼容旧写法的字符串值（`TXD` / `GDI`），写错或缺失时自动回退到 DirectWrite。
 
@@ -137,7 +137,7 @@ GDI 模式也能显示全部码位（超出 BMP 的走 stb_truetype 兜底链）
 TextRenderer=1
 ```
 
-需要把 `gamefiles/chinese_text_file/` 下的 `MODELS\CHINESE.TXD` 与 `Chinese.dat` 放进游戏目录对应位置（其余两种模式不需要它们）。
+中文资源已合并到 `gamefiles` 主目录下。将其中的 `models/CHINESE.txd`、`data/Chinese.dat` 和 `TEXT/chinese.gxt` 按原目录结构复制到游戏根目录。前两个文件供 TXD 静态字库使用，其余两种渲染模式不需要它们；中文 GXT 文本仍需安装。
 
 ### GXT 热重载（开发调试）
 
