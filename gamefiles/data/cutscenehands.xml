@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 
 <GTA_XML>
-
-
+	
+	
 
 	<HAND side="left" model="NON-SKINNED" red="255" green="255" blue="255" alpha="255"/>
 
@@ -48,10 +48,10 @@
 
 	<HAND side="left" model="SKINNED" red="255" green="255" blue="255" alpha="255"/>
 	<HAND side="right" model="SKINNED" red="255" green="255" blue="255" alpha="255"/>
-
-
+	
+	
 	<!-- Different hand models:  -->
-
+	
 		<!-- 	<HAND gender="male"/>		-->
 		<!-- 	<HAND gender="female"/>		-->
 		<!--	<HAND model="SKINNED-GLOVE"     -->
@@ -59,12 +59,12 @@
 
 	<!-- GLOBAL HAND COLOR TWEAK (for csplay and others)-->
 		<HAND red="220" green="225" blue="255"/>
-
+		
 	<!-- GLOBAL HAND SCALE TWEAK (for csplay and others based on that character) -->
 		<HAND scaleX="0.95" scaleY="0.95" scaleZ="0.95"/>
-
-
-
+		
+	
+	
 	<CUTSCENE name="STRIPA">
 		<CHARACTER name="stripa">
 			<HAND gender="female" red="255" green="255" blue="255">
@@ -76,15 +76,15 @@
 			<ANIMATION type="static" time="0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE NAME="int_a">
 		<CHARACTER name="sgoona">
 			<HAND>
 				<ANIMATION type="static" time="3.4"/>
 			</HAND>
 		</CHARACTER>
-		<CHARACTER name="sgoonb">
+		<CHARACTER name="sgoonb">			
 			<HAND positionX="-0.01" positionY="-0.005" positionZ="0.005">
 				<ANIMATION type="static" time="0.0"/>
 			</HAND>
@@ -109,8 +109,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE NAME="int_m">
 		<CHARACTER name="csken">
 			<HAND gender="female"/>
@@ -126,8 +126,8 @@
 			<HAND side="right" positionZ="-0.015"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+		
+	
 	<CUTSCENE name="int_d">
 		<CHARACTER name="csdeal">
 			<HAND red="195" green="195" blue="210">
@@ -164,8 +164,8 @@
 			<HAND side="right" positionZ="-0.015"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE NAME="int_b">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionX="-0.01" positionZ="-0.015"/>
@@ -181,7 +181,7 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
+	
 
 	<CUTSCENE NAME="law_1a">
 		<CHARACTER name="csplay">
@@ -197,13 +197,13 @@
 			<HAND gender="female"/>
 			<HAND scaleX="1.1" scaleY="1.1" scaleZ="1.1"/>
 			<HAND side="right" positionX="-0.02" positionZ="-0.01"/>
-			<HAND side="left" positionX="-0.02" positionZ="0.01"/>
+			<HAND side="left" positionX="-0.02" positionZ="0.01"/>	
 			<HAND red="220" green="215" blue="255">
 				<ANIMATION type="static" time="0"/>
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
+	
 
 	<CUTSCENE NAME="law_1b">
 		<CHARACTER name="cservra">
@@ -283,8 +283,8 @@
 			<HAND red="205" green="220" blue="255"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="law_2a">
 		<CHARACTER name="csken">
 			<HAND gender="female"/>
@@ -300,8 +300,8 @@
 			<HAND side="right" positionZ="-0.005"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="law_2b">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.005"/>
@@ -319,8 +319,8 @@
 			<HAND red="200" green="215" blue="220"/>-->
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="law_2c">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.01"/>
@@ -333,8 +333,8 @@
 			<HAND model="NON-SKINNED"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="law_3">
 		<CHARACTER name="csken">
 			<HAND gender="female"/>
@@ -351,7 +351,7 @@
 			<HAND side="left" positionX="-0.01" positionZ="0.01"/>
 		</CHARACTER>
 	</CUTSCENE>
-
+	
 
 	<CUTSCENE name="law_4">
 		<CHARACTER name="csplay">
@@ -374,7 +374,7 @@
 			<HAND red="170" green="205" blue="255"/>
 		</CHARACTER>
 	</CUTSCENE>
-
+	
 
 	<CUTSCENE name="col_1">
 		<CHARACTER name="cgona">
@@ -399,8 +399,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="col_2">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.015"/>
@@ -419,9 +419,9 @@
 			<HAND red="230" green="215" blue="225"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="col_3a">
 		<CHARACTER name="cscolo">
 			<HAND side="right" positionX="-0.01" positionY="0.01" positionZ="0.01"/>
@@ -434,9 +434,9 @@
 			<HAND side="right" positionZ="-0.015"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="col_4a">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionX="0.0" positionZ="-0.01"/>
@@ -448,8 +448,8 @@
 			<HAND red="205" green="220" blue="255"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="col_5a">
 		<CHARACTER name="cscolo">
 			<HAND side="right" positionX="-0.0" positionY="0.01" positionZ="0.01"/>
@@ -465,8 +465,8 @@
 			<HAND side="left" positionZ="0.02"/>-->
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="col_5b">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionY="0.015" positionZ="-0.015"/>
@@ -483,8 +483,8 @@
 			<HAND side="left" red="205" green="220" blue="255"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+			
+		
 	<CUTSCENE name="cok_1">
 		<CHARACTER name="dgoona">
 			<ANIMATION type="static" time="3.4"/>
@@ -502,8 +502,8 @@
 			<HAND side="left" positionX="0.005" positionZ="0.005"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+		
+	
 	<CUTSCENE NAME="cok_2a">
 		<CHARACTER name="csdiaz">
 			<HAND red="205" green="220" blue="255"/>
@@ -521,8 +521,8 @@
 			<ANIMATION type="static" time="3.4"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="cok_2b">
 		<CHARACTER name="csbuddy">
 			<HAND red="150" green="150" blue="150"/>
@@ -531,8 +531,8 @@
 			<HAND side="right" positionZ="-0.015"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE NAME="cok_3">
 		<CHARACTER name="csdiaz">
 			<HAND red="205" green="220" blue="255"/>
@@ -550,8 +550,8 @@
 			<ANIMATION type="static" time="0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+		
 	<CUTSCENE NAME="cok_4a">
 		<CHARACTER name="csdiaz">
 			<HAND red="205" green="220" blue="255"/>
@@ -570,8 +570,8 @@
 			<ANIMATION type="static" time="2.0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="cok_4a2">
 		<CHARACTER name="csbuddy">
 			<HAND red="150" green="150" blue="150">
@@ -579,13 +579,13 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+		
+	
+		
 	<CUTSCENE NAME="ass_1">
 		<CHARACTER name="csbuddy">
 			<HAND red="150" green="150" blue="150"/>
-			<HAND side="right">
+			<HAND side="right">	
 				<ANIMATION type="static" time="0.0"/>
 			</HAND>
 		</CHARACTER>
@@ -595,11 +595,11 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="ass_2">
-		<ANIMATION type="static" time="0.0"/>
+		<ANIMATION type="static" time="0.0"/>		
 		<CHARACTER name="csbuddy">
 			<HAND red="150" green="150" blue="150"/>
 		</CHARACTER>
@@ -611,8 +611,8 @@
 		</CHARACTER>
 	</CUTSCENE>
 
-
-
+	
+	
 	<CUTSCENE name="resc_1a">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.015"/>
@@ -624,9 +624,9 @@
 			<HAND red="200" green="190" blue="200"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="tex_1">
 		<CHARACTER name="csplay">
 			<HAND side="right">
@@ -645,8 +645,8 @@
 			<HAND side="left" red="170" green="205" blue="255"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="tex_2">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.01"/>
@@ -654,7 +654,7 @@
 		</CHARACTER>
 		<CHARACTER name="csdlove">
 			<HAND red="245" green="225" blue="250">
-				<ANIMATION type="static" time="0"/>
+				<ANIMATION type="static" time="0"/>		
 			</HAND>
 		</CHARACTER>
 		<CHARACTER name="csavery">
@@ -666,16 +666,16 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="tex_3">
 		<CHARACTER name="csavery">
 			<HAND red="170" green="205" blue="255"/>
 			<ANIMATION type="static" time="0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="bank_1">
 		<CHARACTER name="csken">
 			<HAND gender="female"/>
@@ -689,8 +689,8 @@
 			<!--<ANIMATION type="static" time="0"/>-->
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+		
 	<CUTSCENE name="bank_2a">
 		<CHARACTER name="cscamj">
 			<HAND positionY="-0.005"/>
@@ -711,9 +711,9 @@
 			<HAND side="left" positionX="-0.0" positionZ="0.01"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="bank_2b">
 		<CHARACTER name="csphil">
 			<HAND red="220" green="220" blue="255"/>
@@ -739,8 +739,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="bank_3a">
 		<CHARACTER name="csphil">
 			<HAND red="220" green="220" blue="255"/>
@@ -755,7 +755,7 @@
 			<HAND side="left">
 				<ANIMATION type="static" time="1.0"/>
 			</HAND>
-
+			
 		</CHARACTER>
 		<CHARACTER name="csken">
 			<HAND gender="female"/>
@@ -765,8 +765,8 @@
 			<HAND side="left" positionX="-0.02" positionZ="0.01"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="bank_3b">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.01"/>
@@ -779,8 +779,8 @@
 				<ANIMATION type="static" time="2.0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="bank_4">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.01"/>
@@ -804,11 +804,11 @@
 			<HAND side="right" positionZ="-0.02"/>
 			<HAND side="left" positionZ="0.02"/>
 		</CHARACTER>
-
-
+		
+		
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="phil_1">
 		<CHARACTER name="csphil">
 			<HAND red="220" green="220" blue="255"/>
@@ -820,8 +820,8 @@
 			<ANIMATION type="static" time="0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="phil_2">
 		<CHARACTER name="csphil">
 			<HAND side="right" positionZ="-0.02"/>
@@ -833,8 +833,8 @@
 			<HAND side="right" positionZ="-0.015"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="porn_1">
 		<CHARACTER name="mporna">
 			<ANIMATION type="static" time="2.0"/>
@@ -860,8 +860,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+		
+	
 	<CUTSCENE name="porn_2">
 		<CHARACTER name="csmerc">
 			<HAND scaleX="0.9" scaleY="0.9" scaleZ="0.9"/>
@@ -886,8 +886,8 @@
 			<HAND red="170" green="195" blue="255"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="porn_3">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.015"/>
@@ -911,8 +911,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+		
 	<CUTSCENE name="porn_4">
 		<CHARACTER name="cmraman">
 			<HAND red="90" green="90" blue="90">
@@ -941,16 +941,16 @@
 			<HAND side="right" positionY="0.005" positionZ="-0.005"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="GSPOT">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.015"/>
 			<ANIMATION type="static" time="3.4"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="bud_1">
 		<CHARACTER name="csbuddy">
 			<HAND side="right" positionY="0.01" positionZ="-0.005"/>
@@ -979,8 +979,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="bud_2">
 		<CHARACTER name="dgoona">
 			<HAND red="205" green="220" blue="255"/>
@@ -1005,9 +1005,9 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="bud_3">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionY="-0.005" positionZ="-0.015"/>
@@ -1029,9 +1029,9 @@
 			<ANIMATION type="static" time="2.0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="cnt_1a">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.005"/>
@@ -1047,10 +1047,10 @@
 			<HAND side="right" positionX="0.01" positionZ="0.01"/>
 			<HAND red="170" green="205" blue="255"/>
 		</CHARACTER>
-	</CUTSCENE>
-
-
-
+	</CUTSCENE>	
+		
+		
+		
 	<CUTSCENE name="cnt_1b">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionX="0.0" positionZ="0.0"/>
@@ -1068,7 +1068,7 @@
 			<HAND side="right" positionY="-0.01" positionZ="0.0">
 				<ANIMATION type="static" time="0"/>
 			</HAND>
-
+			
 		</CHARACTER>
 		<CHARACTER name="cskent">
 			<HAND gender="female" scaleX="1.0" scaleY="1.0" scaleZ="1.0"/>
@@ -1077,8 +1077,8 @@
 			<HAND side="right">
 				<ANIMATION type="static" time="0"/>
 			</HAND>
-
-
+			
+			
 			<!--<HAND side="right" positionY="0.0" positionZ="-0.0"/>
 			<HAND side="left" positionZ="0.01"/>
 			<HAND red="210" green="205" blue="220">
@@ -1086,7 +1086,7 @@
 			</HAND>-->
 		</CHARACTER>
 	</CUTSCENE>
-
+	
 
 
 	<CUTSCENE name="cnt_2">
@@ -1104,12 +1104,12 @@
 			<HAND side="right" positionZ="-0.0"/>
 			<HAND side="right">
 				<!--<ANIMATION type="static" time="0"/>-->
-			</HAND>
+			</HAND>	
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="car_1">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.015"/>
@@ -1124,9 +1124,9 @@
 			<HAND side="right" red="150" green="150" blue="150"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="ice_1">
 		<CHARACTER name="csmaude">
 			<HAND scaleX="1" scaleY="1" scaleZ="1"/>
@@ -1145,9 +1145,9 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="tax_1">
 		<CHARACTER name="cdrivra">
 			<!-- guy with red shirt-->
@@ -1165,15 +1165,15 @@
 			<HAND red="220" green="190" blue="220"/>
 			<HAND gender="female" scaleX="0.8" scaleY="0.8" scaleZ="0.8">
 				<!--<ANIMATION type="static" time="0"/>-->
-			</HAND>
+			</HAND>			
 		</CHARACTER>
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.015"/>
 			<ANIMATION type="static" time="0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="drug_1">
 		<CHARACTER name="csdwayn">
 			<!-- guy with R*N shirt -->
@@ -1191,8 +1191,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="cap_1">
 		<CHARACTER name="printrb">
 			<!-- guy with hat-->
@@ -1231,8 +1231,8 @@
 			<HAND red="170" green="205" blue="255"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="fin">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.0"/>
@@ -1255,8 +1255,8 @@
 			<ANIMATION type="static" time="0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="fin_2">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.01"/>
@@ -1296,8 +1296,8 @@
 			<HAND side="right" positionY="0.01"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="finale">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.015"/>
@@ -1319,9 +1319,9 @@
 			<HAND red="150" green="150" blue="150"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
-
+	
+	
+	
 	<CUTSCENE name="bike_1">
 		<CHARACTER name="csbigm">
 			<HAND red="170" green="195" blue="255"/>
@@ -1339,8 +1339,8 @@
 			<HAND side="left" positionX="-0.03" positionY="-0.01" positionZ="0.02"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="bike_3">
 		<CHARACTER name="csbigm">
 			<HAND red="170" green="195" blue="255"/>
@@ -1362,8 +1362,8 @@
 			<HAND side="right" positionZ="-0.015"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="bike_2">
 		<ANIMATION type="static" time="0"/>
 		<CHARACTER name="csplay">
@@ -1375,8 +1375,8 @@
 			<HAND side="left" positionX="-0.02" positionZ="0.01"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+		
+	
 	<CUTSCENE name="cub_1">
 		<CHARACTER name="cspablo">
 			<!-- guy sitting at the right end of the table -->
@@ -1395,7 +1395,7 @@
 		</CHARACTER>
 		<CHARACTER name="csplay">
 			<HAND side="right" positionY="0.015" positionZ="-0.0"/>
-
+			
 			<!--<ANIMATION type="static" time="0"/>-->
 		</CHARACTER>
 		<CHARACTER name="csumbto">
@@ -1404,8 +1404,8 @@
 			<ANIMATION type="static" time="2.0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="cub_2">
 		<CHARACTER name="cspablo">
 			<HAND red="225" green="205" blue="205"/>
@@ -1426,11 +1426,11 @@
 			<HAND side="left" positionY="-0.005" positionZ="0.005"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+		
 	<CUTSCENE name="cub_4">
 		<CHARACTER name="cspapa">
-			<ANIMATION type="static" time="0"/>
+			<ANIMATION type="static" time="0"/>			
 		</CHARACTER>
 		<CHARACTER name="cspepe">
 			<ANIMATION type="static" time="0"/>
@@ -1448,8 +1448,8 @@
 			<!--<ANIMATION type="static" time="0.7"/>-->
 		</CHARACTER>
 	</CUTSCENE>
-
-
+			
+	
 	<CUTSCENE name="cub_3">
 		<CHARACTER name="floozyc">
 			<!-- girl to the left -->
@@ -1483,12 +1483,12 @@
 			<ANIMATION type="static" time="0"/>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+		
 	<CUTSCENE name="hat_1">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionX="0.01" positionY="0.005" positionZ="-0.015"/>
-
+			
 			<ANIMATION type="static" time="2.0"/>
 		</CHARACTER>
 		<CHARACTER name="apoulet">
@@ -1502,8 +1502,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="hat_2">
 		<CHARACTER name="csplay">
 			<HAND side="right" positionZ="-0.005"/>
@@ -1543,8 +1543,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="rok_1">
 		<CHARACTER name="csjezz">
 			<HAND model="SKINNED-GLOVE"/>
@@ -1574,8 +1574,8 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="rok_2">
 		<CHARACTER name="csjezz">
 		<HAND model="SKINNED-GLOVE"/>
@@ -1601,11 +1601,11 @@
 			</HAND>
 		</CHARACTER>
 	</CUTSCENE>
-
-
+	
+	
 	<CUTSCENE name="rok_3a">
 		<CHARACTER name="csjezz">
-			<HAND model="SKINNED-GLOVE"/>
+			<HAND model="SKINNED-GLOVE"/>			
 			<ANIMATION type="static" time="0"/>
 		</CHARACTER>
 		<CHARACTER name="cskent">
