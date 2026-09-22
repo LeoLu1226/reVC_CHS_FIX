@@ -12,6 +12,7 @@
 #include "Fire.h"
 #include "Pad.h"
 #include "Particle.h"
+#include "ParticleEx.h"
 #include "PointLights.h"
 #include "Shadows.h"
 #include "Timer.h"
@@ -470,6 +471,8 @@ CExplosion::Update()
 						pos += explosion.m_vecPosition;
 						pos.z += 0.5f;
 						CParticle::AddParticle(PARTICLE_EXPLOSION_LARGE, pos, CVector(0.0f, 0.0f, 0.0f), nil, 0.0f, color, CGeneral::GetRandomNumberInRange(-3.0f, 3.0f), CGeneral::GetRandomNumberInRange(-180.0f, 180.0f));
+						if (ParticleEx::ActiveSystem == ParticleEx::XboxIII)
+							CParticle::AddParticle(PARTICLE_EXPLOSION_LARGE, pos, CVector(0.0f, 0.0f, 0.0f), nil, 5.5f, color);
 					}
 				}
 				break;

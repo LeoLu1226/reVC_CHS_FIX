@@ -16,6 +16,7 @@
 #include "Fire.h"
 #include "Explosion.h"
 #include "Particle.h"
+#include "ParticleEx.h"
 #include "ParticleObject.h"
 #include "Glass.h"
 #include "Antennas.h"
@@ -1557,7 +1558,12 @@ CAutomobile::ProcessControl(void)
 	if(m_fHealth < 250.0f && GetStatus() != STATUS_WRECKED){
 		// Car is on fire
 
-		CParticle::AddParticle(PARTICLE_CARFLAME, damagePos,
+		if (ParticleEx::UsesXboxFire()) {
+			const float elapsed = CTimer::GetTimeStepInMilliseconds();
+			if (SQR(m_vecMoveSpeed.x) + SQR(m_vecMoveSpeed.y) > 0.003f ||
+				int32(m_fFireBlowUpTimer / 100.0f) != int32((m_fFireBlowUpTimer + elapsed) / 100.0f))
+				ParticleEx::AddVehicleFire(damagePos, m_vecMoveSpeed);
+		} else CParticle::AddParticle(PARTICLE_CARFLAME, damagePos,
 			CVector(0.0f, 0.0f, CGeneral::GetRandomNumberInRange(0.01125f, 0.09f)),
 			nil, 0.63f);
 
@@ -1565,9 +1571,9 @@ CAutomobile::ProcessControl(void)
 		coors.x += CGeneral::GetRandomNumberInRange(-0.5625f, 0.5625f),
 		coors.y += CGeneral::GetRandomNumberInRange(-0.5625f, 0.5625f),
 		coors.z += CGeneral::GetRandomNumberInRange(0.5625f, 2.25f);
-		CParticle::AddParticle(PARTICLE_CARFLAME_SMOKE, coors, CVector(0.0f, 0.0f, 0.0f));
+		if (!ParticleEx::UsesXboxFire()) CParticle::AddParticle(PARTICLE_CARFLAME_SMOKE, coors, CVector(0.0f, 0.0f, 0.0f));
 
-		CParticle::AddParticle(PARTICLE_ENGINE_SMOKE2, damagePos, CVector(0.0f, 0.0f, 0.0f), nil, 0.5f);
+		if (!ParticleEx::UsesXboxFire()) CParticle::AddParticle(PARTICLE_ENGINE_SMOKE2, damagePos, CVector(0.0f, 0.0f, 0.0f), nil, 0.5f);
 
 		// Blow up car after 5 seconds
 		m_fFireBlowUpTimer += CTimer::GetTimeStepInMilliseconds();

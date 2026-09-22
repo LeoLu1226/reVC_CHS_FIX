@@ -5,6 +5,7 @@
 #include "General.h"
 #include "ParticleMgr.h"
 #include "Particle.h"
+#include "ParticleEx.h"
 #include "Camera.h"
 #include "Game.h"
 #include "DMAudio.h"
@@ -279,7 +280,7 @@ CParticleObject::AddObject(uint16 type, CVector const &pos, CVector const &targe
 			pobj->m_nSkipFrames      = 1;
 			pobj->m_nCreationChance  = 0;
 			pobj->m_vecTarget        = CVector(0.0f, 0.0f, 0.3f);
-			pobj->m_nRemoveTimer     = CTimer::GetTimeInMilliseconds() + 5000;
+			pobj->m_nRemoveTimer     = CTimer::GetTimeInMilliseconds() + (ParticleEx::UsesXboxFire() ? 15000 : 5000);
 			CAudioHydrant::Add(pobj);
 			break;
 		}
@@ -574,7 +575,8 @@ void CParticleObject::UpdateClose(uint32 framesPassed)
 					flamevel.y = vel.y;
 					flamevel.z = CGeneral::GetRandomNumberInRange(0.0125f*size, 0.1f*size);
 						
-					CParticle::AddParticle(PARTICLE_FLAME, pos, flamevel, nil, size);
+					if (ParticleEx::UsesXboxFire()) flamevel.z = 0.0f;
+					CParticle::AddParticle(PARTICLE_FLAME, pos, flamevel, nil, ParticleEx::UsesXboxFire() ? 0.0f : size);
 					
 					
 					CVector possmoke = pos;
@@ -583,7 +585,7 @@ void CParticleObject::UpdateClose(uint32 framesPassed)
 					possmoke.y += CGeneral::GetRandomNumberInRange(0.625f*-size, size*0.625f);
 					possmoke.z += CGeneral::GetRandomNumberInRange(0.625f* size, size*2.5f);
 					
-					CParticle::AddParticle(PARTICLE_CARFLAME_SMOKE, possmoke, vel);
+					if (!ParticleEx::UsesXboxFire()) CParticle::AddParticle(PARTICLE_CARFLAME_SMOKE, possmoke, vel);
             
 					break;
 				}
@@ -605,7 +607,8 @@ void CParticleObject::UpdateClose(uint32 framesPassed)
 					
 					float flamesize = 0.8f*size;
 					
-					CParticle::AddParticle(PARTICLE_FLAME, pos, flamevel, nil, flamesize);
+					if (ParticleEx::UsesXboxFire()) flamevel.z = 0.0f;
+					CParticle::AddParticle(PARTICLE_FLAME, pos, flamevel, nil, ParticleEx::UsesXboxFire() ? 0.0f : flamesize);
 					
 					
 					for ( int32 i = 0; i < 4; i++ )
@@ -616,7 +619,7 @@ void CParticleObject::UpdateClose(uint32 framesPassed)
 						smokepos.y += CGeneral::GetRandomNumberInRange(0.625f*-size, 0.625f*size);
 						smokepos.z += CGeneral::GetRandomNumberInRange(0.625f* size, 3.5f  *size);
 						
-						CParticle::AddParticle(PARTICLE_CARFLAME_SMOKE, smokepos, vel);
+						if (!ParticleEx::UsesXboxFire()) CParticle::AddParticle(PARTICLE_CARFLAME_SMOKE, smokepos, vel);
 					}
 
 					break;
@@ -1106,6 +1109,7 @@ CParticleObject::UpdateFar(void)
 
 		if ( this->m_Type == POBJECT_PED_HIT_BLOOD )
 			CAudioPedHit::Remove(this);
+		return;
 	}
 	
 	CVector2D dist = this->GetPosition() - TheCamera.GetPosition();

@@ -4,6 +4,8 @@
 
 ## Integrated features and fixes
 
+- **ParticleEx**: PC remains the default, with PS2, Xbox and Xbox+III modes. Native VC smoke, fire, explosions and droplets, supporting 32/64-bit builds. See [installation and configuration](docs/PARTICLEEX.md).
+
 - **Animated cutscene fingers**: native Xbox Hands VC integration, including models, textures, animations and XML. Missing required assets retain the original hands. See [installation and compatibility](docs/XBOX_HANDS.md).
 - **Mission-retry health**: fix health displaying 255 after retry; restore the current valid maximum and repair known legacy save health caps.
 - **Classic Axis**: centred reticle and shoulder aiming under Standard Controls. Free Cam remains independent for ordinary movement. Adapted to VC's native animations, weapons and vehicles rather than copied from III.

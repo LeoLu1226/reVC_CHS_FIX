@@ -1,6 +1,7 @@
 #include <csignal>
 #define WITHWINDOWS
 #include "common.h"
+#include "ParticleEx.h"
 #if defined DETECT_JOYSTICK_MENU && defined XINPUT
 #include <xinput.h>
 #if !defined(PSAPI_VERSION) || (PSAPI_VERSION > 1)
@@ -546,6 +547,12 @@ bool LoadINISettings()
 	ReadIniIfExists("Graphics", "VSync", &FrontEndMenuManager.m_PrefsVsyncDisp);
 	ReadIniIfExists("Graphics", "Trails", &CMBlur::BlurOn);
 #endif
+	ReadIniIfExists("ParticleEx", "DisableVanillaWaterDrop", &ParticleEx::DisableWaterDrops);
+	ReadIniIfExists("ParticleEx", "DisableVanillaBloodDrop", &ParticleEx::DisableBloodDrops);
+	ReadIniIfExists("ParticleEx", "RestoreXboxHydrantWaterSpray", &ParticleEx::RestoreHydrantSpray);
+	ReadIniIfExists("ParticleEx", "FixWaterDropsInInteriors", &ParticleEx::FixInteriorDrops);
+	ReadIniIfExists("ParticleEx", "FixFlame5Bug", &ParticleEx::FixFlame5);
+	ReadIniIfExists("ParticleEx", "System", &ParticleEx::SelectedSystem);
 	ReadIniIfExists("General", "SkinFile", FrontEndMenuManager.m_PrefsSkinFile, 256);
 	ReadIniIfExists("Controller", "Method", &FrontEndMenuManager.m_ControlMethod);
 	ReadIniIfExists("General", "Language", &FrontEndMenuManager.m_PrefsLanguage);
@@ -656,6 +663,12 @@ void SaveINISettings()
 	StoreIni("Graphics", "Trails", CMBlur::BlurOn);
 #endif
 	StoreIni("Graphics", "FrameLimiter", FrontEndMenuManager.m_PrefsFrameLimiter);
+	StoreIni("ParticleEx", "DisableVanillaWaterDrop", uint8(ParticleEx::DisableWaterDrops));
+	StoreIni("ParticleEx", "DisableVanillaBloodDrop", uint8(ParticleEx::DisableBloodDrops));
+	StoreIni("ParticleEx", "RestoreXboxHydrantWaterSpray", uint8(ParticleEx::RestoreHydrantSpray));
+	StoreIni("ParticleEx", "FixWaterDropsInInteriors", uint8(ParticleEx::FixInteriorDrops));
+	StoreIni("ParticleEx", "FixFlame5Bug", uint8(ParticleEx::FixFlame5));
+	StoreIni("ParticleEx", "System", ParticleEx::SelectedSystem);
 	StoreIni("General", "SkinFile", FrontEndMenuManager.m_PrefsSkinFile, 256);
 	StoreIni("Controller", "Method", FrontEndMenuManager.m_ControlMethod);
 	StoreIni("General", "Language", FrontEndMenuManager.m_PrefsLanguage);

@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "PointLights.h"
 #include "Particle.h"
+#include "ParticleEx.h"
 #include "Timer.h"
 #include "Vehicle.h"
 #include "Shadows.h"
@@ -128,13 +129,15 @@ CFire::ProcessFire(void)
 			firePos.z = ModelInfo.z + 0.15f;
 		}
 
-		CParticle::AddParticle(PARTICLE_CARFLAME, firePos,
+		if (ParticleEx::UsesXboxFire()) {
+			if (ParticleEx::AddFire(firePos, m_pEntity)) m_nNextTimeToAddFlames = CTimer::GetTimeInMilliseconds() + 5;
+		} else CParticle::AddParticle(PARTICLE_CARFLAME, firePos,
 			CVector(0.0f, 0.0f, CGeneral::GetRandomNumberInRange(0.0125f, 0.1f) * m_fStrength),
 				0, m_fStrength, 0, 0, 0, 0);
 
 		CGeneral::GetRandomNumber(); CGeneral::GetRandomNumber(); CGeneral::GetRandomNumber(); /* unsure why these three rands are called */
 
-		CParticle::AddParticle(PARTICLE_CARFLAME_SMOKE, firePos,
+		if (!ParticleEx::UsesXboxFire()) CParticle::AddParticle(PARTICLE_CARFLAME_SMOKE, firePos,
 			CVector(0.0f, 0.0f, 0.0f), 0, 0.0f, 0, 0, 0, 0);
 	}
 	if (CTimer::GetTimeInMilliseconds() < m_nExtinguishTime || m_bIsScriptFire) {
