@@ -9,6 +9,7 @@
 #include "CutsceneMgr.h"
 #include "World.h"
 #include "PlayerPed.h"
+#include "PlayerHealth.h"
 #include "Wanted.h"
 #include "Camera.h"
 #include "Messages.h"
@@ -358,8 +359,9 @@ CGameLogic::RestorePlayerStuffDuringResurrection(CPlayerPed *pPlayerPed, CVector
 {
 	ClearShortCut();
 	CPlayerInfo* pPlayerInfo = pPlayerPed->GetPlayerInfoForThisPlayerPed();
+	// Normalize legacy caps here too, including an already-running session.
+	pPlayerInfo->m_nMaxHealth = RestorePlayerMaxHealth(pPlayerInfo->m_nMaxHealth);
 	pPlayerPed->m_fHealth = pPlayerInfo->m_nMaxHealth;
-	//pPlayerPed->m_fHealth = 1000.0f;
 	pPlayerPed->m_fArmour = 0.0f;
 	pPlayerPed->bIsVisible = true;
 	pPlayerPed->m_bloodyFootprintCountOrDeathTime = 0;

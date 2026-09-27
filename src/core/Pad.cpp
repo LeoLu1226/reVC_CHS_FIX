@@ -13,6 +13,7 @@
 #endif
 
 #include "Pad.h"
+#include "PadInput.h"
 #include "ControllerConfig.h"
 #include "Timer.h"
 #include "Frontend.h"
@@ -51,6 +52,9 @@
 #endif
 
 CPad Pads[MAX_PADS];
+// Keep cheat input physical: keyboard/mouse bindings must never enter pad codes.
+static CControllerState CheatPadState, OldCheatPadState;
+
 #ifdef GTA_PS2
 u_long128 pad_dma_buf[scePadDmaBufferMax] __attribute__((aligned(64)));
 u_long128 pad2_dma_buf[scePadDmaBufferMax] __attribute__((aligned(64)));
@@ -744,6 +748,10 @@ void CPad::Clear(bool bResetPlayerControls)
 	OldState.Clear();
 
 	PCTempKeyState.Clear();
+	if (this == GetPad(0)) {
+		CheatPadState.Clear();
+		OldCheatPadState.Clear();
+	}
 	PCTempJoyState.Clear();
 	PCTempMouseState.Clear();
 
@@ -997,9 +1005,9 @@ CControllerState CPad::ReconcileTwoControllersInput(CControllerState const &Stat
 	{ if ( (ReconState.pos || ReconState.axis < 0) && (ReconState.neg || ReconState.axis > 0) ) { ReconState.pos = 0; ReconState.neg = 0; ReconState.axis = 0; } }
 
 	_RECONCILE_BUTTON(LeftShoulder1);
-	_RECONCILE_BUTTON(LeftShoulder2);
+	ReconState.LeftShoulder2 = Max(State1.LeftShoulder2, State2.LeftShoulder2);
 	_RECONCILE_BUTTON(RightShoulder1);
-	_RECONCILE_BUTTON(RightShoulder2);
+	ReconState.RightShoulder2 = Max(State1.RightShoulder2, State2.RightShoulder2);
 	_RECONCILE_BUTTON(Start);
 	_RECONCILE_BUTTON(Select);
 	_RECONCILE_BUTTON(Square);
@@ -1108,106 +1116,191 @@ void CPad::StartShake_Train(float fX, float fY)
 	}
 }
 
-#ifdef GTA_PS2_STUFF
 void CPad::AddToCheatString(char c)
 {
-	for ( int32 i = ARRAY_SIZE(CheatString) - 2; i >= 0; i-- )
+	for (int32 i = ARRAY_SIZE(CheatString) - 2; i >= 0; i--)
 		CheatString[i + 1] = CheatString[i];
-
 	CheatString[0] = c;
 
-#define _CHEATCMP(str)	strncmp(str, CheatString, sizeof(str)-1)
-	// "4414LDRULDRU"	-	R2 R2 L1 R2 LEFT DOWN RIGHT UP LEFT DOWN RIGHT UP
-	if ( !_CHEATCMP("URDLURDL4144") )
+	// PS2 sequences, verified against GInputVC's bundled cheat_list_ps3.html.
+	// The input buffer stores the most recent button first.
+#define _CHEATCMP(str) strncmp(str, CheatString, sizeof(str) - 1)
+	// Weapons set 1
+	if (!_CHEATCMP("URDLURDL4143"))
 		WeaponCheat1();
-
-	// "4411LDRULDRU"	-	R2 R2 L1 L1 LEFT DOWN RIGHT UP LEFT DOWN RIGHT UP
-	else if ( !_CHEATCMP("URDLURDL1144") )
-		MoneyCheat();
-
-	// "4412LDRULDRU"	-	R2 R2 L1 L2 LEFT DOWN RIGHT UP LEFT DOWN RIGHT UP
-	else if ( !_CHEATCMP("URDLURDL2144") )
-		ArmourCheat();
-
-	// "4413LDRULDRU"	-	R2 R2 L1 R1 LEFT DOWN RIGHT UP LEFT DOWN RIGHT UP
-	else if ( !_CHEATCMP("URDLURDL3144") )
+	// Weapons set 2
+	else if (!_CHEATCMP("LDDLURDL4143"))
+		WeaponCheat2();
+	// Weapons set 3
+	else if (!_CHEATCMP("DDDLURDL4143"))
+		WeaponCheat3();
+	// Health cheat
+	else if (!_CHEATCMP("URDLURDLC143"))
 		HealthCheat();
-
-	// "4414LRLRLR"		-	R2 R2 L1 R2 LEFT RIGHT LEFT RIGHT LEFT RIGHT
-	else if ( !_CHEATCMP("RLRLRL4144") )
-		WantedLevelUpCheat();
-
-	// "4414UDUDUD"		-	R2 R2 L1 R2 UP DOWN UP DOWN UP DOWN
-	else if ( !_CHEATCMP("DUDUDU4144") )
+	// Armour cheat
+	else if (!_CHEATCMP("URDLURDLX143"))
+		ArmourCheat();
+	// Remove Wanted Level
+	else if (!_CHEATCMP("DUDUDU4C33"))
 		WantedLevelDownCheat();
-
-	// "1234432T"		-	L1 L2 R1 R2 R2 R1 L2 TRIANGLE
-	else if ( !_CHEATCMP("T2344321") )
+	// Raise Wanted Level
+	else if (!_CHEATCMP("RLRLRL4C33"))
+		WantedLevelUpCheat();
+	// Sunny weather
+	else if (!_CHEATCMP("T22211X4"))
 		SunnyWeatherCheat();
-
-	// "1234432S"		-	L1 L2 R1 R2 R2 R1 L2 SQUARE
-	else if ( !_CHEATCMP("S2344321") )
+	// Extra Sunny weather
+	else if (!_CHEATCMP("D22211X4"))
+		ExtraSunnyWeatherCheat();
+	// Cloudy weather
+	else if (!_CHEATCMP("S22211X4"))
 		CloudyWeatherCheat();
-
-	// "1234432C"		-	L1 L2 R1 R2 R2 R1 L2 CIRCLE
-	else if ( !_CHEATCMP("C2344321") )
+	// Rainy weather
+	else if (!_CHEATCMP("C22211X4"))
 		RainyWeatherCheat();
-
-	// "1234432X"		-	L1 L2 R1 R2 R2 R1 L2 CROSS
-	else if ( !_CHEATCMP("X2344321") )
+	// Foggy weather
+	else if (!_CHEATCMP("X22211X4"))
 		FoggyWeatherCheat();
-
-	// "CCCCCC321TCT"	-	CIRCLE CIRCLE CIRCLE CIRCLE CIRCLE CIRCLE R1 L2 L1 TRIANGLE CIRCLE TRIANGLE
-	else if ( !_CHEATCMP("TCT123CCCCCC") )
-		VehicleCheat(MI_RHINO);
-
-	// "CCCSSSSS1TCT"	-	CIRCLE CIRCLE CIRCLE SQUARE SQUARE SQUARE SQUARE SQUARE L1 TRIANGLE CIRCLE TRIANGLE
-	else if ( !_CHEATCMP("TCT1SSSSSCCC") )
+	// Faster clock
+	else if (!_CHEATCMP("TCT1SSS1S1CC"))
 		FastWeatherCheat();
-
-	// "241324TSCT21"	-	L2 R2 L1 R1 L2 R2 TRIANGLE SQUARE CIRCLE TRIANGLE L2 L1
-	else if ( !_CHEATCMP("12TCST423142") )
+	// Explode all vehicles
+	else if (!_CHEATCMP("12TCTS421324"))
 		BlowUpCarsCheat();
-
-	// "RDLU12ULDR"		-	RIGHT DOWN LEFT UP L1 L2 UP LEFT DOWN RIGHT
-	else if ( !_CHEATCMP("RDLU21ULDR") )
-		ChangePlayerCheat();
-
-	// "DULUX3421"		-	DOWN UP LEFT UP CROSS R1 R2 L2 L1
-	else if ( !_CHEATCMP("1243XULUD") )
+	// Pedestrians fight
+	else if (!_CHEATCMP("1234XLULD"))
 		MayhemCheat();
-
-	// "DULUX3412"		-	DOWN UP LEFT UP CROSS R1 R2 L1 L2
-	else if ( !_CHEATCMP("2143XULUD") )
+	// Pedestrians attack the player
+	else if (!_CHEATCMP("2234XUUDU"))
 		EverybodyAttacksPlayerCheat();
-
-	// "43TX21UD"		-	R2 R1 TRIANGLE CROSS L2 L1 UP DOWN
-	else if ( !_CHEATCMP("DU12XT34") )
+	// All pedestrians carry weapons
+	else if (!_CHEATCMP("DUTXTX34"))
 		WeaponsForAllCheat();
-
-	// "TURDS12"		-	TRIANGLE UP RIGHT DOWN SQUARE L1 L2
-	else if ( !_CHEATCMP("21SDRUT") )
+	// Increase gameplay speed
+	else if (!_CHEATCMP("S12DRUT"))
 		FastTimeCheat();
-
-	// "TURDS34"		-	TRIANGLE UP RIGHT DOWN SQUARE R1 R2
-	else if ( !_CHEATCMP("43SDRUT") )
+	// Decrease gameplay speed
+	else if (!_CHEATCMP("34SDRUT"))
 		SlowTimeCheat();
-
-	// "11S4T1T"		-	L1 L1 SQUARE R2 TRIANGLE L1 TRIANGLE
-	else if ( !_CHEATCMP("T1T4S11") )
+	// Wheels only
+	else if (!_CHEATCMP("11S4T1T"))
 		OnlyRenderWheelsCheat();
-
-	// "R4C32D13"		-	RIGHT R2 CIRCLE R1 L2 DOWN L1 R1
-	else if ( !_CHEATCMP("31D23C4R") )
+	// Cars fly
+	else if (!_CHEATCMP("31D23C4R"))
 		ChittyChittyBangBangCheat();
-
-	// "3141L33T"		-	R1 L1 R2 L1 LEFT R1 R1 TRIANGLE
-	else if ( !_CHEATCMP("T33L1413") )
+	// Perfect handling
+	else if (!_CHEATCMP("1413L33T"))
 		StrongGripCheat();
-
+	// Show Media Attention stat
+	else if (!_CHEATCMP("XR13XL2D1C"))
+		DoShowChaseStatCheat();
+	// Vercetti's gang becomes girls with M4
+	else if (!_CHEATCMP("X113XL2C1R"))
+		DoChicksWithGunsCheat();
+	// Commit suicide
+	else if (!_CHEATCMP("1213LL3D2R"))
+		SuicideCheat();
+	// All traffic lights are green
+	else if (!_CHEATCMP("3313L22U3R"))
+		TrafficLightsCheat();
+	// Crazy traffic
+	else if (!_CHEATCMP("2413L23C4"))
+		MadCarsCheat();
+	// All cars are pink
+	else if (!_CHEATCMP("CR13XL2D1C"))
+		PinkCarsCheat();
+	// All cars are black
+	else if (!_CHEATCMP("CL13XL4U2C"))
+		BlackCarsCheat();
+	// Spawn Rhino
+	else if (!_CHEATCMP("TCT321CCC1CC"))
+		VehicleCheat(MI_RHINO);
+	// Spawn Bloodring Banger #1
+	else if (!_CHEATCMP("LL13X22C3D"))
+		VehicleCheat(MI_BLOODRA);
+	// Spawn Bloodring Banger #2
+	else if (!_CHEATCMP("2SUR1RRU"))
+		VehicleCheat(MI_BLOODRB);
+	// Spawn Romero's Hearse
+	else if (!_CHEATCMP("RL13L23D4D"))
+		VehicleCheat(MI_ROMERO);
+	// Spawn Love Fist's Limo
+	else if (!_CHEATCMP("RC13LL2U4"))
+		VehicleCheat(MI_LOVEFIST);
+	// Spawn Trashmaster
+	else if (!_CHEATCMP("RC13LL3C3C"))
+		VehicleCheat(MI_TRASH);
+	// Spawn Sabre Turbo
+	else if (!_CHEATCMP("LC13X22D2R"))
+		VehicleCheat(MI_SABRETUR);
+	// Spawn Caddy
+	else if (!_CHEATCMP("XC13X23U1C"))
+		VehicleCheat(MI_CADDY);
+	// Spawn Hotring Racer #1
+	else if (!_CHEATCMP("4CUR31RC14"))
+		VehicleCheat(MI_HOTRINA);
+	// Spawn Hotring Racer #2
+	else if (!_CHEATCMP("3SXX21R4C3"))
+		VehicleCheat(MI_HOTRINB);
+	// Change appearance
+	else if (!_CHEATCMP("RDUL21ULRR"))
+		ChangePlayerCheat();
+	// Play as Lance Vance
+	else if (!_CHEATCMP("1X13XL2C"))
+		ChangePlayerModel("igbuddy");
+	// Play as Candy Suxxx
+	else if (!_CHEATCMP("2X13RL3D4C"))
+		ChangePlayerModel("igcandy");
+	// Play as Ken Rosenberg
+	else if (!_CHEATCMP("3X13R12U1R"))
+		ChangePlayerModel("igken");
+	// Play as Hilary King
+	else if (!_CHEATCMP("4X13R14C3"))
+		ChangePlayerModel("ighlary");
+	// Play as Jezz Torent
+	else if (!_CHEATCMP("1SXL4R1423"))
+		ChangePlayerModel("igjezz");
+	// Play as Phil Cassidy
+	else if (!_CHEATCMP("CR13R14U3R"))
+		ChangePlayerModel("igphil");
+	// Play as Sonny Forelli
+	else if (!_CHEATCMP("XX13XL2C1C"))
+		ChangePlayerModel("igsonny");
+	// Play as Mercedes Cortez
+	else if (!_CHEATCMP("TCUR3R1U14"))
+		ChangePlayerModel("igmerc");
+	// Play as Dick
+	else if (!_CHEATCMP("XX13XL2D1D"))
+		ChangePlayerModel("igdick");
+	// Play as Ricardo Diaz
+	else if (!_CHEATCMP("241D4321"))
+		ChangePlayerModel("igdiaz");
+	// Cars drive on water
+	else if (!_CHEATCMP("43S23C4R"))
+		BackToTheFuture();
+	// Changes several vehicles' attributes
+	else if (!_CHEATCMP("SDUS4RTX3"))
+		SpecialCarCheats();
+	// Pedestrians get in your car
+	else if (!_CHEATCMP("3S1URC"))
+		PickUpChicksCheat();
+	// Boats fly
+	else if (!_CHEATCMP("TSUR3R1UC4"))
+		FlyingFishCheat();
+	// Women follow Tommy
+	else if (!_CHEATCMP("TCXX411XC"))
+		FannyMagnetCheat();
+	// Tommy smokes a cigarette
+	else if (!_CHEATCMP("4343CXST"))
+		CSmokeTrails::CigOn = !CSmokeTrails::CigOn;
+	// Fat Tommy
+	else if (!_CHEATCMP("RLDUX2T2"))
+		gfTommyFatness = 0.26f;
+	// Skinny Tommy
+	else if (!_CHEATCMP("DURLX2T2"))
+		gfTommyFatness = -0.3f;
 #undef _CHEATCMP
 }
-#endif
 
 int Cheat_strncmp(char* sourceStr, char* origCheatStr)
 {
@@ -2020,6 +2113,23 @@ void CPad::Update(int16 pad)
 		NewState = ReconcileTwoControllersInput(PCTempMouseState, NewState);
 	}
 
+	if (pad == 0) {
+		OldCheatPadState = CheatPadState;
+#ifdef GTA_PS2
+		CheatPadState = NewState;
+#else
+		CheatPadState = PCTempJoyState;
+#endif
+		if (CTimer::GetIsUserPaused() || CTimer::GetIsCodePaused()
+#ifdef PC_MENU
+		    || FrontEndMenuManager.m_bMenuActive
+#endif
+		) {
+			memset(CheatString, ' ', sizeof(CheatString));
+			OldCheatPadState = CheatPadState;
+		}
+	}
+
 	PCTempJoyState.Clear();
 	PCTempKeyState.Clear();
 	PCTempMouseState.Clear();
@@ -2047,51 +2157,52 @@ void CPad::Update(int16 pad)
 
 void CPad::DoCheats(void)
 {
-#ifdef DETECT_PAD_INPUT_SWITCH
-	if (IsAffectedByController)
-#endif
-		GetPad(0)->DoCheats(0);
+	GetPad(0)->DoCheats(0);
 }
 
 void CPad::DoCheats(int16 unk)
 {
-#ifdef GTA_PS2_STUFF
-	if ( GetTriangleJustDown() )
+	if (CRecordDataForGame::IsPlayingBack() || CRecordDataForChase::ShouldThisPadBeLeftAlone(0))
+		return;
+
+	if (CheatPadState.Triangle > 0 && OldCheatPadState.Triangle <= 0)
 		AddToCheatString('T');
 
-	if ( GetCircleJustDown() )
+	if (CheatPadState.Circle > 0 && OldCheatPadState.Circle <= 0)
 		AddToCheatString('C');
 
-	if ( GetCrossJustDown() )
+	if (CheatPadState.Cross > 0 && OldCheatPadState.Cross <= 0)
 		AddToCheatString('X');
 
-	if ( GetSquareJustDown() )
+	if (CheatPadState.Square > 0 && OldCheatPadState.Square <= 0)
 		AddToCheatString('S');
 
-	if ( GetDPadUpJustDown() )
+	if (CheatPadState.DPadUp > 0 && OldCheatPadState.DPadUp <= 0)
 		AddToCheatString('U');
 
-	if ( GetDPadDownJustDown() )
+	if (CheatPadState.DPadDown > 0 && OldCheatPadState.DPadDown <= 0)
 		AddToCheatString('D');
 
-	if ( GetDPadLeftJustDown() )
+	if (CheatPadState.DPadLeft > 0 && OldCheatPadState.DPadLeft <= 0)
 		AddToCheatString('L');
 
-	if ( GetDPadRightJustDown() )
+	if (CheatPadState.DPadRight > 0 && OldCheatPadState.DPadRight <= 0)
 		AddToCheatString('R');
 
-	if ( GetLeftShoulder1JustDown() )
+	if (CheatPadState.LeftShoulder1 > 0 && OldCheatPadState.LeftShoulder1 <= 0)
 		AddToCheatString('1');
 
-	if ( GetLeftShoulder2JustDown() )
+	if (CheatPadState.LeftShoulder2 > 30 && OldCheatPadState.LeftShoulder2 <= 30)
 		AddToCheatString('2');
 
-	if ( GetRightShoulder1JustDown() )
+	if (CheatPadState.RightShoulder1 > 0 && OldCheatPadState.RightShoulder1 <= 0)
 		AddToCheatString('3');
 
-	if ( GetRightShoulder2JustDown() )
+	if (CheatPadState.RightShoulder2 > 30 && OldCheatPadState.RightShoulder2 <= 30)
 		AddToCheatString('4');
-#endif
+
+	// Consume these edges even if the game processes cheats twice this frame.
+	OldCheatPadState = CheatPadState;
 }
 
 void CPad::StopPadsShaking(void)
@@ -2615,7 +2726,7 @@ int16 CPad::GetHandBrake(void)
 
 int16 CPad::GetBrake(void)
 {
-	if (IsStandardControls()) return ArePlayerControlsDisabled() ? 0 : (NewState.LeftShoulder2);
+	if (IsStandardControls()) return ArePlayerControlsDisabled() ? 0 : ScaleTriggerPressure(NewState.LeftShoulder2);
 	if ( ArePlayerControlsDisabled() )
 		return 0;
 
@@ -2785,7 +2896,7 @@ bool CPad::WeaponJustDown(void)
 
 int16 CPad::GetAccelerate(void)
 {
-	if (IsStandardControls()) return ArePlayerControlsDisabled() ? 0 : (NewState.RightShoulder2);
+	if (IsStandardControls()) return ArePlayerControlsDisabled() ? 0 : ScaleTriggerPressure(NewState.RightShoulder2);
 	if ( ArePlayerControlsDisabled() )
 		return 0;
 

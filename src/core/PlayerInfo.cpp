@@ -580,7 +580,7 @@ CPlayerInfo::LoadPlayerInfo(uint8 *buf, uint32 size)
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_bFastReload);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_bFireproof);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_nMaxHealth);
-	// Repair saves made with the former 255 default, including uint8 overflow
+	// Repair legacy 250/255 caps, including uint8 overflow
 	// after the original game's +50 maximum-health rewards. Preserve other caps.
 	uint8 &maxHealth = CWorld::Players[CWorld::PlayerInFocus].m_nMaxHealth;
 	maxHealth = RestorePlayerMaxHealth(maxHealth);

@@ -4,6 +4,8 @@
 
 ## 本次整合的功能与修复
 
+- **PS2 手柄作弊码与模拟油门**：按实际手柄按键输入，修正 LT/RT 压力被变成全量的问题；Standard Controls 下油门和刹车随扳机行程变化。补齐 VC 序列，修复旧存档 250 复活血量并保留正常血量奖励。按键表与验证说明见 [手柄说明](docs/PS2_CONTROLLER.md)。
+
 - **ParticleEx 粒子系统**：保留 PC 默认，提供 PS2、Xbox 和 Xbox+III；原生移植 VC 的烟雾、火焰、爆炸与水滴效果，支持 32／64 位。见 [安装与配置](docs/PARTICLEEX.md)。
 
 - **过场动画可动手指**：原生移植 Xbox Hands VC，包含配套模型、纹理、动画和 XML；必要资源缺失时保留原手部。见 [安装与兼容说明](docs/XBOX_HANDS.md)。
