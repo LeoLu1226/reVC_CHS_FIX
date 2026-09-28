@@ -6,6 +6,8 @@
 #define HUD_TEXT_SCALE_X 0.7f
 #define HUD_TEXT_SCALE_Y 1.25f
 
+extern bool gDontShrinkRadardisc;
+
 enum eItems
 {
 	ITEM_NONE = -1,

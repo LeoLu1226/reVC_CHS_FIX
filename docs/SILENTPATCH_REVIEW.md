@@ -28,11 +28,24 @@ was already present. Heat-haze scaling is corrected in the PC, Xbox, Xbox 2,
 and PS2 particle paths.
 
 Backface culling now covers peds, detached vehicle parts, and the 317 model
-names from SilentPatchVC.ini. The model list is shipped as
-`gamefiles/data/DRAWBACKFACES.DAT`; prefix a model name or ID with `-` to force
-culling on for a modded model. The setting is applied both to ordinary entity
-rendering and to immediate and delayed building draws in the new renderer.
+names from SilentPatchVC.ini. The default list is embedded in the executable,
+with `mall_hardware` additionally enabled for the hardware store sign's rear
+face. This model needs in-game checking because upstream removed its broader
+exception after other geometry showed regressions.
+`gamefiles/data/DRAWBACKFACES.DAT` remains an optional extension; prefix a model
+name or ID with `-` to force culling on for a modded model. The setting applies
+to ordinary entity rendering and to immediate and delayed building draws in
+the new renderer.
 
 The model list is from SilentPatch and uses the license above. Release builds
-must include `gamefiles/data/DRAWBACKFACES.DAT` alongside the executable's
-`data` directory.
+work with the embedded list even when that data file is absent.
+
+## Follow-up: items 89–90
+
+Item 89 now shrinks the radar disc edge by two design pixels on each side,
+including its shadow, while retaining the existing screen scaling. Set
+`[Display] DontShrinkRadardisc=1` in `reVC.ini` for custom disc textures that
+need the old size. Item 90 scales script sprites and solid rectangles in both
+the pre-fade and post-fade HUD paths using the same 640x448 coordinate system
+as script text. These visual changes pass a Release build but still need
+in-game verification at multiple aspect ratios.

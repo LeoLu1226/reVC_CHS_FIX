@@ -1006,7 +1006,9 @@ CMenuManager::DrawStandardMenus(bool activeScreen)
 		CFont::SetWrapx(MENU_X_RIGHT_ALIGNED(MENULABEL_X_MARGIN));
 		CFont::SetRightJustifyWrap(MENU_X_LEFT_ALIGNED(MENULABEL_X_MARGIN));
 		CFont::SetFontStyle(FONT_LOCALE(FONT_STANDARD));
-		CFont::SetScale(MENU_X(BIGTEXT2_X_SCALE), MENU_Y(BIGTEXT2_Y_SCALE));
+		// The question above Yes/No choices needs a smaller Chinese size than menu headings.
+		const float labelScale = CFont::IsChinese() ? 0.85f : 1.0f;
+		CFont::SetScale(MENU_X(BIGTEXT2_X_SCALE * labelScale), MENU_Y(BIGTEXT2_Y_SCALE * labelScale));
 		CFont::SetRightJustifyOff();
 		CFont::SetDropShadowPosition(2);
 		CFont::SetDropColor(CRGBA(0, 0, 0, FadeIn(255)));
@@ -5962,7 +5964,9 @@ CMenuManager::PrintMap(void)
 		CFont::PrintString(MENU_X_LEFT_ALIGNED(320.0f), MENU_Y(102.0f), TheText.Get("FE_MLG"));
 		CFont::SetRightJustifyOff();
 		CFont::SetFontStyle(FONT_LOCALE(FONT_STANDARD));
-		if (m_PrefsLanguage == LANGUAGE_AMERICAN)
+		if (m_PrefsLanguage == LANGUAGE_CHINESE)
+			CFont::SetScale(SCREEN_SCALE_X(0.75f), SCREEN_SCALE_Y(0.75f));
+		else if (m_PrefsLanguage == LANGUAGE_AMERICAN)
 			CFont::SetScale(SCREEN_SCALE_X(0.55f), SCREEN_SCALE_Y(0.55f));
 		else
 			CFont::SetScale(SCREEN_SCALE_X(0.45f), SCREEN_SCALE_Y(0.55f));
@@ -5970,7 +5974,7 @@ CMenuManager::PrintMap(void)
 		CFont::SetColor(CRGBA(225, 225, 225, FadeIn(255)));
 		CFont::SetDropShadowPosition(0);
 
-		int y = MENU_Y(127.0f);
+		int y = MENU_Y(124.0f);
 		int x = MENU_X_LEFT_ALIGNED(160.0f);
 
 		for (int16 i = 0; i < CRadar::MapLegendCounter; i++) {
@@ -5978,7 +5982,7 @@ CMenuManager::PrintMap(void)
 
 			if (i == secondColumnStart) {
 				x = MENU_X_LEFT_ALIGNED(350.0f);
-				y = MENU_Y(127.0f);
+				y = MENU_Y(124.0f);
 			} else {
 				y += MENU_Y(19.0f);
 			}

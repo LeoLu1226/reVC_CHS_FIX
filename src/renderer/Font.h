@@ -187,7 +187,7 @@ public:
 	static float GetCharacterWidth(wchar c);
 	static float GetCharacterSize(wchar c);
 	static float GetCharacterSizeNormal(wchar arg_char);
-	static float GetCharacterSize_Chs(wchar arg_char, uint16 nFontStyle, bool bBaseCharset, bool bProp, float fScaleX, float fScaleY);
+	static float GetCharacterSize_Chs(wchar arg_char, uint16 nFontStyle, bool bBaseCharset, bool bProp, float fScaleX, float fScaleY, bool slanted);
 	static float GetCharacterSizeDrawing(wchar arg_char);
 	static float GetStringWidth(wchar *s, bool spaces = false);
 	static float GetStringWidth_Chs(wchar *s, bool spaces = false);

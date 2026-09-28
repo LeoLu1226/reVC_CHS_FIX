@@ -61,6 +61,8 @@ bool16 CFont::NewLine;
 CSprite2d CFont::Sprite[MAX_FONTS];
 
 static CSprite2d Sprite_C[2]; // 中文
+static const float CHS_DISPLAY_SCALE = 1.0f;
+static const float CHS_SLANTED_DISPLAY_SCALE = 1.35f;
 
 
 
@@ -678,7 +680,7 @@ CFont::PrintCHSChar(float arg_x, float arg_y, uint32 arg_char)
 	// 一个渲染批次项：c 是码点（BMP 内 0-0xFFFF 直接画，补充平面是代理对合并后的 32 位码点）
 	CharPos pos = GetCharPos(arg_char, RenderState.style == FONT_BANK);
 	// Atlas cells are square: screen-space X and Y must use the same scale.
-	const float displayScale = 1.10f;
+	const float displayScale = RenderState.slant != 0.0f ? CHS_SLANTED_DISPLAY_SCALE : CHS_DISPLAY_SCALE;
 	const float charSize = RenderState.scaleY * 16.0f * displayScale;
 	const float nativeHeight = RenderState.style == FONT_HEADING ? 16.0f : 20.0f;
 	const float yOffset = RenderState.scaleY * (nativeHeight - 16.0f * displayScale) * 0.5f;
@@ -1206,7 +1208,8 @@ void CFont::PrintString(float x, float y, uint32 a, wchar *start, wchar *end, fl
 
 void CFont::PrintStringFromBottom(float x, float y, wchar *str)
 {
-	y -= (32.0f * Details.scaleY / 2.0f + 2.0f * Details.scaleY) * GetNumberLines(x, y, str);
+	y -= (32.0f * Details.scaleY / 2.0f + 2.0f * Details.scaleY) *
+		(IsChinese() ? GetNumberLines_Chs(x, y, str) : GetNumberLines(x, y, str));
 	if(Details.slant != 0.0f) y -= ((Details.slantRefX - x) * Details.slant + Details.slantRefY);
 
 	PrintString(x, y, str);
@@ -1215,13 +1218,13 @@ void CFont::PrintStringFromBottom(float x, float y, wchar *str)
 const short CFont::iMaxCharWidth = 28;
 const float CFont::fMaxCharWidth = CFont::iMaxCharWidth;
 
-float CFont::GetCharacterSize_Chs(wchar arg_char, uint16 nFontStyle, bool FontHalfTexture, bool bProp, float fScaleX, float fScaleY)
+float CFont::GetCharacterSize_Chs(wchar arg_char, uint16 nFontStyle, bool FontHalfTexture, bool bProp, float fScaleX, float fScaleY, bool slanted)
 {
 	float charWidth;
 
 	if(arg_char >= 0x80) {
 		// Preserve the original 29/32 advance relative to the square glyph.
-		return 14.5f * 1.10f * fScaleY;
+		return 14.5f * (slanted ? CHS_SLANTED_DISPLAY_SCALE : CHS_DISPLAY_SCALE) * fScaleY;
 	} else {
 
 		arg_char -= 0x20;
@@ -1248,12 +1251,12 @@ float CFont::GetCharacterSize_Chs(wchar arg_char, uint16 nFontStyle, bool FontHa
 
 float CFont::GetCharacterSizeNormal(wchar arg_char)
 {
-	return GetCharacterSize_Chs(arg_char, Details.style, Details.bFontHalfTexture, Details.proportional, Details.scaleX, Details.scaleY);
+	return GetCharacterSize_Chs(arg_char, Details.style, Details.bFontHalfTexture, Details.proportional, Details.scaleX, Details.scaleY, Details.slant != 0.0f);
 }
 
 float CFont::GetCharacterSizeDrawing(wchar arg_char)
 {
-	return GetCharacterSize_Chs(arg_char, RenderState.style, RenderState.bFontHalfTexture, RenderState.proportional, RenderState.scaleX, RenderState.scaleY);
+	return GetCharacterSize_Chs(arg_char, RenderState.style, RenderState.bFontHalfTexture, RenderState.proportional, RenderState.scaleX, RenderState.scaleY, RenderState.slant != 0.0f);
 }
 
 void CFont::PrintString_Chs(float arg_x, float arg_y, wchar *arg_text)
@@ -1495,8 +1498,8 @@ int CFont::GetNumberLines_Chs(float xstart, float ystart, wchar *s)
 {
 	int result = 0;
 	float xBound;
-	float yBound = ystart;
 	float strWidth, widthLimit;
+	bool emptyLine = true;
 
 	if(Details.centre || Details.rightJustify) {
 		xBound = 0.0f;
@@ -1509,13 +1512,16 @@ int CFont::GetNumberLines_Chs(float xstart, float ystart, wchar *s)
 
 		if(Details.centre) {
 			widthLimit = Details.centreSize;
+		} else if(Details.rightJustify) {
+			widthLimit = xstart - Details.rightJustifyWrap;
 		} else {
 			widthLimit = Details.wrapX;
 		}
 
-		if((xBound + strWidth) <= widthLimit) {
+		if((xBound + strWidth) <= widthLimit || emptyLine) {
 			xBound += strWidth;
 			s = GetNextSpace_Chs(s);
+			emptyLine = false;
 
 			if(*s == ' ') {
 				xBound += GetCharacterSizeNormal(' ');
@@ -1531,7 +1537,7 @@ int CFont::GetNumberLines_Chs(float xstart, float ystart, wchar *s)
 			}
 
 			++result;
-			yBound += Details.scaleY * 18.0f;
+			emptyLine = true;
 		}
 	}
 
@@ -1633,25 +1639,22 @@ int CFont::GetNumberLines(float xstart, float ystart, wchar *s)
 void CFont::GetTextRect_Chs(CRect *rect, float xstart, float ystart, wchar *s)
 {
 	short numLines = GetNumberLines_Chs(xstart, ystart, s);
+	const float paddingX = SCREEN_SCALE_X(4.0f);
+	const float paddingY = SCREEN_SCALE_Y(2.0f);
 
 	if(Details.centre) {
-		if(Details.backgroundOnlyText) {
-			rect->left = xstart - SCREEN_SCALE_X(4.0f);
-			rect->right = xstart + SCREEN_SCALE_X(4.0f);
-			rect->bottom = (18.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(2.0f);
-			rect->top = ystart - SCREEN_SCALE_Y(2.0f);
-		} else {
-			rect->left = xstart - (Details.centreSize * 0.5f) - SCREEN_SCALE_X(4.0f);
-			rect->right = xstart + (Details.centreSize * 0.5f) + SCREEN_SCALE_X(4.0f);
-			rect->bottom = ystart + (18.0f * Details.scaleY * numLines) + SCREEN_SCALE_Y(2.0f);
-			rect->top = ystart - SCREEN_SCALE_Y(2.0f);
-		}
+		rect->left = xstart - Details.centreSize * 0.5f - paddingX;
+		rect->right = xstart + Details.centreSize * 0.5f + paddingX;
+	} else if(Details.rightJustify) {
+		rect->left = Details.rightJustifyWrap - paddingX;
+		rect->right = xstart + paddingX;
 	} else {
-		rect->left = xstart - SCREEN_SCALE_X(4.0f);
-		rect->right = Details.wrapX;
-		rect->bottom = ystart;
-		rect->top = (18.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(4.0f);
+		rect->left = xstart - paddingX;
+		rect->right = Details.wrapX + paddingX;
 	}
+
+	rect->top = ystart - paddingY;
+	rect->bottom = ystart + Details.scaleY * 18.0f * numLines + paddingY;
 }
 
 void CFont::GetTextRect(CRect *rect, float xstart, float ystart, wchar *s)

@@ -559,6 +559,7 @@ bool LoadINISettings()
 	ReadIniIfExists("Display", "ShowHud", &FrontEndMenuManager.m_PrefsShowHud);
 	ReadIniIfExists("Display", "RadarMode", &FrontEndMenuManager.m_PrefsRadarMode);
 	ReadIniIfExists("Display", "ShowLegends", &FrontEndMenuManager.m_PrefsShowLegends);
+	ReadIniIfExists("Display", "DontShrinkRadardisc", &gDontShrinkRadardisc);
 
 #ifdef EXTENDED_COLOURFILTER
 	ReadIniIfExists("CustomPipesValues", "PostFXIntensity", &CPostFX::Intensity);
@@ -675,6 +676,7 @@ void SaveINISettings()
 	StoreIni("Display", "ShowHud", FrontEndMenuManager.m_PrefsShowHud);
 	StoreIni("Display", "RadarMode", FrontEndMenuManager.m_PrefsRadarMode);
 	StoreIni("Display", "ShowLegends", FrontEndMenuManager.m_PrefsShowLegends);
+	StoreIni("Display", "DontShrinkRadardisc", gDontShrinkRadardisc);
 
 #ifdef EXTENDED_COLOURFILTER
 	StoreIni("CustomPipesValues", "PostFXIntensity", CPostFX::Intensity);

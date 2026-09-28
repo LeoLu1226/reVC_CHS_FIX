@@ -48,6 +48,17 @@ DrawScriptSprite(CSprite2d &sprite, const CRect &rect, const CRGBA &color)
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, oldFilter);
 }
 
+static CRect
+ScaleScriptRectangle(const CRect &rect)
+{
+	// Script rectangles use the same 640x448 coordinates as script text.
+	// Their vertical endpoints are stored in Rockstar's reversed order.
+	return CRect(SCALE_AND_CENTER_X(rect.left), SCREEN_SCALE_Y(rect.bottom),
+		SCALE_AND_CENTER_X(rect.right), SCREEN_SCALE_Y(rect.top));
+}
+
+bool gDontShrinkRadardisc = false;
+
 #ifdef FIX_BUGS
 #define FRAMECOUNTER CTimer::GetLogicalFrameCounter()
 #else
@@ -1128,7 +1139,8 @@ void CHud::Draw()
 				rect.Translate(SCREEN_SCALE_X_FIX(RADAR_LEFT), SCREEN_SCALE_FROM_BOTTOM(RADAR_BOTTOM + RADAR_HEIGHT));
 
 #ifdef FIX_BUGS
-				rect.Grow(SCREEN_SCALE_X(6.0f), SCREEN_SCALE_X(6.0f), SCREEN_SCALE_Y(6.0f), SCREEN_SCALE_Y(6.0f));
+				const float discGrow = gDontShrinkRadardisc ? 6.0f : 4.0f;
+				rect.Grow(SCREEN_SCALE_X(discGrow), SCREEN_SCALE_X(discGrow), SCREEN_SCALE_Y(discGrow), SCREEN_SCALE_Y(discGrow));
 #else
 				rect.Grow(6.0f);
 #endif
@@ -1202,20 +1214,12 @@ void CHud::Draw()
 			// Yeah, top and bottom changed place. R* vision
 			if (IntroRect.m_bIsUsed && IntroRect.m_bBeforeFade) {
 				if (IntroRect.m_nTextureId >= 0) {
-					CRect rect (
-						IntroRect.m_sRect.left,
-						IntroRect.m_sRect.bottom,
-						IntroRect.m_sRect.right,
-						IntroRect.m_sRect.top );
+					CRect rect = ScaleScriptRectangle(IntroRect.m_sRect);
 
 					DrawScriptSprite(CTheScripts::ScriptSprites[IntroRect.m_nTextureId], rect, IntroRect.m_sColor);
 				}
 				else {
-					CRect rect (
-						IntroRect.m_sRect.left,
-						IntroRect.m_sRect.bottom,
-						IntroRect.m_sRect.right,
-						IntroRect.m_sRect.top );
+					CRect rect = ScaleScriptRectangle(IntroRect.m_sRect);
 
 					CSprite2d::DrawRect(rect, IntroRect.m_sColor);
 				}
@@ -1550,11 +1554,9 @@ void CHud::DrawAfterFade()
 
 			// Yeah, top and bottom changed place. R* vision
 			if (rectangle.m_nTextureId >= 0) {
-				DrawScriptSprite(CTheScripts::ScriptSprites[rectangle.m_nTextureId], CRect(rectangle.m_sRect.left, rectangle.m_sRect.bottom,
-					rectangle.m_sRect.right, rectangle.m_sRect.top), rectangle.m_sColor);
+				DrawScriptSprite(CTheScripts::ScriptSprites[rectangle.m_nTextureId], ScaleScriptRectangle(rectangle.m_sRect), rectangle.m_sColor);
 			} else {
-				CSprite2d::DrawRect(CRect(rectangle.m_sRect.left, rectangle.m_sRect.bottom,
-					rectangle.m_sRect.right, rectangle.m_sRect.top), rectangle.m_sColor);
+				CSprite2d::DrawRect(ScaleScriptRectangle(rectangle.m_sRect), rectangle.m_sColor);
 			}
 		}
 	}
@@ -1665,7 +1667,10 @@ void CHud::DrawAfterFade()
 			CFont::SetRightJustifyWrap(SCALE_AND_CENTER_X(0.0f));
 			CFont::SetRightJustifyOn();
 			CFont::SetFontStyle(FONT_BANK);
-			CFont::SetScale(FrontEndMenuManager.m_PrefsLanguage == CMenuManager::LANGUAGE_AMERICAN ? SCREEN_SCALE_X(1.7f) : SCREEN_SCALE_X(1.5f), SCREEN_SCALE_Y(1.8f));
+			const float titleScale = CFont::IsChinese() ? 1.35f : 1.0f;
+			const float titleScaleX = CFont::IsChinese() ? 1.7f * titleScale :
+				(FrontEndMenuManager.m_PrefsLanguage == CMenuManager::LANGUAGE_AMERICAN ? 1.7f : 1.5f);
+			CFont::SetScale(SCREEN_SCALE_X(titleScaleX), SCREEN_SCALE_Y(1.8f * titleScale));
 
 			if (BigMessageX[1] >= SCREEN_SCALE_FROM_RIGHT(20.0f)) {
 				BigMessageInUse[1] += CTimer::GetTimeStep();

@@ -33,6 +33,8 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "DrawBackfacesList.inc"
+
 // -1 forces culling on, +1 forces it off, 0 keeps the entity default.
 static int
 BackfaceCullingOverride(int modelIndex)
@@ -42,6 +44,14 @@ BackfaceCullingOverride(int modelIndex)
 	static std::unordered_set<int> disabled;
 	if (!loaded) {
 		loaded = true;
+		// Users often install only the new EXE, without the optional data file.
+		for (const char *name : kDefaultBackfaceModels) {
+			int id = -1;
+			CModelInfo::GetModelInfo(name, &id);
+			if (id >= 0 && id < MODELINFOSIZE)
+				enabled.insert(id);
+		}
+		// The optional file can add models or override a built-in entry with '-'.
 		int file = CFileMgr::OpenFile("DATA\\DRAWBACKFACES.DAT", "r");
 		if (file) {
 			char line[128];
