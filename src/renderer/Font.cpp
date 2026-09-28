@@ -666,74 +666,29 @@ CFont::PrintCharDispatcher(float arg_x, float arg_y, uint32 arg_char)
 void
 CFont::PrintCHSChar(float arg_x, float arg_y, uint32 arg_char)
 {
-	
-
 	static const float rRowsCount = 1.0f / 64.0f;
 	static const float rColumnsCount = 1.0f / 64.0f;
 	static const float ufix = 0.001f / 4.0f;
-	// static const float vfix = 0.0021f / 4.0f;
 	static const float vfix = 0.001f / 4.0f;
-	static const float vfix1_slant = 0.00055f / 4.0f;
-	// static const float vfix2_slant = 0.01f / 4.0f;
-	static const float vfix2_slant = 0.007f / 4.0f;
-	static const float vfix3_slant = 0.009f / 4.0f;
-
-	CRect rect;
-
-	float yOffset;
-
-	float u1, v1, u2, v2, u3, v3, u4, v4;
-
-	CharPos pos;
 
 	// if(arg_x >= rw::UserDataGlobals || arg_x <= 0.0f || arg_y <= 0.0f || arg_y >= SCREEN_HEIGHT) { return; }
 	if(arg_x <= 0.0f || arg_x > SCREEN_WIDTH || arg_y <= 0.0f || arg_y > SCREEN_HEIGHT) // BUG: game uses SCREENW again
 		return;
 
-	int zzzz = RsGlobal.width;
-
 	// 一个渲染批次项：c 是码点（BMP 内 0-0xFFFF 直接画，补充平面是代理对合并后的 32 位码点）
+	CharPos pos = GetCharPos(arg_char, RenderState.style == FONT_BANK);
+	// Atlas cells are square: screen-space X and Y must use the same scale.
+	const float displayScale = 1.10f;
+	const float charSize = RenderState.scaleY * 16.0f * displayScale;
+	const float nativeHeight = RenderState.style == FONT_HEADING ? 16.0f : 20.0f;
+	const float yOffset = RenderState.scaleY * (nativeHeight - 16.0f * displayScale) * 0.5f;
+	CRect rect(arg_x, arg_y + yOffset, arg_x + charSize, arg_y + yOffset + charSize);
 
-	pos = GetCharPos(arg_char, RenderState.style == 0);
-
-	yOffset = RenderState.scaleY * 2.0f;
-
-	if(RenderState.slant == 0.0f) {
-		rect.right = arg_x;
-		rect.top = arg_y + yOffset;
-		rect.left = RenderState.scaleX * 32.0f + arg_x;
-		rect.bottom = RenderState.scaleY * 16.0f + arg_y + yOffset;
-
-		u1 = pos.columnIndex * rColumnsCount;
-		v1 = pos.rowIndex * rRowsCount;
-
-		u2 = (pos.columnIndex + 1) * rColumnsCount - ufix;
-		v2 = v1;
-
-		u3 = u1;
-		v3 = (pos.rowIndex + 1) * rRowsCount - vfix;
-
-		u4 = u2;
-		v4 = v3;
-	} else {
-		rect.right = arg_x;
-		rect.top = arg_y + 0.015f + yOffset;
-		rect.left = RenderState.scaleX * 32.0f + arg_x;
-		rect.bottom = RenderState.scaleY * 16.0f + arg_y + yOffset;
-
-		u1 = pos.columnIndex * rColumnsCount;
-		v1 = pos.rowIndex * rRowsCount + vfix1_slant;
-		u2 = (pos.columnIndex + 1) * rColumnsCount - ufix;
-		v2 = pos.rowIndex * rRowsCount + vfix + vfix2_slant;
-		u3 = pos.columnIndex * rColumnsCount;
-		v3 = (pos.rowIndex + 1) * rRowsCount - vfix3_slant;
-		u4 = (pos.columnIndex + 1) * rColumnsCount - ufix;
-		v4 = (pos.rowIndex + 1) * rRowsCount + vfix2_slant - vfix;
-	}
-
-	// CSprite2d::fpAddToBuffer.fun(rect, RenderState->Color, u1, v1, u2, v2, u3, v3, u4, v4);
-	CSprite2d::AddToBuffer(rect, RenderState.color, u2, v1, u1, v2, u4, v3, u3, v4);
-	// CSprite2d::AddToBuffer(rect, RenderState.color, 0, 0, 1, 0, 0, 1, 1, 1);
+	const float u1 = pos.columnIndex * rColumnsCount;
+	const float v1 = pos.rowIndex * rRowsCount;
+	const float u2 = (pos.columnIndex + 1) * rColumnsCount - ufix;
+	const float v2 = (pos.rowIndex + 1) * rRowsCount - vfix;
+	CSprite2d::AddToBuffer(rect, RenderState.color, u1, v1, u2, v1, u1, v2, u2, v2);
 }
 void
 CFont::PrintChar(float x, float y, wchar c)
@@ -1260,12 +1215,13 @@ void CFont::PrintStringFromBottom(float x, float y, wchar *str)
 const short CFont::iMaxCharWidth = 28;
 const float CFont::fMaxCharWidth = CFont::iMaxCharWidth;
 
-float CFont::GetCharacterSize_Chs(wchar arg_char, uint16 nFontStyle, bool FontHalfTexture, bool bProp, float fScaleX)
+float CFont::GetCharacterSize_Chs(wchar arg_char, uint16 nFontStyle, bool FontHalfTexture, bool bProp, float fScaleX, float fScaleY)
 {
 	float charWidth;
 
 	if(arg_char >= 0x80) {
-		charWidth = iMaxCharWidth + 1;
+		// Preserve the original 29/32 advance relative to the square glyph.
+		return 14.5f * 1.10f * fScaleY;
 	} else {
 
 		arg_char -= 0x20;
@@ -1292,12 +1248,12 @@ float CFont::GetCharacterSize_Chs(wchar arg_char, uint16 nFontStyle, bool FontHa
 
 float CFont::GetCharacterSizeNormal(wchar arg_char)
 {
-	return GetCharacterSize_Chs(arg_char, Details.style, Details.bFontHalfTexture, Details.proportional, Details.scaleX);
+	return GetCharacterSize_Chs(arg_char, Details.style, Details.bFontHalfTexture, Details.proportional, Details.scaleX, Details.scaleY);
 }
 
 float CFont::GetCharacterSizeDrawing(wchar arg_char)
 {
-	return GetCharacterSize_Chs(arg_char, RenderState.style, RenderState.bFontHalfTexture, RenderState.proportional, RenderState.scaleX);
+	return GetCharacterSize_Chs(arg_char, RenderState.style, RenderState.bFontHalfTexture, RenderState.proportional, RenderState.scaleX, RenderState.scaleY);
 }
 
 void CFont::PrintString_Chs(float arg_x, float arg_y, wchar *arg_text)
