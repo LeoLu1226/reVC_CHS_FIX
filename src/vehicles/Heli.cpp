@@ -593,7 +593,7 @@ CHeli::PreRenderAlways(void)
 			80*m_fSearchLightIntensity, 80*m_fSearchLightIntensity, 80*m_fSearchLightIntensity, 80*m_fSearchLightIntensity,
 			50.0f, true, 1.0f, nil, false);
 
-		CVector front = GetMatrix() * CVector(0.0f, 7.0f, 0.0f);
+		CVector front = GetMatrix() * CVector(0.0f, 3.0f, -1.0f);
 		CVector toPlayer = FindPlayerCoors() - front;
 		toPlayer.Normalise();
 		float intensity = m_fSearchLightIntensity*sq(CTimeCycle::GetSpriteBrightness());
@@ -607,7 +607,7 @@ CHeli::PreRenderAlways(void)
 				CCoronas::FLARE_HEADLIGHTS, CCoronas::REFLECTION_OFF, CCoronas::LOSCHECK_OFF, CCoronas::STREAK_OFF, 0.0f);
 	}
 
-	CVector back = GetMatrix() * CVector(0.0f, -9.0f, 0.0f);
+	CVector back = GetMatrix() * CVector(0.0f, -7.5f, 2.5f);
 	if(CTimer::GetTimeInMilliseconds() & 0x100)
 		CCoronas::RegisterCorona((uintptr)this + 2, 255, 0, 0, 255,
 			back, 1.0f, 60.0f, CCoronas::TYPE_STAR,

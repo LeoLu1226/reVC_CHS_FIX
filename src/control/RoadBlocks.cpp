@@ -289,6 +289,10 @@ CRoadBlocks::CreateRoadBlockBetween2Points(CVector point1, CVector point2)
 		CWorld::FindObjectsKindaColliding(tmp.GetPosition(), pMI->GetColModel()->boundingSphere.radius, 0, &colliding, 2, nil, false, true, true, false, false);
 		if (colliding == 0) {
 			CObject* pObject = new CObject(MI_ROADWORKBARRIER1, true);
+#ifdef FIX_BUGS
+			if (pObject == nil)
+				return;
+#endif
 			pObject->GetMatrix() = tmp;
 			pObject->ObjectCreatedBy = TEMP_OBJECT;
 			pObject->m_nEndOfLifeTime = CTimer::GetTimeInMilliseconds() + 600000;

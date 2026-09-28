@@ -5,6 +5,7 @@
 
 #include "Bike.h"
 #include "CarCtrl.h"
+#include "ClassicAxis.h"
 #include "Cranes.h"
 #include "Credits.h"
 #include "CutsceneMgr.h"
@@ -1002,7 +1003,9 @@ int8 CRunningScript::ProcessCommands1100To1199(int32 command)
 		// PC shit
 		static int nCounter = 0;
 		nCounter = Max(0, nCounter - 1);
-		if (!pPed->GetWeapon()->IsTypeMelee() && !bTargetting) {
+		bool bUsingAimingCamera = CClassicAxis::Enabled() ? CClassicAxis::Aiming(pPed) :
+			(CCamera::m_bUseMouse3rdPerson || TheCamera.Using1stPersonWeaponMode());
+		if (!pPed->GetWeapon()->IsTypeMelee() && !bTargetting && bUsingAimingCamera) {
 			if ((pTestedPed->GetPosition() - TheCamera.GetPosition()).Magnitude() < 10.0f) {
 				CVector vTestedPos(pTestedPed->GetPosition().x, pTestedPed->GetPosition().y, pTestedPed->GetPosition().z + 0.4);
 				CVector vScreenPos;

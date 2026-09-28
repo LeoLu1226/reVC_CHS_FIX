@@ -1128,6 +1128,12 @@ CVehicleModelInfo::SetEnvironmentMap(void)
 	}
 
 	RpClumpForAllAtomics(m_clump, SetEnvironmentMapCB, nil);
+	for(i = 0; i < m_numComps; i++){
+		SetEnvironmentMapCB(m_comps[i], nil);
+#ifdef EXTENDED_PIPELINES
+		CustomPipes::AttachVehiclePipe(m_comps[i]);
+#endif
+	}
 	if(m_wheelId != -1){
 		wheelmi = (CSimpleModelInfo*)CModelInfo::GetModelInfo(m_wheelId);
 		for(i = 0; i < wheelmi->m_numAtomics; i++)

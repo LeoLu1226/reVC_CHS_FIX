@@ -2088,26 +2088,26 @@ CAutomobile::PreRender(void)
 
 			switch(GetModelIndex()){
 			case MI_FIRETRUCK:
-				pos1 = CVector(1.1f,  1.7f, 2.0f);
-				pos2 = CVector(-1.1f, 1.7f, 2.0f);
+				pos1 = CVector(0.95f,  3.2f, 1.4f);
+				pos2 = CVector(-0.95f, 3.2f, 1.4f);
 				r1 = 255; g1 = 0; b1 = 0;
 				r2 = 255; g2 = 255; b2 = 0;
 				break;
 			case MI_AMBULAN:
-				pos1 = CVector(1.1f,  0.9f, 1.6f);
-				pos2 = CVector(-1.1f, 0.9f, 1.6f);
+				pos1 = CVector(0.7f,  0.65f, 1.55f);
+				pos2 = CVector(-0.7f, 0.65f, 1.55f);
 				r1 = 255; g1 = 0; b1 = 0;
 				r2 = 255; g2 = 255; b2 = 255;
 				break;
 			case MI_POLICE:
-				pos1 = CVector(0.7f,  -0.4f, 1.0f);
-				pos2 = CVector(-0.7f, -0.4f, 1.0f);
+				pos1 = CVector(0.55f,  -0.4f, 0.95f);
+				pos2 = CVector(-0.55f, -0.4f, 0.95f);
 				r1 = 255; g1 = 0; b1 = 0;
 				r2 = 0; g2 = 0; b2 = 255;
 				break;
 			case MI_ENFORCER:
-				pos1 = CVector(1.1f,  0.8f, 1.2f);
-				pos2 = CVector(-1.1f, 0.8f, 1.2f);
+				pos1 = CVector(0.6f,  1.05f, 1.4f);
+				pos2 = CVector(-0.6f, 1.05f, 1.4f);
 				r1 = 255; g1 = 0; b1 = 0;
 				r2 = 0; g2 = 0; b2 = 255;
 				break;
@@ -2180,10 +2180,18 @@ CAutomobile::PreRender(void)
 		}
 		break;
 
+	case MI_FBICAR:
 	case MI_FBIRANCH:
 	case MI_VICECHEE:
 		if(m_bSirenOrAlarm){
-			CVector pos = GetMatrix() * CVector(0.4f, 0.6f, 0.3f);
+			CVector sirenPos;
+			if(GetModelIndex() == MI_FBICAR)
+				sirenPos = CVector(0.4f, 0.8f, 0.25f);
+			else if(GetModelIndex() == MI_FBIRANCH)
+				sirenPos = CVector(0.5f, 1.12f, 0.5f);
+			else
+				sirenPos = CVector(0.4f, 0.6f, 0.25f);
+			CVector pos = GetMatrix() * sirenPos;
 			if(CTimer::GetTimeInMilliseconds() & 0x100 &&
 			   DotProduct(GetForward(), GetPosition() - TheCamera.GetPosition()) < 0.0f)
 				if(GetModelIndex() == MI_VICECHEE)
@@ -2210,7 +2218,8 @@ CAutomobile::PreRender(void)
 	case MI_ZEBRA:
 	case MI_KAUFMAN:
 		if(bTaxiLight){
-			CVector pos = GetPosition() + GetUp()*0.95f;
+			CVector lightOffset = GetModelIndex() == MI_TAXI ? CVector(0.0f, -0.4f, 0.9f) : CVector(0.0f, 0.0f, 0.95f);
+			CVector pos = GetPosition() + Multiply3x3(GetMatrix(), lightOffset);
 			CCoronas::RegisterCorona((uintptr)this + 21,
 				128, 128, 0, 255,
 				pos, 0.8f, 50.0f,

@@ -1404,9 +1404,7 @@ CCam::Process_FollowPedWithMouse(const CVector &CameraTarget, float TargetOrient
 		}
 	}
 
-	if(TheCamera.GetFading() && TheCamera.GetFadingDirection() == FADE_IN && nFadeControlThreshhold < CDraw::FadeValue ||
-	   CDraw::FadeValue > 200 ||
-	   CPad::GetPad(0)->IsPlayerControlsDisabledBy(PLAYERCONTROL_PLAYERINFO)){
+	if(CPad::GetPad(0)->IsPlayerControlsDisabledBy(PLAYERCONTROL_PLAYERINFO)){
 		if(Alpha < fDefaultAlphaOrient-0.05f)
 			AlphaOffset = 0.05f;
 		else if(Alpha < fDefaultAlphaOrient)

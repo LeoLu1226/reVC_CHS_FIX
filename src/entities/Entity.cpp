@@ -416,12 +416,22 @@ void
 CEntity::Render(void)
 {
 	if(m_rwObject){
+		bool disableBackfaceCulling = IsPed();
+		if(IsObject()){
+			CObject *object = (CObject*)this;
+			disableBackfaceCulling = object->m_nRefModelIndex != -1 &&
+				object->ObjectCreatedBy == TEMP_OBJECT && object->bUseVehicleColours;
+		}
+		if(disableBackfaceCulling)
+			SetCullMode(rwCULLMODECULLNONE);
 		bImBeingRendered = true;
 		if(RwObjectGetType(m_rwObject) == rpATOMIC)
 			RpAtomicRender((RpAtomic*)m_rwObject);
 		else
 			RpClumpRender((RpClump*)m_rwObject);
 		bImBeingRendered = false;
+		if(disableBackfaceCulling)
+			SetCullMode(rwCULLMODECULLBACK);
 	}
 }
 

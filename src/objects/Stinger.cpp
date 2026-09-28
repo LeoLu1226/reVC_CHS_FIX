@@ -37,6 +37,10 @@ CStingerSegment::~CStingerSegment()
 CStinger::CStinger()
 {
 	bIsDeployed = false;
+	pOwner = nil;
+	m_nSpikeState = STINGERSTATE_NONE;
+	for (int32 i = 0; i < NUM_STINGER_SEGMENTS; i++)
+		pSpikes[i] = nil;
 }
 
 void
@@ -78,14 +82,13 @@ CStinger::Init(CPed *pPed)
 void
 CStinger::Remove()
 {
-	if (!bIsDeployed) return;
-
 	for (int32 i = 0; i < NUM_STINGER_SEGMENTS; i++) {
 		CStingerSegment *spikeSegment = pSpikes[i];
 
 #ifdef FIX_BUGS
 		if (spikeSegment) {
-			CWorld::Remove(spikeSegment);
+			if (spikeSegment->m_entryInfoList.first != nil)
+				CWorld::Remove(spikeSegment);
 			delete spikeSegment;
 			pSpikes[i] = nil;
 		}
@@ -97,6 +100,7 @@ CStinger::Remove()
 #endif
 	}
 	bIsDeployed = false;
+	m_nSpikeState = STINGERSTATE_NONE;
 }
 
 void
