@@ -246,6 +246,9 @@ CVehicleModelInfo::CreateInstance(void)
 	}else{
 		ms_compsUsed[0] = -1;
 		ms_compsUsed[1] = -1;
+		// A model without extras must still consume the one-shot request.
+		ms_compsToUse[0] = -2;
+		ms_compsToUse[1] = -2;
 	}
 	return (RwObject*)clump;
 }

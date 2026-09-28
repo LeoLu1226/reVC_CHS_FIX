@@ -1444,46 +1444,10 @@ CRadar::InitFrontEndMap()
 void
 CRadar::DrawYouAreHereSprite(float x, float y)
 {
-	static uint32 lastChange = 0;
-	static bool show = true;
-
-	if (show) {
-		if (CTimer::GetTimeInMillisecondsPauseMode() - lastChange > 500) {
-			lastChange = CTimer::GetTimeInMillisecondsPauseMode();
-			show = !show;
-		}
-	} else {
-		if (CTimer::GetTimeInMillisecondsPauseMode() - lastChange > 200) {
-			lastChange = CTimer::GetTimeInMillisecondsPauseMode();
-			show = !show;
-		}
-	}
-
-	if (show) {
-		const float left = x - SCREEN_SCALE_X(8.0f);
-		const float top = y - SCREEN_SCALE_Y(40.0f);
-		const float right = x + SCREEN_SCALE_X(40.0);
-		const float bottom = y + SCREEN_SCALE_Y(8.0f);
-		MapHereSprite.Draw(CRect(left + SCREEN_SCALE_X(2.f), top + SCREEN_SCALE_Y(2.f), right + SCREEN_SCALE_X(2.f), bottom + SCREEN_SCALE_Y(2.f)),
-			CRGBA(0, 0, 0, 255));
-
-		MapHereSprite.Draw(CRect(left, top, right, bottom), CRGBA(255, 255, 255, 255));
-
-		CFont::SetWrapx(right + SCREEN_SCALE_X(28.0f));
-		CFont::SetRightJustifyWrap(right);
-		CFont::SetBackGroundOnlyTextOff();
-		CFont::SetColor(CRGBA(255, 150, 225, 255));
-		CFont::SetDropShadowPosition(2);
-		CFont::SetDropColor(CRGBA(0, 0, 0, 255));
-		CFont::SetCentreOff();
-		CFont::SetRightJustifyOff();
-		CFont::SetFontStyle(FONT_LOCALE(FONT_HEADING));
-		CFont::SetScale(SCREEN_SCALE_X(0.65f), SCREEN_SCALE_Y(0.95f));
-		CFont::PrintString(right, top, TheText.Get("MAP_YAH"));
-		CFont::SetDropShadowPosition(0);
-		CFont::DrawFonts();
-	}
-	MapLegendList[MapLegendCounter++] = RADAR_SPRITE_MAP_HERE;
+	// The menu map is north-up; show the player's actual heading rather than
+	// the fixed, blinking "you are here" callout.
+	DrawRotatingRadarSprite(&CentreSprite, x, y, PI + FindPlayerHeading(), 255);
+	MapLegendList[MapLegendCounter++] = RADAR_SPRITE_CENTRE;
 }
 
 #ifdef MAP_ENHANCEMENTS
@@ -1683,6 +1647,9 @@ CRadar::DrawLegend(int32 x, int32 y, int32 sprite)
 
 	wchar *text;
 	switch ( sprite ) {
+		case RADAR_SPRITE_CENTRE:
+			text = TheText.Get("LG_01");
+		break;
 		case RADAR_SPRITE_ENTITY_BLIP:
 			text = TheText.Get("LG_38");
 		break;
@@ -1808,5 +1775,10 @@ CRadar::DrawLegend(int32 x, int32 y, int32 sprite)
 		default:
 		break;
 	}
-	CFont::PrintString(SCREEN_SCALE_X(20.f) + x, SCREEN_SCALE_Y(3.0f) + y, text);
+	// The Chinese glyph occupies 16 scaleY units, with a 2-unit top inset
+	// in the standard font. Centre its drawn pixels against the 16-unit icon.
+	const float textY = CFont::IsChinese()
+		? y + SCREEN_SCALE_X(8.0f) - SCREEN_SCALE_Y(10.0f * 0.75f)
+		: y + SCREEN_SCALE_Y(3.0f);
+	CFont::PrintString(SCREEN_SCALE_X(20.f) + x, textY, text);
 }

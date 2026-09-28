@@ -49,3 +49,10 @@ need the old size. Item 90 scales script sprites and solid rectangles in both
 the pre-fade and post-fade HUD paths using the same 640x448 coordinate system
 as script text. These visual changes pass a Release build but still need
 in-game verification at multiple aspect ratios.
+
+## Follow-up: items 32 and 60
+
+Models with no extras now clear both one-shot requested component slots, so a
+request cannot spill into the next traffic vehicle. The outro screen now stays
+visible for 2.5 seconds after reaching full opacity, measured by paused-game
+milliseconds rather than frame counts. Both paths need in-game verification.

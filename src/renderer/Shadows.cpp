@@ -1,4 +1,5 @@
 #include "common.h"
+#include "VisualTuning.h"
 
 #include "main.h"
 #include "TxdStore.h"
@@ -511,7 +512,7 @@ CShadows::StoreShadowForVehicle(CVehicle *pCar, VEH_SHD_TYPE type)
 				break;
 				
 			default:
-				fDrawDistance = 18.0f;
+				fDrawDistance = VisualTuning::VehicleShadow;
 				break;
 		}
 
@@ -890,9 +891,9 @@ CShadows::StoreShadowForPedObject(CEntity *pPedObject, float fDisplacementX, flo
 
 	float fDistToCamSqr = (PedPos - TheCamera.GetPosition()).MagnitudeSqr2D();
 
-	float fDrawDistance = 26.0f;
+	float fDrawDistance = VisualTuning::PedShadow;
 
-	if ( fDistToCamSqr < SQR(fDrawDistance*0.5f) )
+	if ( fDistToCamSqr < SQR(fDrawDistance) )
 	{
 		if ( pPedObject == FindPlayerPed() || TheCamera.IsSphereVisible(PedPos, 2.0f) != false )
 		{
@@ -900,10 +901,10 @@ CShadows::StoreShadowForPedObject(CEntity *pPedObject, float fDisplacementX, flo
 
 			//fDistToCam == 0             ->  2
 			//fDistToCam == fDrawDistance -> -2
-			float fMult = 1.0f - (4.0f / fDrawDistance) * (fDistToCam - (fDrawDistance*(1.0f/4.0f))); // BUG ? negative
+			float fMult = 1.0f - (2.0f / fDrawDistance) * (fDistToCam - fDrawDistance*0.5f);
 			int32 nColorStrength;
 
-			if ( fDistToCam >= (fDrawDistance*(1.0f/4.0f)) ) // BUG ? negative
+			if ( fDistToCam >= fDrawDistance*0.5f )
 				nColorStrength = (int32)(CTimeCycle::GetShadowStrength() * fMult);
 			else
 				nColorStrength = CTimeCycle::GetShadowStrength();

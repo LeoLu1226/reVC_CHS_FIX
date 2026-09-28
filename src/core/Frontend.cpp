@@ -34,6 +34,7 @@
 #include "Messages.h"
 #include "FileLoader.h"
 #include "User.h"
+#include "Zones.h"
 #include "sampman.h"
 
 
@@ -5841,7 +5842,8 @@ CMenuManager::WaitForUserCD()
 void
 CMenuManager::DrawQuitGameScreen(void)
 {
-	static int32 exitSignalTimer = 0;
+	static bool outroFullyVisible = false;
+	static uint32 outroFullyVisibleSince = 0;
 
 #ifdef FIX_BUGS
 	int alpha = Clamp(m_nMenuFadeAlpha, 0, 255);
@@ -5849,18 +5851,12 @@ CMenuManager::DrawQuitGameScreen(void)
 	int alpha = m_nMenuFadeAlpha;
 #endif
 
-#ifndef MUCH_SHORTER_OUTRO_SCREEN
-	static uint32 lastTickIncrease = 0;
-	if (alpha == 255 && CTimer::GetTimeInMillisecondsPauseMode() - lastTickIncrease > 10) {
-		exitSignalTimer++;
-		lastTickIncrease = CTimer::GetTimeInMillisecondsPauseMode();
+	if (alpha != 255) {
+		outroFullyVisible = false;
+	} else if (!outroFullyVisible) {
+		outroFullyVisible = true;
+		outroFullyVisibleSince = CTimer::GetTimeInMillisecondsPauseMode();
 	}
-#else
-	static uint32 firstTick = CTimer::GetTimeInMillisecondsPauseMode();
-	if (alpha == 255 && CTimer::GetTimeInMillisecondsPauseMode() - firstTick > 750) {
-		exitSignalTimer = 150;
-	}
-#endif
 	static CSprite2d *splash = nil;
 
 	if (splash == nil)
@@ -5875,7 +5871,7 @@ CMenuManager::DrawQuitGameScreen(void)
 #endif
 
 	splash->Draw(CRect(MENU_X_LEFT_ALIGNED(0.f), 0, MENU_X_RIGHT_ALIGNED(0.f), SCREEN_HEIGHT), CRGBA(255, 255, 255, alpha));
-	if (alpha == 255 && exitSignalTimer == 150)
+	if (outroFullyVisible && CTimer::GetTimeInMillisecondsPauseMode() - outroFullyVisibleSince >= 2500)
 		RsEventHandler(rsQUITAPP, nil);
 
 	m_bShowMouse = false;
@@ -5962,6 +5958,7 @@ CMenuManager::PrintMap(void)
 			CRGBA(0, 0, 0, FadeIn(190)));
 
 		CFont::PrintString(MENU_X_LEFT_ALIGNED(320.0f), MENU_Y(102.0f), TheText.Get("FE_MLG"));
+		CFont::SetCentreOff();
 		CFont::SetRightJustifyOff();
 		CFont::SetFontStyle(FONT_LOCALE(FONT_STANDARD));
 		if (m_PrefsLanguage == LANGUAGE_CHINESE)
@@ -5996,6 +5993,30 @@ CMenuManager::PrintMap(void)
 	} else if (m_bShowMouse) {
 		mapCrosshair.x = m_nMousePosX;
 		mapCrosshair.y = m_nMousePosY;
+	}
+	// Use the same inverse projection as waypoint placement for the cursor zone.
+	if (mapCrosshair.x >= m_fMapCenterX - m_fMapSize && mapCrosshair.x <= m_fMapCenterX + m_fMapSize &&
+	    mapCrosshair.y >= m_fMapCenterY - m_fMapSize && mapCrosshair.y <= m_fMapCenterY + m_fMapSize) {
+		const float worldX = ((mapCrosshair.x - (m_fMapCenterX - m_fMapSize)) / (m_fMapSize * 2.0f)) *
+			(WORLD_SIZE_X / MENU_MAP_WIDTH_SCALE) - (WORLD_SIZE_X / 2.0f + MENU_MAP_LEFT_OFFSET * MENU_MAP_LENGTH_UNIT);
+		const float worldY = (WORLD_SIZE_Y / 2.0f - MENU_MAP_TOP_OFFSET * MENU_MAP_LENGTH_UNIT) -
+			((mapCrosshair.y - (m_fMapCenterY - m_fMapSize)) / (m_fMapSize * 2.0f)) * (WORLD_SIZE_Y / MENU_MAP_HEIGHT_SCALE);
+		const CVector position(worldX, worldY, 0.0f);
+		CZone *zone = Abs(worldX) <= 2000.0f && Abs(worldY) <= 2000.0f ?
+			CTheZones::FindSmallestNavigationZoneForPosition(&position, true, true) : nil;
+		if (zone) {
+			CFont::SetCentreOff();
+			CFont::SetRightJustifyOn();
+			CFont::SetRightJustifyWrap(0.0f);
+			CFont::SetWrapx(SCREEN_WIDTH);
+			CFont::SetFontStyle(FONT_LOCALE(FONT_HEADING));
+			CFont::SetScale(SCREEN_SCALE_X(0.64f), SCREEN_SCALE_Y(1.28f));
+			CFont::SetColor(CRGBA(255, 255, 255, FadeIn(255)));
+			CFont::SetDropShadowPosition(2);
+			CFont::SetDropColor(CRGBA(0, 0, 0, FadeIn(255)));
+			CFont::PrintString(SCREEN_SCALE_FROM_RIGHT(72.0f), SCREEN_SCALE_FROM_BOTTOM(102.0f), zone->GetTranslatedName());
+			CFont::SetRightJustifyOff();
+		}
 	}
 
 	CSprite2d::DrawRect(CRect(mapCrosshair.x - MENU_X(1.0f), 0.0f,

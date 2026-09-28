@@ -1,4 +1,5 @@
 #include "common.h"
+#include "VisualTuning.h"
 
 #include "RwHelper.h"
 #include "templates.h"
@@ -152,11 +153,11 @@ CVisibilityPlugins::SetRenderWareCamera(RwCamera *camera)
 	else
 		ms_cullCompsDist = sq(TheCamera.LODDistMultiplier * 20.0f);
 
-	ms_vehicleLod0Dist = sq(70.0f * VEHICLE_LODDIST_MULTIPLIER);
-	ms_vehicleLod1Dist = sq(90.0f * VEHICLE_LODDIST_MULTIPLIER);
-	ms_vehicleFadeDist = sq(100.0f * VEHICLE_LODDIST_MULTIPLIER);
-	ms_bigVehicleLod0Dist = sq(60.0f * VEHICLE_LODDIST_MULTIPLIER);
-	ms_bigVehicleLod1Dist = sq(150.0f * VEHICLE_LODDIST_MULTIPLIER);
+	ms_vehicleLod0Dist = sq(VisualTuning::VehicleHighDetail * VEHICLE_LODDIST_MULTIPLIER);
+	ms_vehicleLod1Dist = sq(VisualTuning::VehicleLowDetail * VEHICLE_LODDIST_MULTIPLIER);
+	ms_vehicleFadeDist = sq(VisualTuning::VehicleFade * VEHICLE_LODDIST_MULTIPLIER);
+	ms_bigVehicleLod0Dist = sq(VisualTuning::VehicleHighDetail * VEHICLE_LODDIST_MULTIPLIER);
+	ms_bigVehicleLod1Dist = sq(VisualTuning::VehicleLowDetail * VEHICLE_LODDIST_MULTIPLIER);
 	ms_pedLod1Dist = sq(60.0f * TheCamera.LODDistMultiplier);
 	ms_pedFadeDist = sq(70.0f * TheCamera.LODDistMultiplier);
 }
@@ -268,6 +269,14 @@ CVisibilityPlugins::RenderWheelAtomicCB(RpAtomic *atomic)
 	mi = GetAtomicModelInfo(atomic);
 	len = Sqrt(DistToCameraSq);
 	lodatm = mi->GetAtomicFromDistance(len * TheCamera.LODDistMultiplier / VEHICLE_LODDIST_MULTIPLIER);
+	// Wheel IDE distances may end before the extended vehicle high-detail
+	// range. Keep the near wheel mesh until the parent changes LOD.
+	if(lodatm == nil){
+		RpClump *clump = RpAtomicGetClump(atomic);
+		if(clump && GetDistanceSquaredFromCamera(RpClumpGetFrame(clump)) <
+		   Max(ms_vehicleLod0Dist, ms_bigVehicleLod0Dist))
+			lodatm = mi->GetAtomicFromDistance(0.0f);
+	}
 	if(lodatm){
 		if(RpAtomicGetGeometry(lodatm) != RpAtomicGetGeometry(atomic))
 			RpAtomicSetGeometry(atomic, RpAtomicGetGeometry(lodatm), rpATOMICSAMEBOUNDINGSPHERE);
