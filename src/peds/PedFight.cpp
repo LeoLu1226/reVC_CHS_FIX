@@ -893,6 +893,7 @@ CPed::Attack(void)
 						if (weaponAnimAssoc->animId == ANIM_MELEE_ATTACK || weaponAnimAssoc->animId == ANIM_MELEE_ATTACK_START) 
 							DMAudio.PlayOneShot(m_audioEntityId, SOUND_FIGHT_46, (damagerType | (GetWeapon()->m_eWeaponType << 8)));
 						break;
+					case ASSOCGRP_SCREWDRIVER:
 					case ASSOCGRP_KNIFE:
 					case ASSOCGRP_BASEBALLBAT:
 					case ASSOCGRP_GOLFCLUB:

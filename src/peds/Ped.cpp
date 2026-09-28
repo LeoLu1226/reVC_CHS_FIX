@@ -2172,10 +2172,10 @@ CPed::ProcessControl(void)
 
 								eWeaponType weaponType = GetWeapon()->m_eWeaponType;
 								uint32 weaponSlot = CWeaponInfo::GetWeaponInfo(weaponType)->m_nWeaponSlot;
-								if (weaponType == WEAPONTYPE_UNARMED
+								if ((weaponSlot == 0
 									|| weaponSlot == 3
 									|| weaponSlot == 5
-									|| weaponSlot == 1) {
+									|| weaponSlot == 1) && weaponType != WEAPONTYPE_CHAINSAW) {
 									bShakeFist = true;
 								}
 							} else {

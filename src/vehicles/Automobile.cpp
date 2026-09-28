@@ -4269,9 +4269,6 @@ CAutomobile::VehicleDamage(float impulse, uint16 damagedPiece)
 
 		float damage = (impulse-minImpulse)*pHandling->fCollisionDamageMultiplier*0.6f*damageMultiplier;
 
-		if(GetModelIndex() == MI_SECURICA && m_pDamageEntity && m_pDamageEntity->GetStatus() == STATUS_PLAYER)
-			damage *= 7.0f;
-
 		if(GetModelIndex() == MI_RCGOBLIN || GetModelIndex() == MI_RCRAIDER)
 			damage *= 30.0f;
 

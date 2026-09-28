@@ -2858,7 +2858,7 @@ cAudioManager::ProcessVehicleSirenOrAlarm(cVehicleParams& params)
 						return TRUE;
 					if (veh->m_nCarHornTimer > 0 && params.m_nIndex != FIRETRUK && params.m_nIndex != MRWHOOP) {
 						m_sQueueSample.m_nSampleIndex = SFX_SIREN_FAST;
-						if (params.m_nIndex == FBIRANCH)
+						if (params.m_nIndex == FBIRANCH || params.m_nIndex == FBICAR)
 							m_sQueueSample.m_nFrequency = 12668;
 						else
 							m_sQueueSample.m_nFrequency = SampleManager.GetSampleBaseFrequency(SFX_SIREN_FAST);

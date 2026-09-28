@@ -1277,10 +1277,10 @@ void CCarCtrl::SlowCarDownForPedsSectorList(CPtrList& lst, CVehicle* pVehicle, f
 							pPlayerPed->AnnoyPlayerPed(false);
 							pPlayerPed->SetLookFlag(pVehicle, true);
 							pPlayerPed->SetLookTimer(1500);
-							if (pPlayerPed->GetWeapon()->m_eWeaponType == WEAPONTYPE_UNARMED ||
-								pPlayerPed->GetWeapon()->m_eWeaponType == WEAPONTYPE_BASEBALLBAT ||
-								pPlayerPed->GetWeapon()->m_eWeaponType == WEAPONTYPE_COLT45 ||
-								pPlayerPed->GetWeapon()->m_eWeaponType == WEAPONTYPE_UZI) {
+							eWeaponType weaponType = pPlayerPed->GetWeapon()->m_eWeaponType;
+							uint32 weaponSlot = CWeaponInfo::GetWeaponInfo(weaponType)->m_nWeaponSlot;
+							if ((weaponSlot == 0 || weaponSlot == 1 || weaponSlot == 3 || weaponSlot == 5) &&
+								weaponType != WEAPONTYPE_CHAINSAW) {
 								pPlayerPed->bShakeFist = true;
 							}
 						}

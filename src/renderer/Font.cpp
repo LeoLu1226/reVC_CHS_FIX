@@ -1680,21 +1680,21 @@ void CFont::GetTextRect_Chs(CRect *rect, float xstart, float ystart, wchar *s)
 
 	if(Details.centre) {
 		if(Details.backgroundOnlyText) {
-			rect->left = xstart - 4.0f;
-			rect->right = xstart + 4.0f;
-			rect->bottom = (18.0f * Details.scaleY) * numLines + ystart + 2.0f;
-			rect->top = ystart - 2.0f;
+			rect->left = xstart - SCREEN_SCALE_X(4.0f);
+			rect->right = xstart + SCREEN_SCALE_X(4.0f);
+			rect->bottom = (18.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(2.0f);
+			rect->top = ystart - SCREEN_SCALE_Y(2.0f);
 		} else {
-			rect->left = xstart - (Details.centreSize * 0.5f) - 4.0f;
-			rect->right = xstart + (Details.centreSize * 0.5f) + 4.0f;
-			rect->bottom = ystart + (18.0f * Details.scaleY * numLines) + 2.0f;
-			rect->top = ystart - 2.0f;
+			rect->left = xstart - (Details.centreSize * 0.5f) - SCREEN_SCALE_X(4.0f);
+			rect->right = xstart + (Details.centreSize * 0.5f) + SCREEN_SCALE_X(4.0f);
+			rect->bottom = ystart + (18.0f * Details.scaleY * numLines) + SCREEN_SCALE_Y(2.0f);
+			rect->top = ystart - SCREEN_SCALE_Y(2.0f);
 		}
 	} else {
-		rect->left = xstart - 4.0f;
+		rect->left = xstart - SCREEN_SCALE_X(4.0f);
 		rect->right = Details.wrapX;
 		rect->bottom = ystart;
-		rect->top = (18.0f * Details.scaleY) * numLines + ystart + 4.0f;
+		rect->top = (18.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(4.0f);
 	}
 }
 
@@ -1756,45 +1756,45 @@ void CFont::GetTextRect(CRect *rect, float xstart, float ystart, wchar *s)
 
 	if(Details.centre) {
 		if(Details.backgroundOnlyText) {
-			rect->left = xstart - maxlength / 2 - 4.0f;
-			rect->right = xstart + maxlength / 2 + 4.0f;
+			rect->left = xstart - maxlength / 2 - SCREEN_SCALE_X(4.0f);
+			rect->right = xstart + maxlength / 2 + SCREEN_SCALE_X(4.0f);
 #ifdef MORE_LANGUAGES
 			if(IsJapaneseFont()) {
-				rect->bottom = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + (4.0f / 2.75f);
-				rect->top = ystart - (4.0f / 2.75f);
+				rect->bottom = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(4.0f / 2.75f);
+				rect->top = ystart - SCREEN_SCALE_Y(4.0f / 2.75f);
 			} else {
 #endif
-				rect->bottom = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + 2.0f;
-				rect->top = ystart - 2.0f;
+				rect->bottom = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(2.0f);
+				rect->top = ystart - SCREEN_SCALE_Y(2.0f);
 #ifdef MORE_LANGUAGES
 			}
 #endif
 		} else {
-			rect->left = xstart - Details.centreSize * 0.5f - 4.0f;
-			rect->right = xstart + Details.centreSize * 0.5f + 4.0f;
+			rect->left = xstart - Details.centreSize * 0.5f - SCREEN_SCALE_X(4.0f);
+			rect->right = xstart + Details.centreSize * 0.5f + SCREEN_SCALE_X(4.0f);
 #ifdef MORE_LANGUAGES
 			if(IsJapaneseFont()) {
-				rect->bottom = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + (4.0f / 2.75f);
-				rect->top = ystart - (4.0f / 2.75f);
+				rect->bottom = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(4.0f / 2.75f);
+				rect->top = ystart - SCREEN_SCALE_Y(4.0f / 2.75f);
 			} else {
 #endif
-				rect->bottom = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + 2.0f;
-				rect->top = ystart - 2.0f;
+				rect->bottom = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(2.0f);
+				rect->top = ystart - SCREEN_SCALE_Y(2.0f);
 #ifdef MORE_LANGUAGES
 			}
 #endif
 		}
 	} else {
-		rect->left = xstart - 4.0f;
+		rect->left = xstart - SCREEN_SCALE_X(4.0f);
 		rect->right = Details.wrapX;
 		// WTF?
 		rect->bottom = ystart - 4.0f + 4.0f;
 #ifdef MORE_LANGUAGES
 		if(IsJapaneseFont())
-			rect->top = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + 2.0f + (4.0f / 2.75f);
+			rect->top = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(2.0f + 4.0f / 2.75f);
 		else
 #endif
-			rect->top = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + 2.0f + 2.0f;
+			rect->top = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(4.0f);
 	}
 }
 

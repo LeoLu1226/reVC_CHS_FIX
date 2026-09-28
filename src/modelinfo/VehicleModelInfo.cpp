@@ -207,6 +207,9 @@ CVehicleModelInfo::CreateInstance(void)
 	clump = (RpClump*)CClumpModelInfo::CreateInstance();
 	if(m_numComps != 0){
 		clumpframe = RpClumpGetFrame(clump);
+		RwFrame *componentParent = m_vehicleType == VEHICLE_TYPE_BIKE ? GetFrameFromId(clump, BIKE_CHASSIS) : clumpframe;
+		if(componentParent == nil)
+			componentParent = clumpframe;
 
 		comp1 = ChooseComponent();
 		if(comp1 != -1 && m_comps[comp1]){
@@ -217,7 +220,7 @@ CVehicleModelInfo::CreateInstance(void)
 				rwCOMBINEREPLACE);
 			RpAtomicSetFrame(atomic, f);
 			RpClumpAddAtomic(clump, atomic);
-			RwFrameAddChild(clumpframe, f);
+			RwFrameAddChild(componentParent, f);
 		}
 		ms_compsUsed[0] = comp1;
 
@@ -230,7 +233,7 @@ CVehicleModelInfo::CreateInstance(void)
 				rwCOMBINEREPLACE);
 			RpAtomicSetFrame(atomic, f);
 			RpClumpAddAtomic(clump, atomic);
-			RwFrameAddChild(clumpframe, f);
+			RwFrameAddChild(componentParent, f);
 		}
 		ms_compsUsed[1] = comp2;
 	}else{

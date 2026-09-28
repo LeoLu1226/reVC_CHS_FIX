@@ -35,6 +35,7 @@ uint32 CWeather::LightningFlashLastChange;
 uint32 CWeather::WhenToPlayLightningSound;
 uint32 CWeather::LightningDuration;
 int32 CWeather::StreamAfterRainTimer;
+static int startStreamAfterRain;
 
 float CWeather::ExtraSunnyness;
 float CWeather::Foggyness;
@@ -128,6 +129,8 @@ const float Windyness[] = {
 
 void CWeather::Init(void)
 {
+	startStreamAfterRain = 0;
+	StreamAfterRainTimer = 800;
 	NewWeatherType = WEATHER_EXTRA_SUNNY;
 	bScriptsForceRain = false;
 	OldWeatherType = WEATHER_EXTRA_SUNNY;
@@ -392,8 +395,6 @@ void CWeather::AddSplashesDuringHurricane()
 			CParticle::AddParticle(PARTICLE_GROUND_STEAM, pos, CVector(-0.002f, -0.002f, 0.015f), nil, 0.0f, colour);
 	}
 }
-
-static int startStreamAfterRain;
 
 void CWeather::AddStreamAfterRain()
 {
