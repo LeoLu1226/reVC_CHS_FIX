@@ -265,6 +265,8 @@ CPed::SetAttack(CEntity *victim)
 	CPed *victimPed = nil;
 	CWeaponInfo *curWeapon = CWeaponInfo::GetWeaponInfo(GetWeapon()->m_eWeaponType);
 	CAnimBlendAssociation *animAssoc;
+	bool restartClassicAxisMinigun = CClassicAxis::Aiming(this) &&
+		GetWeapon()->m_eWeaponType == WEAPONTYPE_MINIGUN && m_nPedState == PED_AIM_GUN;
 
 	if (victim && victim->IsPed())
 		victimPed = (CPed*)victim;
@@ -440,7 +442,12 @@ CPed::SetAttack(CEntity *victim)
 			}
 
 			animAssoc->SetRun();
-			if (animAssoc->currentTime == animAssoc->hierarchy->totalLength)
+			// PointGunAt holds the firing animation at its loop start. Restart the
+			// minigun wind-up when Classic Axis turns that aiming pose into an
+			// attack, otherwise one round fires before the normal wind-up delay.
+			if (restartClassicAxisMinigun)
+				animAssoc->SetCurrentTime(0.0f);
+			else if (animAssoc->currentTime == animAssoc->hierarchy->totalLength)
 				animAssoc->SetCurrentTime(0.0f);
 
 			animAssoc->SetFinishCallback(FinishedAttackCB, this);
