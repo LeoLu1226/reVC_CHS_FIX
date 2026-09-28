@@ -541,15 +541,17 @@ void CHud::Draw()
 			*/
 
 			if (FrontEndMenuManager.m_PrefsShowHud) {
+				uint32 weaponIconFilter = rwFILTERLINEAR;
+				RwRenderStateGet(rwRENDERSTATETEXTUREFILTER, &weaponIconFilter);
+				RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 				if (weaponInfo->m_nModelId <= 0) {
-					RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 					if (FrontEndMenuManager.m_PrefsShowHud)
 						Sprites[WeaponType].Draw(
 							CRect(SCREEN_SCALE_FROM_RIGHT(99.0f), SCREEN_SCALE_Y(27.0f), SCREEN_SCALE_FROM_RIGHT(35.0f), SCREEN_SCALE_Y(91.0f)),
 							CRGBA(255, 255, 255, alpha),
-							0.015f, 0.015f,
+							0.0f, 0.0f,
 							1.0f, 0.0f,
-							0.015f, 1.0f,
+							0.0f, 1.0f,
 							1.0f, 1.0f);
 				} else {
 					CBaseModelInfo *weaponModel = CModelInfo::GetModelInfo(weaponInfo->m_nModelId);
@@ -557,7 +559,6 @@ void CHud::Draw()
 					if (weaponTxd) {
 						RwTexture *weaponIcon = RwTexDictionaryFindNamedTexture(weaponTxd, weaponModel->GetModelName());
 						if (weaponIcon) {
-							RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 #ifndef FIX_BUGS
 							const float xSize = SCREEN_SCALE_X(64.0f / 2.0f);
 							const float ySize = SCREEN_SCALE_Y(64.0f / 2.0f);
@@ -572,15 +573,16 @@ void CHud::Draw()
 							sprite.Draw(
 								CRect(SCREEN_SCALE_FROM_RIGHT(99.0f), SCREEN_SCALE_Y(27.0f), SCREEN_SCALE_FROM_RIGHT(35.0f), SCREEN_SCALE_Y(91.0f)),
 								CRGBA(255, 255, 255, alpha),
-								0.015f, 0.015f,
+								0.0f, 0.0f,
 								1.0f, 0.0f,
-								0.015f, 1.0f,
+								0.0f, 1.0f,
 								1.0f, 1.0f);
 							sprite.m_pTexture = nil;
 #endif
 						}
 					}
 				}
+				RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)(uintptr)weaponIconFilter);
 
 				CFont::SetBackgroundOff();
 				CFont::SetScale(SCREEN_SCALE_X(0.5f), SCREEN_SCALE_Y(0.8f));
