@@ -571,6 +571,7 @@ struct BuildingInst
 	rw::d3d9::InstanceDataHeader *instHeader;
 	uint8 fadeAlpha;
 	bool lighting;
+	bool drawBackfaces;
 };
 BuildingInst blendInsts[3][2000];
 int numBlendInsts[3];
@@ -599,7 +600,7 @@ IsTextureTransparent(RwTexture *tex)
 // Render all opaque meshes and put atomics that needs blending
 // into the deferred list.
 void
-AtomicFirstPass(RpAtomic *atomic, int pass)
+AtomicFirstPass(RpAtomic *atomic, int pass, bool drawBackfaces)
 {
 	using namespace rw;
 	using namespace rw::d3d;
@@ -613,6 +614,12 @@ AtomicFirstPass(RpAtomic *atomic, int pass)
 	assert(building->instHeader->platform == PLATFORM_D3D9);
 	building->fadeAlpha = 255;
 	building->lighting = !!(atomic->geometry->flags & rw::Geometry::LIGHT);
+	building->drawBackfaces = drawBackfaces;
+	void *oldCullMode = nil;
+	if (drawBackfaces) {
+		RwRenderStateGet(rwRENDERSTATECULLMODE, &oldCullMode);
+		SetCullMode(rwCULLMODECULLNONE);
+	}
 	rw::uint32 flags = atomic->geometry->flags;
 
 	bool setupDone = false;
@@ -655,10 +662,12 @@ AtomicFirstPass(RpAtomic *atomic, int pass)
 	}
 	if(defer)
 		numBlendInsts[pass]++;
+	if (drawBackfaces)
+		RwRenderStateSet(rwRENDERSTATECULLMODE, oldCullMode);
 }
 
 void
-AtomicFullyTransparent(RpAtomic *atomic, int pass, int fadeAlpha)
+AtomicFullyTransparent(RpAtomic *atomic, int pass, int fadeAlpha, bool drawBackfaces)
 {
 	using namespace rw;
 	using namespace rw::d3d;
@@ -672,6 +681,7 @@ AtomicFullyTransparent(RpAtomic *atomic, int pass, int fadeAlpha)
 	assert(building->instHeader->platform == PLATFORM_D3D9);
 	building->fadeAlpha = fadeAlpha;
 	building->lighting = !!(atomic->geometry->flags & rw::Geometry::LIGHT);
+	building->drawBackfaces = drawBackfaces;
 	SetMatrix(building, atomic->getFrame()->getLTM());
 	numBlendInsts[pass]++;
 }
@@ -688,6 +698,11 @@ RenderBlendPass(int pass)
 	int i;
 	for(i = 0; i < numBlendInsts[pass]; i++){
 		BuildingInst *building = &blendInsts[pass][i];
+		void *oldCullMode = nil;
+		if (building->drawBackfaces) {
+			RwRenderStateGet(rwRENDERSTATECULLMODE, &oldCullMode);
+			SetCullMode(rwCULLMODECULLNONE);
+		}
 
 		setStreamSource(0, building->instHeader->vertexStream[0].vertexBuffer, 0, building->instHeader->vertexStream[0].stride);
 		setIndices(building->instHeader->indexBuffer);
@@ -716,6 +731,8 @@ RenderBlendPass(int pass)
 
 			drawInst(building->instHeader, inst);
 		}
+		if (building->drawBackfaces)
+			RwRenderStateSet(rwRENDERSTATECULLMODE, oldCullMode);
 	}
 }
 }

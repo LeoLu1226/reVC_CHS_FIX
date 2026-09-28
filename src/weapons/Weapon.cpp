@@ -1209,7 +1209,8 @@ CWeapon::FireInstantHit(CEntity *shooter, CVector *fireSource)
 			gunshellPos -= CVector(0.2f*ahead.x, 0.2f*ahead.y, 0.0f);
 			CVector dir = CrossProduct(CVector(ahead.x, ahead.y, 0.0f), CVector(0.0f, 0.0f, 5.0f));
 			dir.Normalise2D();
-			AddGunshell(shooter, gunshellPos, CVector2D(dir.x, dir.y), 0.015f);
+			if (m_eWeaponType == WEAPONTYPE_COLT45)
+				AddGunshell(shooter, gunshellPos, CVector2D(dir.x, dir.y), 0.015f);
 
 			break;
 		}

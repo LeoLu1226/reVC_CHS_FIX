@@ -38,6 +38,16 @@
 	#define SCALE_AND_CENTER_X_FIX(a) (a)
 #endif
 
+static void
+DrawScriptSprite(CSprite2d &sprite, const CRect &rect, const CRGBA &color)
+{
+	void *oldFilter;
+	RwRenderStateGet(rwRENDERSTATETEXTUREFILTER, &oldFilter);
+	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
+	sprite.Draw(rect, color);
+	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, oldFilter);
+}
+
 #ifdef FIX_BUGS
 #define FRAMECOUNTER CTimer::GetLogicalFrameCounter()
 #else
@@ -1198,7 +1208,7 @@ void CHud::Draw()
 						IntroRect.m_sRect.right,
 						IntroRect.m_sRect.top );
 
-					CTheScripts::ScriptSprites[IntroRect.m_nTextureId].Draw(rect, IntroRect.m_sColor);
+					DrawScriptSprite(CTheScripts::ScriptSprites[IntroRect.m_nTextureId], rect, IntroRect.m_sColor);
 				}
 				else {
 					CRect rect (
@@ -1540,7 +1550,7 @@ void CHud::DrawAfterFade()
 
 			// Yeah, top and bottom changed place. R* vision
 			if (rectangle.m_nTextureId >= 0) {
-				CTheScripts::ScriptSprites[rectangle.m_nTextureId].Draw(CRect(rectangle.m_sRect.left, rectangle.m_sRect.bottom,
+				DrawScriptSprite(CTheScripts::ScriptSprites[rectangle.m_nTextureId], CRect(rectangle.m_sRect.left, rectangle.m_sRect.bottom,
 					rectangle.m_sRect.right, rectangle.m_sRect.top), rectangle.m_sColor);
 			} else {
 				CSprite2d::DrawRect(CRect(rectangle.m_sRect.left, rectangle.m_sRect.bottom,

@@ -409,6 +409,7 @@ CRenderer::RenderOneBuilding(CEntity *ent, float camdist)
 	assert(RwObjectGetType(ent->m_rwObject) == rpATOMIC);
 	RpAtomic *atomic = (RpAtomic*)ent->m_rwObject;
 	CSimpleModelInfo *mi = (CSimpleModelInfo*)CModelInfo::GetModelInfo(ent->GetModelIndex());
+	bool drawBackfaces = ModelDrawsBackfaces(ent->GetModelIndex());
 
 	int pass = PASS_BLEND;
 	if(mi->m_additive)	// very questionable
@@ -428,16 +429,16 @@ CRenderer::RenderOneBuilding(CEntity *ent, float camdist)
 		alpha = mi->m_alpha * fadefactor;
 
 		if(alpha == 255)
-			WorldRender::AtomicFirstPass(atomic, pass);
+			WorldRender::AtomicFirstPass(atomic, pass, drawBackfaces);
 		else{
 			// not quite sure what this is about, do we have to do that?
 			RpGeometry *geo = RpAtomicGetGeometry(lodatm);
 			if(geo != RpAtomicGetGeometry(atomic))
 				RpAtomicSetGeometry(atomic, geo, rpATOMICSAMEBOUNDINGSPHERE);
-			WorldRender::AtomicFullyTransparent(atomic, pass, alpha);
+			WorldRender::AtomicFullyTransparent(atomic, pass, alpha, drawBackfaces);
 		}
 	}else
-		WorldRender::AtomicFirstPass(atomic, pass);
+		WorldRender::AtomicFirstPass(atomic, pass, drawBackfaces);
 
 	ent->bImBeingRendered = false;	// TODO: this seems wrong, but do we even need it?
 }

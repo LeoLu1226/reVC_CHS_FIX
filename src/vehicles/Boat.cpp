@@ -964,14 +964,16 @@ CBoat::PreRender(void)
 			// FIX: Planes can also be controlled with GetCarGunUpDown
 #ifdef FIX_BUGS
 			static float steeringUpDown = 0.0f;
+			float input;
 #ifdef FREE_CAM
 			if(!CCamera::bFreeCam || (CCamera::bFreeCam && !CPad::IsAffectedByController))
 #endif
-			steeringUpDown += ((Abs(CPad::GetPad(0)->GetCarGunUpDown()) > 1.0f ? (-CPad::GetPad(0)->GetCarGunUpDown()/128.0f) : (-CPad::GetPad(0)->GetSteeringUpDown()/128.0f)) - steeringUpDown) * Min(1.f, CTimer::GetTimeStep()/5.f);
+				input = Abs(CPad::GetPad(0)->GetCarGunUpDown()) > 1.0f ? -CPad::GetPad(0)->GetCarGunUpDown()/128.0f : -CPad::GetPad(0)->GetSteeringUpDown()/128.0f;
 #ifdef FREE_CAM
 			else
-				steeringUpDown = -CPad::GetPad(0)->GetSteeringUpDown()/128.0f;
+				input = -CPad::GetPad(0)->GetSteeringUpDown()/128.0f;
 #endif
+			steeringUpDown += (input - steeringUpDown) * Min(1.0f, CTimer::GetTimeStep() * 0.12f);
 #else
 			float steeringUpDown = -CPad::GetPad(0)->GetSteeringUpDown()/128.0f;
 #endif
@@ -1082,7 +1084,7 @@ CBoat::PreRender(void)
 			CVector wind  = CVector(0.707f, 0.707f, 0.0f) * (CWeather::Wind + 0.15f)*0.4f;
 			m_fMovingRotation += (m_vecMoveSpeed + wind).Magnitude()*CTimer::GetTimeStep();
 		}
-	}else if(GetModelIndex() == MI_PREDATOR || GetModelIndex() == MI_REEFER){
+	}else if(GetModelIndex() == MI_PREDATOR || GetModelIndex() == MI_REEFER || GetModelIndex() == MI_TROPIC){
 		if (m_aBoatNodes[BOAT_MOVING] != nil) {
 			matrix.Attach(RwFrameGetMatrix(m_aBoatNodes[BOAT_MOVING]));
 

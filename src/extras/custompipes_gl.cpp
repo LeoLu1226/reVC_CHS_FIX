@@ -598,6 +598,7 @@ struct BuildingInst
 	rw::gl3::InstanceDataHeader *instHeader;
 	uint8 fadeAlpha;
 	bool lighting;
+	bool drawBackfaces;
 };
 BuildingInst blendInsts[3][2000];
 int numBlendInsts[3];
@@ -615,7 +616,7 @@ IsTextureTransparent(RwTexture *tex)
 // Render all opaque meshes and put atomics that needs blending
 // into the deferred list.
 void
-AtomicFirstPass(RpAtomic *atomic, int pass)
+AtomicFirstPass(RpAtomic *atomic, int pass, bool drawBackfaces)
 {
 	using namespace rw;
 	using namespace rw::gl3;
@@ -628,6 +629,12 @@ AtomicFirstPass(RpAtomic *atomic, int pass)
 	assert(building->instHeader->platform == PLATFORM_GL3);
 	building->fadeAlpha = 255;
 	building->lighting = !!(atomic->geometry->flags & rw::Geometry::LIGHT);
+	building->drawBackfaces = drawBackfaces;
+	void *oldCullMode = nil;
+	if (drawBackfaces) {
+		RwRenderStateGet(rwRENDERSTATECULLMODE, &oldCullMode);
+		SetCullMode(rwCULLMODECULLNONE);
+	}
 	rw::uint32 flags = atomic->geometry->flags;
 
 	WorldLights lights;
@@ -671,10 +678,12 @@ AtomicFirstPass(RpAtomic *atomic, int pass)
 	teardownVertexInput(building->instHeader);
 	if(defer)
 		numBlendInsts[pass]++;
+	if (drawBackfaces)
+		RwRenderStateSet(rwRENDERSTATECULLMODE, oldCullMode);
 }
 
 void
-AtomicFullyTransparent(RpAtomic *atomic, int pass, int fadeAlpha)
+AtomicFullyTransparent(RpAtomic *atomic, int pass, int fadeAlpha, bool drawBackfaces)
 {
 	using namespace rw;
 	using namespace rw::gl3;
@@ -687,6 +696,7 @@ AtomicFullyTransparent(RpAtomic *atomic, int pass, int fadeAlpha)
 	assert(building->instHeader->platform == PLATFORM_GL3);
 	building->fadeAlpha = fadeAlpha;
 	building->lighting = !!(atomic->geometry->flags & rw::Geometry::LIGHT);
+	building->drawBackfaces = drawBackfaces;
 	building->matrix = *atomic->getFrame()->getLTM();
 	numBlendInsts[pass]++;
 }
@@ -706,6 +716,11 @@ RenderBlendPass(int pass)
 	int i;
 	for(i = 0; i < numBlendInsts[pass]; i++){
 		BuildingInst *building = &blendInsts[pass][i];
+		void *oldCullMode = nil;
+		if (building->drawBackfaces) {
+			RwRenderStateGet(rwRENDERSTATECULLMODE, &oldCullMode);
+			SetCullMode(rwCULLMODECULLNONE);
+		}
 
 		setupVertexInput(building->instHeader);
 		setWorldMatrix(&building->matrix);
@@ -730,6 +745,8 @@ RenderBlendPass(int pass)
 			drawInst(building->instHeader, inst);
 		}
 		teardownVertexInput(building->instHeader);
+		if (building->drawBackfaces)
+			RwRenderStateSet(rwRENDERSTATECULLMODE, oldCullMode);
 	}
 }
 }

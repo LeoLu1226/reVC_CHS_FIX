@@ -536,12 +536,7 @@ static float fxZ[NUM_RENDER_FX];
 bool
 CMBlur::PosInside(RwRect *rect, float x1, float y1, float x2, float y2)
 {
-	if((rect->x < x1 - 10.0f || rect->x > x2 + 10.0f || rect->y < y1 - 10.0f || rect->y > y2 + 10.0f) &&
-	   (rect->w < x1 - 10.0f || rect->w > x2 + 10.0f || rect->h < y1 - 10.0f || rect->h > y2 + 10.0f) &&
-	   (rect->x < x1 - 10.0f || rect->x > x2 + 10.0f || rect->h < y1 - 10.0f || rect->h > y2 + 10.0f) &&
-	   (rect->w < x1 - 10.0f || rect->w > x2 + 10.0f || rect->y < y1 - 10.0f || rect->y > y2 + 10.0f))
-		return false;
-	return true;
+	return rect->x <= x2 && rect->w >= x1 && rect->y <= y2 && rect->h >= y1;
 }
 
 bool
@@ -562,23 +557,31 @@ CMBlur::AddRenderFx(RwCamera *cam, RwRect *rect, float z, FxType type)
 	case FXTYPE_WATER2:
 	case FXTYPE_BLOOD1:
 	case FXTYPE_BLOOD2:
-	case FXTYPE_HEATHAZE:	// code seems to be duplicated for this case
 		for(int i = 0; i < pBufVertCount; i++)
-			if(fxType[i] == type && PosInside(rect, fxRect[i].x-10.0f, fxRect[i].y-10.0f, fxRect[i].w+10.0f, fxRect[i].h+10.0f))
+			if(fxType[i] == type && PosInside(rect, fxRect[i].x-SCREEN_SCALE_X(10.0f), fxRect[i].y-SCREEN_SCALE_Y(10.0f), fxRect[i].w+SCREEN_SCALE_X(10.0f), fxRect[i].h+SCREEN_SCALE_Y(10.0f)))
 				return false;
-		// TODO: fix aspect ratio scaling
 		// radar
-		if(PosInside(rect, 40.0f, SCREEN_SCALE_FROM_BOTTOM(116.0f), 40.0f + SCREEN_SCALE_X(94.0f), SCREEN_SCALE_FROM_BOTTOM(116.0f - 76.0f)))
+		if(PosInside(rect, SCREEN_SCALE_X(40.0f), SCREEN_SCALE_FROM_BOTTOM(116.0f), SCREEN_SCALE_X(134.0f), SCREEN_SCALE_FROM_BOTTOM(40.0f)))
 			return false;
 		// HUD
-		if(PosInside(rect, 400.0f, 0.0f, SCREEN_WIDTH, 90.0f))
+		if(PosInside(rect, SCREEN_SCALE_FROM_RIGHT(240.0f), 0.0f, SCREEN_WIDTH, SCREEN_SCALE_Y(90.0f)))
 			return false;
 		// vehicle name
-		if(CHud::m_VehicleState != 0 && PosInside(rect, SCREEN_WIDTH/2, 350.0f, SCREEN_WIDTH, SCREEN_HEIGHT))
+		if(CHud::m_VehicleState != 0 && PosInside(rect, SCREEN_WIDTH/2, SCREEN_SCALE_FROM_BOTTOM(98.0f), SCREEN_WIDTH, SCREEN_HEIGHT))
 			return false;
 		// zone name
-		if(CHud::m_ZoneState != 0 && PosInside(rect, SCREEN_WIDTH/2, 350.0f, SCREEN_WIDTH, SCREEN_HEIGHT))
+		if(CHud::m_ZoneState != 0 && PosInside(rect, SCREEN_WIDTH/2, SCREEN_SCALE_FROM_BOTTOM(98.0f), SCREEN_WIDTH, SCREEN_HEIGHT))
 			return false;
+		break;
+	case FXTYPE_HEATHAZE:
+		for(int i = 0; i < pBufVertCount; i++)
+			if(fxType[i] == type && PosInside(rect, fxRect[i].x-SCREEN_SCALE_X(10.0f), fxRect[i].y-SCREEN_SCALE_Y(10.0f), fxRect[i].w+SCREEN_SCALE_X(10.0f), fxRect[i].h+SCREEN_SCALE_Y(10.0f))){
+				fxRect[i].x = Min(fxRect[i].x, rect->x);
+				fxRect[i].y = Min(fxRect[i].y, rect->y);
+				fxRect[i].w = Max(fxRect[i].w, rect->w);
+				fxRect[i].h = Max(fxRect[i].h, rect->h);
+				return true;
+			}
 		break;
 	}
 

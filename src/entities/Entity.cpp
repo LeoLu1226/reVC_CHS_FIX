@@ -27,6 +27,54 @@
 #include "Dummy.h"
 #include "WindModifiers.h"
 #include "SaveBuf.h"
+#include "FileMgr.h"
+#include "ModelInfo.h"
+#include <unordered_set>
+#include <cstdlib>
+#include <cstring>
+
+// -1 forces culling on, +1 forces it off, 0 keeps the entity default.
+static int
+BackfaceCullingOverride(int modelIndex)
+{
+	static bool loaded = false;
+	static std::unordered_set<int> enabled;
+	static std::unordered_set<int> disabled;
+	if (!loaded) {
+		loaded = true;
+		int file = CFileMgr::OpenFile("DATA\\DRAWBACKFACES.DAT", "r");
+		if (file) {
+			char line[128];
+			while (CFileMgr::ReadLine(file, line, sizeof(line))) {
+				char *name = line;
+				while (*name == ' ' || *name == '\t') name++;
+				if (*name == ';' || *name == '#' || *name == '\r' || *name == '\n' || *name == '\0') continue;
+				bool exclude = *name == '-';
+				if (exclude) name++;
+				char *end = name + strlen(name);
+				while (end > name && (end[-1] == ' ' || end[-1] == '\t' || end[-1] == '\r' || end[-1] == '\n')) *--end = '\0';
+				if (*name == '\0') continue;
+				char *numberEnd;
+				long number = strtol(name, &numberEnd, 10);
+				int id = -1;
+				if (*numberEnd == '\0') id = (int)number;
+				else CModelInfo::GetModelInfo(name, &id);
+				if (id >= 0 && id < MODELINFOSIZE && CModelInfo::GetModelInfo(id))
+					(exclude ? disabled : enabled).insert(id);
+			}
+			CFileMgr::CloseFile(file);
+		}
+	}
+	if (disabled.count(modelIndex)) return -1;
+	if (enabled.count(modelIndex)) return 1;
+	return 0;
+}
+
+bool
+ModelDrawsBackfaces(int modelIndex)
+{
+	return BackfaceCullingOverride(modelIndex) > 0;
+}
 
 int gBuildings;
 
@@ -419,9 +467,15 @@ CEntity::Render(void)
 		bool disableBackfaceCulling = IsPed();
 		if(IsObject()){
 			CObject *object = (CObject*)this;
-			disableBackfaceCulling = object->m_nRefModelIndex != -1 &&
-				object->ObjectCreatedBy == TEMP_OBJECT && object->bUseVehicleColours;
+			disableBackfaceCulling = disableBackfaceCulling || (object->m_nRefModelIndex != -1 &&
+				object->ObjectCreatedBy == TEMP_OBJECT && object->bUseVehicleColours);
 		}
+		int cullOverride = BackfaceCullingOverride(GetModelIndex());
+		if (cullOverride)
+			disableBackfaceCulling = cullOverride > 0;
+		void *oldCullMode = nil;
+		if(disableBackfaceCulling)
+			RwRenderStateGet(rwRENDERSTATECULLMODE, &oldCullMode);
 		if(disableBackfaceCulling)
 			SetCullMode(rwCULLMODECULLNONE);
 		bImBeingRendered = true;
@@ -431,7 +485,7 @@ CEntity::Render(void)
 			RpClumpRender((RpClump*)m_rwObject);
 		bImBeingRendered = false;
 		if(disableBackfaceCulling)
-			SetCullMode(rwCULLMODECULLBACK);
+			RwRenderStateSet(rwRENDERSTATECULLMODE, oldCullMode);
 	}
 }
 

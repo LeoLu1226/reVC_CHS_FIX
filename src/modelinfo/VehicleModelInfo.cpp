@@ -83,6 +83,7 @@ RwObjectNameIdAssocation carIds[] = {
 
 RwObjectNameIdAssocation boatIds[] = {
 	{ "boat_moving_hi",	BOAT_MOVING,	0 },
+	{ "boat_moving_high",	BOAT_MOVING,	0 },
 	{ "boat_rudder_hi",	BOAT_RUDDER,	0 },
 	{ "boat_flap_left",	BOAT_FLAP_LEFT,	0 },
 	{ "boat_flap_right",	BOAT_FLAP_RIGHT,	0 },
@@ -100,6 +101,12 @@ RwObjectNameIdAssocation boatIds[] = {
 #endif
 #endif
 	{ "ped_frontseat",	BOAT_POS_FRONTSEAT,	VEHICLE_FLAG_POS | CLUMP_FLAG_NO_HIERID },
+	{ "extra1", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
+	{ "extra2", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
+	{ "extra3", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
+	{ "extra4", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
+	{ "extra5", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
+	{ "extra6", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
 	{ nil, 0, 0 }
 };
 

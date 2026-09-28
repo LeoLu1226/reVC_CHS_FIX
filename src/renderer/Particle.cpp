@@ -2049,26 +2049,26 @@ void CParticle::Render()
 					switch ( TheCamera.GetLookDirection() )
 					{
 						case LOOKING_LEFT:
-							rect.x = int32(particle->m_vecPosition.x - SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x * 2.0f));
-							rect.y = int32(particle->m_vecPosition.y - SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
-							rect.w = int32(particle->m_vecPosition.x - SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x));
-							rect.h = int32(particle->m_vecPosition.y + SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
+							rect.x = int32(particle->m_vecPosition.x - particle->m_fSize * psystem->m_vecTextureStretch.x * 2.0f);
+							rect.y = int32(particle->m_vecPosition.y - particle->m_fSize * psystem->m_vecTextureStretch.y);
+							rect.w = int32(particle->m_vecPosition.x - particle->m_fSize * psystem->m_vecTextureStretch.x);
+							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
 					
 							break;
 
 						case LOOKING_RIGHT:
-							rect.x = int32(particle->m_vecPosition.x + SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x));
-							rect.y = int32(particle->m_vecPosition.y - SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
-							rect.w = int32(particle->m_vecPosition.x + SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x * 4.0f));
-							rect.h = int32(particle->m_vecPosition.y + SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
+							rect.x = int32(particle->m_vecPosition.x + particle->m_fSize * psystem->m_vecTextureStretch.x);
+							rect.y = int32(particle->m_vecPosition.y - particle->m_fSize * psystem->m_vecTextureStretch.y);
+							rect.w = int32(particle->m_vecPosition.x + particle->m_fSize * psystem->m_vecTextureStretch.x * 4.0f);
+							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
 					
 							break;
 
 						default:
-							rect.x = int32(particle->m_vecPosition.x - SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x));
-							rect.y = int32(particle->m_vecPosition.y - SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
-							rect.w = int32(particle->m_vecPosition.x + SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x));
-							rect.h = int32(particle->m_vecPosition.y + SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
+							rect.x = int32(particle->m_vecPosition.x - particle->m_fSize * psystem->m_vecTextureStretch.x);
+							rect.y = int32(particle->m_vecPosition.y - particle->m_fSize * psystem->m_vecTextureStretch.y);
+							rect.w = int32(particle->m_vecPosition.x + particle->m_fSize * psystem->m_vecTextureStretch.x);
+							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
 					
 							break;
 					}

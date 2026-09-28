@@ -6,6 +6,8 @@
 struct CReference;
 class CPtrList;
 
+bool ModelDrawsBackfaces(int modelIndex);
+
 enum eEntityType
 {
 	ENTITY_TYPE_NOTHING = 0,

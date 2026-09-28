@@ -95,6 +95,7 @@ CProjectileInfo::AddProjectile(CEntity *entity, eWeaponType weapon, CVector pos,
 					matrix.GetPosition() += pos;
 				} else {
 					matrix = ped->GetMatrix();
+					matrix.GetPosition() = pos;
 				}
 			}
 			velocity = Multiply3x3(matrix, CVector(0.0f, vy, 0.0f));

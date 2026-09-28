@@ -19,3 +19,20 @@ interior props and the intended exterior visibility area assignments.
 
 SilentPatch source and map diffs are Copyright (c) 2024 Adrian Zdanowicz
 (Silent), distributed under the MIT license in `SilentPatch-LICENSE.txt`.
+
+## Follow-up: items 71–82 and backface culling
+
+Items 71, 72, 73, 74, 76, 77, 78, 79, 80, 81, and 82 are implemented in the
+radar, boat, HUD, projectile, particle, motion-blur, and weapon paths. Item 75
+was already present. Heat-haze scaling is corrected in the PC, Xbox, Xbox 2,
+and PS2 particle paths.
+
+Backface culling now covers peds, detached vehicle parts, and the 317 model
+names from SilentPatchVC.ini. The model list is shipped as
+`gamefiles/data/DRAWBACKFACES.DAT`; prefix a model name or ID with `-` to force
+culling on for a modded model. The setting is applied both to ordinary entity
+rendering and to immediate and delayed building draws in the new renderer.
+
+The model list is from SilentPatch and uses the license above. Release builds
+must include `gamefiles/data/DRAWBACKFACES.DAT` alongside the executable's
+`data` directory.
