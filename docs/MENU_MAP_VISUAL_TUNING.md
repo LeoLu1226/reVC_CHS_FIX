@@ -16,9 +16,12 @@ features configurable. The port changes:
 | Vehicle high-detail / low-detail / fade | 200 / 250 / 260 |
 | Ordinary vehicle and pedestrian shadows | 300 |
 | Traffic-light coronas and ground projection | 300 |
+| Traffic vehicle retention, visible / off-screen | 180 / 90 |
 
 Vehicle wheel meshes remain visible while the parent high-detail mesh is in
-range. Existing vehicle and pedestrian generation/despawn, map LOD (300), aircraft shadow
+range. Vehicle spawning still uses its original 120 / 40 distances; only
+retention and the separate stopped-car cleanup use the new values. Visible
+traffic fades before removal. Pedestrian generation/despawn, map LOD (300), aircraft shadow
 distances, texture streaming, and traffic density are unchanged. Longer ranges
 increase rendering and pool pressure; verify performance and traffic behavior
 in-game before broad deployment.

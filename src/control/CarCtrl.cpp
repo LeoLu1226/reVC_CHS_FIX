@@ -30,6 +30,7 @@
 #include "TrafficLights.h"
 #include "Streaming.h"
 #include "VisibilityPlugins.h"
+#include "VisualTuning.h"
 #include "Vehicle.h"
 #include "Fire.h"
 #include "WaterLevel.h"
@@ -963,13 +964,11 @@ CCarCtrl::PossiblyRemoveVehicle(CVehicle* pVehicle)
 			return;
 		}
 		float distanceToPlayer = (pVehicle->GetPosition() - vecPlayerPos).Magnitude2D();
-		float threshold = OFFSCREEN_DESPAWN_RANGE;
-#ifndef EXTENDED_OFFSCREEN_DESPAWN_RANGE
+		float threshold = VisualTuning::VehicleDespawnOffScreen;
 		if (pVehicle->GetIsOnScreen() ||
 			TheCamera.Cams[TheCamera.ActiveCam].LookingLeft ||
 			TheCamera.Cams[TheCamera.ActiveCam].LookingRight ||
 			TheCamera.Cams[TheCamera.ActiveCam].LookingBehind ||
-			TheCamera.GetLookDirection() == 0 ||
 			pVehicle->VehicleCreatedBy == PARKED_VEHICLE ||
 			pVehicle->GetModelIndex() == MI_AMBULAN ||
 			pVehicle->GetModelIndex() == MI_FIRETRUCK ||
@@ -977,14 +976,9 @@ CCarCtrl::PossiblyRemoveVehicle(CVehicle* pVehicle)
 			pVehicle->bIsCarParkVehicle ||
 			CTimer::GetTimeInMilliseconds() < pVehicle->m_nSetPieceExtendedRangeTime
 			)
-#endif
 		{
-			threshold = ONSCREEN_DESPAWN_RANGE * TheCamera.GenerationDistMultiplier;
+			threshold = VisualTuning::VehicleDespawnOnScreen * TheCamera.GenerationDistMultiplier;
 		}
-#ifndef EXTENDED_OFFSCREEN_DESPAWN_RANGE
-		if (TheCamera.GetForward().z < -0.9f)
-			threshold = 70.0f;
-#endif
 		if (pVehicle->bExtendedRange)
 			threshold *= EXTENDED_RANGE_DESPAWN_MULTIPLIER;
 		if (distanceToPlayer > threshold && !CGarages::IsPointWithinHideOutGarage(pVehicle->GetPosition())){
@@ -1001,7 +995,8 @@ CCarCtrl::PossiblyRemoveVehicle(CVehicle* pVehicle)
 		(pVehicle->AutoPilot.m_nDrivingStyle == DRIVINGSTYLE_STOP_FOR_CARS || pVehicle->AutoPilot.m_nDrivingStyle == DRIVINGSTYLE_STOP_FOR_CARS_IGNORE_LIGHTS)) &&
 		CTimer::GetTimeInMilliseconds() - pVehicle->AutoPilot.m_nTimeToStartMission > 5000 &&
 		!pVehicle->GetIsOnScreen() &&
-		(pVehicle->GetPosition() - vecPlayerPos).Magnitude2D() > 22.0f &&
+		(pVehicle->GetPosition() - vecPlayerPos).Magnitude2D() >
+			VisualTuning::VehicleDespawnOffScreen * (pVehicle->bExtendedRange ? EXTENDED_RANGE_DESPAWN_MULTIPLIER : 1.0f) &&
 		!IsThisVehicleInteresting(pVehicle) &&
 		!pVehicle->bIsLocked &&
 		pVehicle->CanBeDeleted() &&
