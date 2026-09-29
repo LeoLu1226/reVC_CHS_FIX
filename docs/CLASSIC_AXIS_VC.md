@@ -11,6 +11,27 @@ Reference behavior:
   (official archive's `docs/GAME CONTROLS FULL LIST.txt`)
 - The previously integrated re3 lock/free-aim interaction, adapted to VC.
 
+## Configuration
+
+Classic Axis settings are stored in the game's generated `reVC.ini` under
+`[ClassicAxis]`. `data/ClassicAxisVC.ini` is no longer read. Boolean values use
+`0`/`1`; edit while the game is closed and restart. Missing keys use defaults.
+
+| Key | Default | Effect |
+|---|---:|---|
+| `ForceAutoAim` | `0` | Allow mouse/keyboard auto lock-on. |
+| `LockOnTargetType` | `1` | `0` native marker, `1` rotating SA triangles, `2` LCS/VCS triangles. |
+| `ShowTriangleForMouseRecruit` | `1` | Health-colored triangle over the ped under the mouse aiming ray. |
+| `WalkKey` | `LALT` | Held walk key; `NULL` disables. |
+| `StoriesAimingCoords` | `0` | LCS/VCS-style camera shoulder position. |
+| `StoriesPointingArm` | `0` | LCS/VCS-style one-handed arm angle. |
+| `RightAnalogStickSensitivityX/Y` | `1.0` | Horizontal/vertical right-stick response, clamped to `0.1`–`4.0`. |
+| `ZoomForAssaultRifles` | `0` | Narrow FOV when aiming with assault rifles. |
+| `ModernCamera` | `1` | Use the modern follow-camera offset. |
+
+The reticle remains fixed at the screen centre. `CameraCrosshairMultX/Y` are
+intentionally unsupported. VC crouch uses the game's native Duck binding.
+
 ## Controls
 
 Xbox names below; the selected PlayStation/Nintendo button textures are used in
@@ -60,7 +81,7 @@ the existing frontend shutdown path. Save/load operations retain native guards.
   camera transitions do not enable the aiming reticle.
 - Sniper rifle, laser scope, RPG and camera keep dedicated VC camera modes.
 - Ruger, M4 and M60 support third-person aiming. Rifle zoom defaults off, matching
-  Classic Axis VC; it can be enabled in `data/ClassicAxisVC.ini`.
+  Classic Axis VC; it can be enabled in `reVC.ini`.
 - Flamethrower and minigun support standing aim only. Unsupported crouch fire
   animations are not synthesized.
 - Weapon animations, native firing/reload cadence and native crouch actions are

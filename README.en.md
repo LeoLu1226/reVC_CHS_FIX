@@ -16,7 +16,7 @@
 - **Map**: left stick/D-pad pan, LT/RT zoom, X/Square waypoint, LB/L1 legend. Fix mouse/controller ownership, dragging jumps and stale cursor coordinates. All edges and corners are reachable at every zoom level.
 - **Menus and focus**: B/Circle returns one level; B on the initial pause page resumes play, as does Start. Stop cutscenes from pulling the desktop pointer back after Alt+Tab; no new cutscene pause menu is added.
 
-See [ClassicAxisVC.ini](gamefiles/data/ClassicAxisVC.ini) and the [full controls and validation notes](docs/CLASSIC_AXIS_VC.md). Windows x64 librw D3D9/OpenAL C++17 builds and isolated checks passed; full gameplay and physical-controller validation remain outstanding.
+Classic Axis settings now live in the game's `reVC.ini` (`[ClassicAxis]`); see the [full controls and configuration notes](docs/CLASSIC_AXIS_VC.md). Full gameplay and physical-controller validation remain outstanding.
 
 Clone this fork with:
 

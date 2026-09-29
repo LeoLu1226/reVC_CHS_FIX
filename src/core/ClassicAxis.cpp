@@ -3,8 +3,8 @@
 #include "AnimBlendAssociation.h"
 #include "AnimManager.h"
 #include "Camera.h"
+#include "ColPoint.h"
 #include "CutsceneMgr.h"
-#include "FileMgr.h"
 #include "Frontend.h"
 #include "General.h"
 #include "Pad.h"
@@ -24,6 +24,7 @@ bool modernCamera = true, zoomRifles = false, storiesAim = false, storiesArm = f
 float oldCrossX, oldCrossY;
 float aimBlend, duckOffset;
 bool controllerFreeAim;
+CEntity *mouseTarget;
 std::string walkKey = "LALT";
 struct WalkButton { const char *name; bool (CPad::*held)(); };
 const WalkButton walkButtons[] = {
@@ -64,37 +65,6 @@ WalkHeld(CPad *pad)
 	for(const auto &button : walkButtons) if(walkKey == button.name) return (pad->*button.held)();
 	return false;
 }
-void
-Settings()
-{
-	if(configured) return;
-	configured = true;
-	std::string path = std::string(CFileMgr::GetRootDirName()) + "data\\ClassicAxisVC.ini";
-	int f = CFileMgr::OpenFile(path.c_str(), "rb");
-	if(!f) return;
-	char buf[256];
-	while(CFileMgr::ReadLine(f, buf, sizeof(buf))) {
-		std::string s = buf;
-		s = s.substr(0, s.find(';'));
-		size_t eq = s.find('=');
-		if(eq == std::string::npos) continue;
-		std::string k = Trim(s.substr(0, eq)), v = Trim(s.substr(eq + 1));
-		bool yes = v == "true" || v == "1";
-		if(k == "ForceAutoAim")
-			forceAutoAim = yes;
-		else if(k == "ModernCamera")
-			modernCamera = yes;
-		else if(k == "ZoomForAssaultRifles")
-			zoomRifles = yes;
-		else if(k == "StoriesAimingCoords")
-			storiesAim = yes;
-		else if(k == "StoriesPointingArm")
-			storiesArm = yes;
-		else if(k == "WalkKey")
-			SetWalkKey(v);
-	}
-	CFileMgr::CloseFile(f);
-}
 bool
 UsingController()
 {
@@ -115,10 +85,28 @@ Supported(CPed *p)
 	return !info->IsFlagSet(WEAPONFLAG_THROW) && (info->IsFlagSet(WEAPONFLAG_CANAIM) || info->IsFlagSet(WEAPONFLAG_CANAIM_WITHARM));
 }
 } // namespace
+ClassicAxisOptions CClassicAxis::Options;
+void
+CClassicAxis::ApplySettings()
+{
+	configured = true;
+	forceAutoAim = Options.ForceAutoAim;
+	modernCamera = Options.ModernCamera;
+	zoomRifles = Options.ZoomForAssaultRifles;
+	storiesAim = Options.StoriesAimingCoords;
+	storiesArm = Options.StoriesPointingArm;
+	Options.LockOnTargetType = Clamp(Options.LockOnTargetType, 0, 2);
+	if(!std::isfinite(Options.RightAnalogStickSensitivityX)) Options.RightAnalogStickSensitivityX = 1.0f;
+	if(!std::isfinite(Options.RightAnalogStickSensitivityY)) Options.RightAnalogStickSensitivityY = 1.0f;
+	Options.RightAnalogStickSensitivityX = Clamp(Options.RightAnalogStickSensitivityX, 0.1f, 4.0f);
+	Options.RightAnalogStickSensitivityY = Clamp(Options.RightAnalogStickSensitivityY, 0.1f, 4.0f);
+	SetWalkKey(Options.WalkKey);
+	snprintf(Options.WalkKey, sizeof(Options.WalkKey), "%s", walkKey.c_str());
+}
 bool
 CClassicAxis::Enabled()
 {
-	Settings();
+	if(!configured) ApplySettings();
 	return FrontEndMenuManager.m_ControlMethod == CONTROL_STANDARD;
 }
 bool
@@ -142,6 +130,23 @@ CClassicAxis::Aiming(const CPed *ped)
 bool
 CClassicAxis::AutoAim()
 { return Enabled() && (UsingController() || forceAutoAim); }
+CPed *
+CClassicAxis::MouseTarget()
+{
+	CPlayerPed *player = FindPlayerPed();
+	if(UsingController() || !Aiming(player) || player->m_pPointGunAt)
+		return nil;
+	CVector source, target;
+	TheCamera.Find3rdPersonCamTargetVector(CWeaponInfo::GetWeaponInfo(player->GetWeapon()->m_eWeaponType)->m_fRange,
+		TheCamera.Cams[TheCamera.ActiveCam].Source, source, target);
+	CColPoint point;
+	CEntity *hit = nil;
+	if(!CWorld::ProcessLineOfSight(source, target, point, hit, false, false, true, false, false, false, false, false) ||
+	   !hit || !hit->IsPed() || hit == player)
+		return nil;
+	CPed *ped = static_cast<CPed *>(hit);
+	return !ped->DyingOrDead() && player->OurPedCanSeeThisOne(ped, true) ? ped : nil;
+}
 bool
 CClassicAxis::Crouched(const CPed *ped)
 { return Active(ped) && ped->bIsDucking; }
@@ -165,6 +170,8 @@ CClassicAxis::MoveLimit(const CPed *ped)
 void
 CClassicAxis::Reset(CPlayerPed *ped)
 {
+	if(mouseTarget) mouseTarget->CleanUpOldReference(&mouseTarget);
+	mouseTarget = nil;
 	if(ped) {
 
 		if(ownsAim) {
@@ -194,6 +201,17 @@ CClassicAxis::Update(CPlayerPed *p)
 	bool active = Active(p);
 	CPad *pad = CPad::GetPad(0);
 	if(CTimer::GetIsPaused()) return;
+	CEntity *newMouseTarget = MouseTarget();
+	if(newMouseTarget != mouseTarget) {
+		if(mouseTarget) mouseTarget->CleanUpOldReference(&mouseTarget);
+		mouseTarget = newMouseTarget;
+		if(mouseTarget) {
+			mouseTarget->RegisterReference(&mouseTarget);
+			CPed *target = static_cast<CPed *>(mouseTarget);
+			if(target->CanSeeEntity(p, CAN_SEE_ENTITY_ANGLE_THRESHOLD * 2.0f))
+				target->ReactToPointGun(p);
+		}
+	}
 	if(!Aiming(p) || !CPad::IsStandardControls()) controllerFreeAim = false;
 	if(ownsAim && !Aiming(p)) {
 		if(p->m_nPedState == PED_AIM_GUN)

@@ -18,7 +18,7 @@
 - **大地图**：左摇杆/十字键平移，LT/RT 缩放，X/方块标点，LB/L1 开关图例；修复鼠标与手柄争抢、拖动跳动和旧光标坐标。所有缩放下均可到达四边与四角。
 - **菜单与焦点**：B/圆圈返回上一级，暂停首页 B 返回游戏，Start 恢复游戏；修复过场切到桌面后鼠标被拉回，不新增过场暂停菜单。
 
-配置见 [ClassicAxisVC.ini](gamefiles/data/ClassicAxisVC.ini)，完整操作与验证范围见 [Classic Axis VC](docs/CLASSIC_AXIS_VC.md)。本次已通过 Windows x64、librw D3D9、OpenAL、C++17 编译与隔离逻辑检查，完整游戏及实体手柄测试仍需继续。
+配置已整合到游戏的 `reVC.ini`（`[ClassicAxis]`），完整选项与操作见 [Classic Axis VC](docs/CLASSIC_AXIS_VC.md)。完整游戏及实体手柄测试仍需继续。
 
 当前仓库克隆命令：
 

@@ -3493,7 +3493,8 @@ int16 CPad::LookAroundLeftRight(void)
 {
 	if(IsStandardControls()) {
 		int axis = NewState.RightStickX;
-		return ArePlayerControlsDisabled() || Abs(axis) <= 20 ? 0 : (axis + (axis > 0 ? -20 : 20)) * 127 / 107;
+		return ArePlayerControlsDisabled() || Abs(axis) <= 20 ? 0 :
+			int16(Clamp((axis + (axis > 0 ? -20 : 20)) * (127.0f / 107.0f) * CClassicAxis::Options.RightAnalogStickSensitivityX, -127.0f, 127.0f));
 	}
 	float axis = GetPad(0)->NewState.RightStickX;
 
@@ -3512,7 +3513,8 @@ int16 CPad::LookAroundUpDown(void)
 {
 	if(IsStandardControls()) {
 		int axis = bInvertLook4Pad ? NewState.RightStickY : -NewState.RightStickY;
-		return ArePlayerControlsDisabled() || Abs(axis) <= 20 ? 0 : (axis + (axis > 0 ? -20 : 20)) * 127 / 107;
+		return ArePlayerControlsDisabled() || Abs(axis) <= 20 ? 0 :
+			int16(Clamp((axis + (axis > 0 ? -20 : 20)) * (127.0f / 107.0f) * CClassicAxis::Options.RightAnalogStickSensitivityY, -127.0f, 127.0f));
 	}
 	int16 axis = GetPad(0)->NewState.RightStickY;
 #ifdef FIX_BUGS
