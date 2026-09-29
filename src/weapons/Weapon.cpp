@@ -971,7 +971,7 @@ CWeapon::FireInstantHit(CEntity *shooter, CVector *fireSource)
 		CPlayerPed *player = (CPlayerPed*)shooter;
 		if (CClassicAxis::Active(player) && !CClassicAxis::Aiming(player)) {
 			source = *fireSource;
-			CVector forward = shooter->GetForward();
+			CVector forward = TheCamera.Cams[TheCamera.ActiveCam].Front;
 			forward.z = 0.0f;
 			forward.Normalise();
 			target = source + forward * info->m_fRange;
@@ -2206,7 +2206,7 @@ CWeapon::FireAreaEffect(CEntity *shooter, CVector *fireSource)
 		CPlayerPed *player = (CPlayerPed*)shooter;
 		if (CClassicAxis::Active(player) && !CClassicAxis::Aiming(player)) {
 			source = *fireSource;
-			CVector forward = shooter->GetForward();
+			CVector forward = TheCamera.Cams[TheCamera.ActiveCam].Front;
 			forward.z = 0.0f;
 			forward.Normalise();
 			target = source + forward * info->m_fRange;
