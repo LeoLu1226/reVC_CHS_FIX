@@ -6,6 +6,7 @@
 #include "AudioManager.h"
 #include "BulletInfo.h"
 #include "Camera.h"
+#include "ClassicAxis.h"
 #include "Coronas.h"
 #include "DMAudio.h"
 #include "Explosion.h"
@@ -967,6 +968,14 @@ CWeapon::FireInstantHit(CEntity *shooter, CVector *fireSource)
 	}
 	else if ( shooter == FindPlayerPed() && TheCamera.Cams[0].Using3rdPersonMouseCam()  )
 	{
+		CPlayerPed *player = (CPlayerPed*)shooter;
+		if (CClassicAxis::Active(player) && !CClassicAxis::Aiming(player)) {
+			source = *fireSource;
+			CVector forward = shooter->GetForward();
+			forward.z = 0.0f;
+			forward.Normalise();
+			target = source + forward * info->m_fRange;
+		} else {
 #ifdef FREE_CAM
 		if (CCamera::bFreeCam) {
 			CPlayerPed* shooterPed = (CPlayerPed*)shooter;
@@ -983,6 +992,7 @@ CWeapon::FireInstantHit(CEntity *shooter, CVector *fireSource)
 #endif
 		{
 			TheCamera.Find3rdPersonCamTargetVector(info->m_fRange, *fireSource, source, target);
+		}
 		}
 
 #ifdef FIX_BUGS
@@ -2193,6 +2203,14 @@ CWeapon::FireAreaEffect(CEntity *shooter, CVector *fireSource)
 
 	if ( shooter == FindPlayerPed() && TheCamera.Cams[0].Using3rdPersonMouseCam() )
 	{
+		CPlayerPed *player = (CPlayerPed*)shooter;
+		if (CClassicAxis::Active(player) && !CClassicAxis::Aiming(player)) {
+			source = *fireSource;
+			CVector forward = shooter->GetForward();
+			forward.z = 0.0f;
+			forward.Normalise();
+			target = source + forward * info->m_fRange;
+		} else {
 #ifdef FREE_CAM
 		if (CCamera::bFreeCam) {
 			CPlayerPed* shooterPed = (CPlayerPed*)shooter;
@@ -2202,6 +2220,7 @@ CWeapon::FireAreaEffect(CEntity *shooter, CVector *fireSource)
 #endif
 		{
 			TheCamera.Find3rdPersonCamTargetVector(info->m_fRange, *fireSource, source, target);
+		}
 		}
 		float norm = (1.0f / info->m_fRange);
 		dir = (target - source) * norm;

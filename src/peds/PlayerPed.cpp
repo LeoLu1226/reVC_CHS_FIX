@@ -1381,7 +1381,7 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 	if (pointedGun == 2) pointedGun = 1;
 
 	// Rotate player/arm when shooting. We don't have auto-rotation anymore
-	if (!CClassicAxis::Aiming(this) && CCamera::m_bUseMouse3rdPerson && CCamera::bFreeCam &&
+	if (!CClassicAxis::Active(this) && CCamera::m_bUseMouse3rdPerson && CCamera::bFreeCam &&
 		m_nSelectedWepSlot == m_currentWeapon && m_nMoveState != PEDMOVE_SPRINT) {
 
 #define CAN_AIM_WITH_ARM (weaponInfo->IsFlagSet(WEAPONFLAG_CANAIM_WITHARM) && !bIsDucking && !bCrouchWhenShooting)
@@ -1433,6 +1433,8 @@ CPlayerPed::ProcessPlayerWeapon(CPad *padUsed)
 		changedHeadingRate = 0;
 		RestoreHeadingRate();
 	}
+	if (CClassicAxis::Active(this))
+		pointedGun = 0;
 	if (pointedGun == 1) {
 		if (m_nPedState == PED_ATTACK) {
 			if (!padUsed->GetWeapon() && (m_pedIK.m_flags & CPedIK::GUN_POINTED_SUCCESSFULLY) == 0) {
