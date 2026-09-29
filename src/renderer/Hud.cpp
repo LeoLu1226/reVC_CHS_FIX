@@ -125,7 +125,7 @@ float CHud::OddJob2OffTimer;
 bool CHud::CounterOnLastFrame[NUMONSCREENCOUNTERS];
 float CHud::OddJob2XOffset;
 uint16 CHud::CounterFlashTimer[NUMONSCREENCOUNTERS];
-uint16 CHud::OddJob2Timer;
+float CHud::OddJob2Timer;
 bool CHud::TimerOnLastFrame;
 int16 CHud::OddJob2On;
 uint16 CHud::TimerFlashTimer;
@@ -1596,8 +1596,12 @@ void CHud::DrawAfterFade()
 	}
 
 	// Oddjob result
+	const float oddJobElapsedMs = CTimer::GetTimeStepInSeconds() * 1000.0f;
+	// The original slide steps were per frame. Keep their 30 FPS timing at any
+	// frame rate so vehicle-side-mission names do not flash at high FPS.
+	const float oddJobFrameScale = Min(oddJobElapsedMs * (30.0f / 1000.0f), 3.0f);
 	if (OddJob2OffTimer > 0)
-		OddJob2OffTimer -= CTimer::GetTimeStepInMilliseconds();
+		OddJob2OffTimer -= oddJobElapsedMs;
 
 	float fStep;
 	if (m_BigMessage[5][0] && OddJob2OffTimer <= 0.0f) {
@@ -1612,18 +1616,18 @@ void CHud::DrawAfterFade()
 					OddJob2On = 2;
 				}
 				else {
-					fStep = Min(40.0f, OddJob2XOffset / 6.0f);
+					fStep = Min(40.0f, OddJob2XOffset / 6.0f) * oddJobFrameScale;
 					OddJob2XOffset = OddJob2XOffset - fStep;
 				}
 				break;
 			case 2:
-				OddJob2Timer += CTimer::GetTimeStepInMilliseconds();
+				OddJob2Timer += oddJobElapsedMs;
 				if (OddJob2Timer > 1500) {
 					OddJob2On = 3;
 				}
 				break;
 			case 3:
-				fStep = Max(30.0f, OddJob2XOffset / 5.0f);
+				fStep = Max(30.0f, OddJob2XOffset / 5.0f) * oddJobFrameScale;
 
 				OddJob2XOffset = OddJob2XOffset - fStep;
 
