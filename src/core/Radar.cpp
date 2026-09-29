@@ -829,7 +829,11 @@ void CRadar::DrawRadarSprite(uint16 sprite, float x, float y, uint8 alpha)
 #ifdef MAP_ENHANCEMENTS
 	if(sprite == RADAR_SPRITE_WAYPOINT) alpha = 255;
 #endif
+	if(sprite == RADAR_SPRITE_WAYPOINT)
+		RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERNEAREST);
 	RadarSprites[sprite]->Draw(CRect(x - SCREEN_SCALE_X(8.0f), y - SCREEN_SCALE_Y(8.0f), x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(8.0f)), CRGBA(255, 255, 255, alpha));
+	if(sprite == RADAR_SPRITE_WAYPOINT)
+		RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
 
 	if (FrontEndMenuManager.m_bMenuMapActive) {
 		bool alreadyThere = false;
