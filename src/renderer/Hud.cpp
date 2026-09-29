@@ -1385,7 +1385,7 @@ void CHud::Draw()
 						CFont::SetWrapx(SCREEN_SCALE_X(200.0f + 34.0f - 4.0f));
 					CFont::SetFontStyle(FONT_LOCALE(FONT_STANDARD));
 					CFont::SetBackgroundOn();
-					CFont::SetBackGroundOnlyTextOff();
+					CFont::SetBackGroundOnlyTextOn();
 					CFont::SetDropShadowPosition(0);
 					CFont::SetBackgroundColor(CRGBA(0, 0, 0, fAlpha * 0.9f));
 					CFont::SetColor(CRGBA(175, 175, 175, 255));

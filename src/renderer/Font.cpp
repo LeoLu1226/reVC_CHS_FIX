@@ -1650,7 +1650,9 @@ void CFont::GetTextRect_Chs(CRect *rect, float xstart, float ystart, wchar *s)
 		rect->right = xstart + paddingX;
 	} else {
 		rect->left = xstart - paddingX;
-		rect->right = Details.wrapX + paddingX;
+		const float textRight = xstart + GetStringWidth_Chs(s, true);
+		rect->right = Details.backgroundOnlyText && numLines == 1
+			? (textRight < Details.wrapX ? textRight : Details.wrapX) + paddingX : Details.wrapX + paddingX;
 	}
 
 	rect->top = ystart - paddingY;
@@ -1745,7 +1747,8 @@ void CFont::GetTextRect(CRect *rect, float xstart, float ystart, wchar *s)
 		}
 	} else {
 		rect->left = xstart - SCREEN_SCALE_X(4.0f);
-		rect->right = Details.wrapX;
+		rect->right = Details.backgroundOnlyText
+			? ((float)maxlength < Details.wrapX ? (float)maxlength : Details.wrapX) + SCREEN_SCALE_X(4.0f) : Details.wrapX;
 		// WTF?
 		rect->bottom = ystart - 4.0f + 4.0f;
 #ifdef MORE_LANGUAGES
