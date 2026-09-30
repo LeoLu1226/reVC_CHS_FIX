@@ -240,6 +240,12 @@ CPlayerPed::MakeChangesForNewWeapon(eWeaponType weapon)
 		weaponAnim->flags |= ASSOC_FADEOUTWHENDONE;
 	}
 	TheCamera.ClearPlayerWeaponMode();
+	if (CClassicAxis::Active(this) && bIsDucking && bCrouchWhenShooting) {
+		// Also preserve crouch when switching to weapons that cannot aim.
+		CAnimBlendAssociation *duck = CAnimManager::BlendAnimation(GetClump(), ASSOCGRP_STD, ANIM_STD_DUCK_WEAPON, 4.0f);
+		duck->SetCurrentTime(duck->hierarchy->totalLength);
+		duck->flags &= ~(ASSOC_RUNNING | ASSOC_FADEOUTWHENDONE);
+	}
 }
 
 void

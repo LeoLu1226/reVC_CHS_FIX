@@ -682,8 +682,11 @@ CFont::PrintCHSChar(float arg_x, float arg_y, uint32 arg_char)
 	// Atlas cells are square: screen-space X and Y must use the same scale.
 	const float displayScale = RenderState.slant != 0.0f ? CHS_SLANTED_DISPLAY_SCALE : CHS_DISPLAY_SCALE;
 	const float charSize = RenderState.scaleY * 16.0f * displayScale;
-	const float nativeHeight = RenderState.style == FONT_HEADING ? 16.0f : 20.0f;
-	const float yOffset = RenderState.scaleY * (nativeHeight - 16.0f * displayScale) * 0.5f;
+	// The BANK/STANDARD glyph ink sits slightly above the centre of its
+	// 20-unit quad. Use the midpoint between top-alignment and quad-centering
+	// for CJK, while leaving the 16-unit HEADING baseline unchanged.
+	const float alignmentHeight = RenderState.style == FONT_HEADING ? 16.0f : 18.0f;
+	const float yOffset = RenderState.scaleY * (alignmentHeight - 16.0f * displayScale) * 0.5f;
 	CRect rect(arg_x, arg_y + yOffset, arg_x + charSize, arg_y + yOffset + charSize);
 
 	const float u1 = pos.columnIndex * rColumnsCount;

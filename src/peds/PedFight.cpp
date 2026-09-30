@@ -255,7 +255,9 @@ CPed::ClearPointGunAt(void)
 	// before Duck() concludes that the missing animation means we stood up.
 	if(CClassicAxis::Active(this) && bIsDucking && bCrouchWhenShooting && m_nPedState != PED_JUMP) {
 		CAnimBlendAssociation *duck = CAnimManager::BlendAnimation(GetClump(), ASSOCGRP_STD, ANIM_STD_DUCK_WEAPON, 4.0f);
-		duck->flags &= ~ASSOC_FADEOUTWHENDONE;
+		// We are already crouched: do not replay the standing-to-crouch entry.
+		duck->SetCurrentTime(duck->hierarchy->totalLength);
+		duck->flags &= ~(ASSOC_RUNNING | ASSOC_FADEOUTWHENDONE);
 	}
 }
 
