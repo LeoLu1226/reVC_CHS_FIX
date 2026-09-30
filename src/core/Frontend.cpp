@@ -5409,12 +5409,13 @@ float CMenuManager::StretchY(float y)
 void
 CMenuManager::CloseDialog(void)
 {
-	// We don't have this on PC GXT :shrug:
+	// The Xbox success message is absent from the PC GXT.
 	static wchar* gameSaved = AllocUnicode("Game saved successfully!");
+	static wchar gameSavedChinese[] = { 0x6E38, 0x620F, 0x5DF2, 0x6210, 0x529F, 0x4FDD, 0x5B58, 0xFF01, 0 }; // 游戏已成功保存！
 
 	if (m_bSaveWasSuccessful && DialogTextCmp("FESZ_WR")) {
 		m_bSaveWasSuccessful = false; // i don't know where XBOX resets that
-		m_pDialogText = gameSaved;
+		m_pDialogText = m_PrefsLanguage == LANGUAGE_CHINESE ? gameSavedChinese : gameSaved;
 		SetDialogTimer(1000);
 	    ProcessDialogTimer();
 	} else {
