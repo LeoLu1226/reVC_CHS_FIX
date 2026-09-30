@@ -35,8 +35,10 @@ public:
 	
 	uint32 GetBufferSamples()
 	{
-		//return (GetAvgSamplesPerSec() >> 2) - (GetSampleCount() % GetChannels());
-		return (GetAvgSamplesPerSec() / 4); // 250ms
+		// Round the frame count before multiplying by channels. At 22050 Hz,
+		// dividing stereo samples by four splits a frame, leaving odd byte
+		// counts in the MONO16 buffers; OpenAL then retains the previous audio.
+		return (GetSampleRate() / 4) * GetChannels(); // approximately 250ms
 	}
 	
 	uint32 GetBufferSize()
