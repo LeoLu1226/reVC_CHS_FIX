@@ -2221,21 +2221,51 @@ INITSAVEBUF
 	for (uint32 i = 0; i < MAX_NUM_BUILDING_SWAPS; i++) {
 		ReadSaveBuf(&type, buf);
 		ReadSaveBuf(&handle, buf);
-		switch (type) {
-		case 0:
-			BuildingSwapArray[i].m_pBuilding = nil;
-			break;
-		case 1:
-			BuildingSwapArray[i].m_pBuilding = CPools::GetTreadablePool()->GetSlot(handle - 1);
-			break;
-		case 2:
-			BuildingSwapArray[i].m_pBuilding = CPools::GetBuildingPool()->GetSlot(handle - 1);
-			break;
-		default:
-			script_assert(false);
-		}
 		ReadSaveBuf(&BuildingSwapArray[i].m_nNewModel, buf);
 		ReadSaveBuf(&BuildingSwapArray[i].m_nOldModel, buf);
+		CBuilding *building = nil;
+		if (type == 1) {
+			CTreadablePool *pool = CPools::GetTreadablePool();
+			if (handle > 0 && handle <= (uint32)pool->GetSize())
+				building = pool->GetSlot(handle - 1);
+		} else if (type == 2) {
+			CBuildingPool *pool = CPools::GetBuildingPool();
+			if (handle > 0 && handle <= (uint32)pool->GetSize())
+				building = pool->GetSlot(handle - 1);
+		} else if (type != 0) {
+			script_assert(false);
+		}
+		// A different IPL load order changes pool indices without changing the
+		// save's model IDs. Never replace an unrelated building at the old slot.
+		if (building && building->GetModelIndex() != BuildingSwapArray[i].m_nOldModel &&
+		    building->GetModelIndex() != BuildingSwapArray[i].m_nNewModel)
+			building = nil;
+		if (!building && (type == 1 || type == 2)) {
+			CBuilding *match = nil;
+			int matches = 0;
+			if (type == 1) {
+				CTreadablePool *pool = CPools::GetTreadablePool();
+				for (int j = 0; j < pool->GetSize(); j++) {
+					CTreadable *candidate = pool->GetSlot(j);
+					if (candidate && candidate->GetModelIndex() == BuildingSwapArray[i].m_nOldModel) {
+						match = candidate;
+						matches++;
+					}
+				}
+			} else {
+				CBuildingPool *pool = CPools::GetBuildingPool();
+				for (int j = 0; j < pool->GetSize(); j++) {
+					CBuilding *candidate = pool->GetSlot(j);
+					if (candidate && candidate->GetModelIndex() == BuildingSwapArray[i].m_nOldModel) {
+						match = candidate;
+						matches++;
+					}
+				}
+			}
+			if (matches == 1)
+				building = match;
+		}
+		BuildingSwapArray[i].m_pBuilding = building;
 		if (BuildingSwapArray[i].m_pBuilding)
 			BuildingSwapArray[i].m_pBuilding->ReplaceWithNewModel(BuildingSwapArray[i].m_nNewModel);
 	}
