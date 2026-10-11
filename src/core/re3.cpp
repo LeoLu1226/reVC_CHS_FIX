@@ -981,14 +981,6 @@ switchWeather(void)
 }
 
 void
-MyTest1()
-{
-	wchar *s = (wchar*)L"~n~ tanka";
-	CHud::SetHelpMessage(s, true);
-	SpawnCar(MI_RHINO);
-}
-
-void
 DebugMenuPopulate(void)
 {
 	if(1){
@@ -1016,8 +1008,6 @@ DebugMenuPopulate(void)
 			"18", "19", "20", "21", "22", "23", "24"
 		};
 		DebugMenuEntry *e;
-
-		DebugMenuAddCmd("MyTest", "BUutton1", MyTest1);
 
 		e = DebugMenuAddVar("Time & Weather", "Current Hour", &CClock::GetHoursRef(), nil, 1, 0, 23, nil);
 		DebugMenuEntrySetWrap(e, true);
