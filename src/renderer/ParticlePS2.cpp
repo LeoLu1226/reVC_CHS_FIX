@@ -2010,29 +2010,31 @@ void ParticleEngine::Render()
 					canDraw = false;
 				}
 
-if ( i == PARTICLE_HEATHAZE )
-				{
+				if(i == PARTICLE_HEATHAZE) {
 
 					RwRect rect;
 
-					switch ( TheCamera.GetLookDirection() )
-					{
-						case 1:
+					switch(TheCamera.GetLookDirection()) {
+					case LOOKING_LEFT:
 #ifdef FIX_BUGS
 							rect.x = int32(particle->m_vecPosition.x - particle->m_fSize * psystem->m_vecTextureStretch.x * 2.0f);
 							rect.y = int32(particle->m_vecPosition.y - particle->m_fSize * psystem->m_vecTextureStretch.y);
 							rect.w = int32(particle->m_vecPosition.x - particle->m_fSize * psystem->m_vecTextureStretch.x);
 							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
 #else
-							rect.x = int32(particle->m_vecPosition.x - particle->m_fSize * psystem->m_vecTextureStretch.x * 2.0f);
-							rect.y = int32(particle->m_vecPosition.y - particle->m_fSize * psystem->m_vecTextureStretch.y);
-							rect.w = int32(particle->m_vecPosition.x - particle->m_fSize * psystem->m_vecTextureStretch.x);
-							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
+						rect.x = int32(particle->m_vecPosition.x -
+						               SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x * 2.0f));
+						rect.y =
+						    int32(particle->m_vecPosition.y - SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
+						rect.w =
+						    int32(particle->m_vecPosition.x - SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x));
+						rect.h =
+						    int32(particle->m_vecPosition.y + SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
 #endif
 
 							break;
 
-						case 2:
+					case LOOKING_RIGHT:
 #ifdef FIX_BUGS
 							rect.x = int32(particle->m_vecPosition.x + particle->m_fSize * psystem->m_vecTextureStretch.x);
 							rect.y = int32(particle->m_vecPosition.y - particle->m_fSize * psystem->m_vecTextureStretch.y);
@@ -2040,10 +2042,14 @@ if ( i == PARTICLE_HEATHAZE )
 							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
 
 #else
-							rect.x = int32(particle->m_vecPosition.x + particle->m_fSize * psystem->m_vecTextureStretch.x);
-							rect.y = int32(particle->m_vecPosition.y - particle->m_fSize * psystem->m_vecTextureStretch.y);
-							rect.w = int32(particle->m_vecPosition.x + particle->m_fSize * psystem->m_vecTextureStretch.x * 4.0f);
-							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
+						rect.x =
+						    int32(particle->m_vecPosition.x + SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x));
+						rect.y =
+						    int32(particle->m_vecPosition.y - SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
+						rect.w = int32(particle->m_vecPosition.x +
+						               SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x * 4.0f));
+						rect.h =
+						    int32(particle->m_vecPosition.y + SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
 #endif
 
 							break;
@@ -2055,14 +2061,18 @@ if ( i == PARTICLE_HEATHAZE )
 							rect.w = int32(particle->m_vecPosition.x + particle->m_fSize * psystem->m_vecTextureStretch.x);
 							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
 #else
-							rect.x = int32(particle->m_vecPosition.x - particle->m_fSize * psystem->m_vecTextureStretch.x);
-							rect.y = int32(particle->m_vecPosition.y - particle->m_fSize * psystem->m_vecTextureStretch.y);
-							rect.w = int32(particle->m_vecPosition.x + particle->m_fSize * psystem->m_vecTextureStretch.x);
-							rect.h = int32(particle->m_vecPosition.y + particle->m_fSize * psystem->m_vecTextureStretch.y);
+						        rect.x = int32(particle->m_vecPosition.x -
+						                       SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x));
+						        rect.y = int32(particle->m_vecPosition.y -
+						                       SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
+						        rect.w = int32(particle->m_vecPosition.x +
+						                       SCREEN_STRETCH_X(particle->m_fSize * psystem->m_vecTextureStretch.x));
+						        rect.h = int32(particle->m_vecPosition.y +
+						                       SCREEN_STRETCH_Y(particle->m_fSize * psystem->m_vecTextureStretch.y));
 #endif
 
 							break;
-					}
+					        }
 
 					CMBlur::AddRenderFx(Scene.camera, &rect, screenZ, FXTYPE_HEATHAZE);
 

@@ -685,8 +685,12 @@ LoadingScreen(const char *str1, const char *str2, const char *splashscreen)
 			float bottom = SCREEN_STRETCH_Y(407.4f + 7.0f/3.0f);
 #endif
 
+#ifdef FIX_BUGS
 			CSprite2d::DrawRect(CRect(hpos-SCREEN_SCALE_X(1.0f), top-SCREEN_SCALE_Y(1.0f),
 				hpos+length+SCREEN_SCALE_X(1.0f), bottom+SCREEN_SCALE_Y(1.0f)), CRGBA(40, 53, 68, 255));
+#else
+			CSprite2d::DrawRect(CRect(hpos - 1.0f, top - 1.0f, hpos + length + 1.0f, bottom + 1.0f), CRGBA(40, 53, 68, 255));
+#endif
 
 			CSprite2d::DrawRect(CRect(hpos, top, hpos+length, bottom), CRGBA(155, 50, 125, 255));
 

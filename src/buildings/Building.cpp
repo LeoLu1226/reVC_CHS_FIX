@@ -5,6 +5,7 @@
 #include "Pools.h"
 #include "ModelInfo.h"
 
+#ifdef FIX_BUGS
 static void
 UpdateConstructionSiteLod(int32 oldModel, int32 newModel)
 {
@@ -21,6 +22,7 @@ UpdateConstructionSiteLod(int32 oldModel, int32 newModel)
 	else if(oldModel == damagedId && newModel == intactId)
 		lod->SetRelatedModel(intact);
 }
+#endif
 
 void *CBuilding::operator new(size_t sz) throw() { return CPools::GetBuildingPool()->New();  }
 void CBuilding::operator delete(void *p, size_t sz) throw() { CPools::GetBuildingPool()->Delete((CBuilding*)p); }
@@ -28,13 +30,17 @@ void CBuilding::operator delete(void *p, size_t sz) throw() { CPools::GetBuildin
 void
 CBuilding::ReplaceWithNewModel(int32 id)
 {
+#ifdef FIX_BUGS
 	int32 oldModel = m_modelIndex;
+#endif
 	DeleteRwObject();
 
 	if (CModelInfo::GetModelInfo(m_modelIndex)->GetNumRefs() == 0)
 		CStreaming::RemoveModel(m_modelIndex);
 	m_modelIndex = id;
+#ifdef FIX_BUGS
 	UpdateConstructionSiteLod(oldModel, id);
+#endif
 
 	if(bIsBIGBuilding)
 		if(m_level == LEVEL_GENERIC || m_level == CGame::currLevel)

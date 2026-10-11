@@ -360,7 +360,9 @@ CGameLogic::RestorePlayerStuffDuringResurrection(CPlayerPed *pPlayerPed, CVector
 	ClearShortCut();
 	CPlayerInfo* pPlayerInfo = pPlayerPed->GetPlayerInfoForThisPlayerPed();
 	// Normalize legacy caps here too, including an already-running session.
+#ifdef FIX_BUGS
 	pPlayerInfo->m_nMaxHealth = RestorePlayerMaxHealth(pPlayerInfo->m_nMaxHealth);
+#endif
 	pPlayerPed->m_fHealth = pPlayerInfo->m_nMaxHealth;
 	pPlayerPed->m_fArmour = 0.0f;
 	pPlayerPed->bIsVisible = true;

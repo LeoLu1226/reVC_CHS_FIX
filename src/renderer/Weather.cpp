@@ -129,8 +129,10 @@ const float Windyness[] = {
 
 void CWeather::Init(void)
 {
+#ifdef FIX_BUGS
 	startStreamAfterRain = 0;
 	StreamAfterRainTimer = 800;
+#endif
 	NewWeatherType = WEATHER_EXTRA_SUNNY;
 	bScriptsForceRain = false;
 	OldWeatherType = WEATHER_EXTRA_SUNNY;

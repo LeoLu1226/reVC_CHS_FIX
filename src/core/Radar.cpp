@@ -543,7 +543,9 @@ void CRadar::DrawBlips()
 		RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
 		RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
 		RwRenderStateSet(rwRENDERSTATEFOGENABLE, (void*)FALSE);
+#ifdef FIX_BUGS
 		RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
+#endif
 
 		CVector2D out;
 		CVector2D in = CVector2D(0.0f, 0.0f);
@@ -632,13 +634,17 @@ void CRadar::DrawBlips()
 				case BLIP_CAR:
 				case BLIP_CHAR:
 				case BLIP_OBJECT:
-					if (ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SAVE && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_HARDWARE
-						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY
-						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_GUN
-						&& (!CTheScripts::bPlayerIsInTheStatium || !FrontEndMenuManager.m_bMenuMapActive))
+				        if(ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SAVE &&
+				           ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_HARDWARE &&
+				           ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY
+#ifndef FIX_BUGS
+				           && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PROPERTY
+#endif
+				           && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_GUN &&
+				           (!CTheScripts::bPlayerIsInTheStatium || !FrontEndMenuManager.m_bMenuMapActive))
 
-						DrawEntityBlip(blipId);
-					break;
+					        DrawEntityBlip(blipId);
+				        break;
 				default:
 					break;
 			}
@@ -650,13 +656,18 @@ void CRadar::DrawBlips()
 			switch (ms_RadarTrace[blipId].m_eBlipType) {
 				case BLIP_COORD:
 				case BLIP_CONTACT_POINT:
-					if (ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SAVE && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_HARDWARE
-						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY
-						&& ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_GUN && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PHONE
-						&& (!CTheScripts::bPlayerIsInTheStatium || !FrontEndMenuManager.m_bMenuMapActive))
+				        if(ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SAVE &&
+				           ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_HARDWARE &&
+				           ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_SPRAY
+#ifndef FIX_BUGS
+				           && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PROPERTY
+#endif
+				           && ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_GUN &&
+				           ms_RadarTrace[blipId].m_eRadarSprite != RADAR_SPRITE_PHONE &&
+				           (!CTheScripts::bPlayerIsInTheStatium || !FrontEndMenuManager.m_bMenuMapActive))
 
-						DrawCoordBlip(blipId);
-					break;
+					        DrawCoordBlip(blipId);
+				        break;
 				default:
 					break;
 			}
@@ -1108,20 +1119,20 @@ CRadar::LoadTextures()
 #ifdef MAP_ENHANCEMENTS
 	// The menu map and radar use the same image, embedded in the executable.
 	WaypointSprite.Delete();
-	unsigned char *rgba = nil;
-	unsigned width = 0, height = 0;
+	uint8 *rgba = nil;
+	uint32 width = 0, height = 0;
 	if(lodepng_decode32(&rgba, &width, &height, gRadarWaypointPng, sizeof(gRadarWaypointPng)) == 0 &&
 	   width == 64 && height == 64){
 		RwRaster *raster = RwRasterCreate(width, height, 32, rwRASTERTYPETEXTURE | rwRASTERFORMAT8888);
 		if(raster){
 			RwUInt32 *pixels = (RwUInt32 *)RwRasterLock(raster, 0, rwRASTERLOCKWRITE);
 			if(pixels){
-				for(unsigned i = 0; i < width * height; i++){
-					const unsigned char *c = rgba + i * 4;
+				for(uint32 i = 0; i < width * height; i++) {
+					const uint8 *c = rgba + i * 4;
 #ifdef RW_GL3
-					pixels[i] = c[0] | (c[1] << 8) | (c[2] << 16) | (c[3] << 24);
+					pixels[i] = c[0] | ((uint32)c[1] << 8) | ((uint32)c[2] << 16) | ((uint32)c[3] << 24);
 #else
-					pixels[i] = c[2] | (c[1] << 8) | (c[0] << 16) | (c[3] << 24);
+					pixels[i] = c[2] | ((uint32)c[1] << 8) | ((uint32)c[0] << 16) | ((uint32)c[3] << 24);
 #endif
 				}
 				RwRasterUnlock(raster);
@@ -1634,9 +1645,19 @@ CRadar::DrawLegend(int32 x, int32 y, int32 sprite)
 				CSprite2d::Draw2DPolygon(x + SCREEN_SCALE_X(12.0f), y + SCREEN_SCALE_Y(12.0f), x + SCREEN_SCALE_X(4.0f), y + SCREEN_SCALE_Y(12.0f), x + SCREEN_SCALE_X(8.f), y + SCREEN_SCALE_Y(4.0f), x + SCREEN_SCALE_X(8.f), y + SCREEN_SCALE_Y(4.0f), color);
 				break;
 			case BLIP_MODE_TRIANGULAR_DOWN:
-				CSprite2d::Draw2DPolygon(x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(14.0f), x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(14.0f), x + SCREEN_SCALE_X(14.f), y + SCREEN_SCALE_Y(3.0f), x + SCREEN_SCALE_X(2.f), y + SCREEN_SCALE_Y(3.0f), CRGBA(0, 0, 0, 255));
-				CSprite2d::Draw2DPolygon(x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(12.0f), x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(12.0f), x + SCREEN_SCALE_X(12.f), y + SCREEN_SCALE_Y(4.0f), x + SCREEN_SCALE_X(4.f), y + SCREEN_SCALE_Y(4.0f), color);
-				break;
+#ifdef FIX_BUGS
+			        CSprite2d::Draw2DPolygon(x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(14.0f), x + SCREEN_SCALE_X(8.0f),
+			                                 y + SCREEN_SCALE_Y(14.0f), x + SCREEN_SCALE_X(14.f), y + SCREEN_SCALE_Y(3.0f), x + SCREEN_SCALE_X(2.f),
+			                                 y + SCREEN_SCALE_Y(3.0f), CRGBA(0, 0, 0, 255));
+#else
+			        CSprite2d::Draw2DPolygon(x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(14.0f), x + SCREEN_SCALE_X(8.0f),
+			                                 y + SCREEN_SCALE_Y(14.0f), x + SCREEN_SCALE_X(2.f), y + SCREEN_SCALE_Y(3.0f), x + SCREEN_SCALE_X(2.f),
+			                                 y + SCREEN_SCALE_Y(3.0f), CRGBA(0, 0, 0, 255));
+#endif
+			        CSprite2d::Draw2DPolygon(x + SCREEN_SCALE_X(8.0f), y + SCREEN_SCALE_Y(12.0f), x + SCREEN_SCALE_X(8.0f),
+			                                 y + SCREEN_SCALE_Y(12.0f), x + SCREEN_SCALE_X(12.f), y + SCREEN_SCALE_Y(4.0f), x + SCREEN_SCALE_X(4.f),
+			                                 y + SCREEN_SCALE_Y(4.0f), color);
+			        break;
 			case BLIP_MODE_SQUARE:
 				CSprite2d::DrawRect(CRect(x + SCREEN_SCALE_X(4.0f), y + SCREEN_SCALE_Y(3.0f), SCREEN_SCALE_X(12.0f) + x, SCREEN_SCALE_Y(12.0f) + y), CRGBA(0, 0, 0, 255));
 				CSprite2d::DrawRect(CRect(x + SCREEN_SCALE_X(5.0f), y + SCREEN_SCALE_Y(4.0f), SCREEN_SCALE_X(11.0f) + x, SCREEN_SCALE_Y(11.0f) + y), color);

@@ -1084,7 +1084,11 @@ CBoat::PreRender(void)
 			CVector wind  = CVector(0.707f, 0.707f, 0.0f) * (CWeather::Wind + 0.15f)*0.4f;
 			m_fMovingRotation += (m_vecMoveSpeed + wind).Magnitude()*CTimer::GetTimeStep();
 		}
-	}else if(GetModelIndex() == MI_PREDATOR || GetModelIndex() == MI_REEFER || GetModelIndex() == MI_TROPIC){
+	} else if(GetModelIndex() == MI_PREDATOR || GetModelIndex() == MI_REEFER
+#ifdef FIX_BUGS
+	          || GetModelIndex() == MI_TROPIC
+#endif
+	) {
 		if (m_aBoatNodes[BOAT_MOVING] != nil) {
 			matrix.Attach(RwFrameGetMatrix(m_aBoatNodes[BOAT_MOVING]));
 

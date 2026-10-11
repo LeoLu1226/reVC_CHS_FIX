@@ -1664,6 +1664,15 @@ void CFont::GetTextRect_Chs(CRect *rect, float xstart, float ystart, wchar *s)
 
 void CFont::GetTextRect(CRect *rect, float xstart, float ystart, wchar *s)
 {
+#ifdef FIX_BUGS
+	const float paddingX = SCREEN_SCALE_X(4.0f);
+	const float paddingY = SCREEN_SCALE_Y(2.0f);
+	const float japanesePaddingY = SCREEN_SCALE_Y(4.0f / 2.75f);
+#else
+	const float paddingX = 4.0f;
+	const float paddingY = 2.0f;
+	const float japanesePaddingY = 4.0f / 2.75f;
+#endif
 
 	int numLines;
 	float x, y;
@@ -1720,46 +1729,45 @@ void CFont::GetTextRect(CRect *rect, float xstart, float ystart, wchar *s)
 
 	if(Details.centre) {
 		if(Details.backgroundOnlyText) {
-			rect->left = xstart - maxlength / 2 - SCREEN_SCALE_X(4.0f);
-			rect->right = xstart + maxlength / 2 + SCREEN_SCALE_X(4.0f);
+			rect->left = xstart - maxlength / 2 - paddingX;
+			rect->right = xstart + maxlength / 2 + paddingX;
 #ifdef MORE_LANGUAGES
 			if(IsJapaneseFont()) {
-				rect->bottom = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(4.0f / 2.75f);
-				rect->top = ystart - SCREEN_SCALE_Y(4.0f / 2.75f);
+				rect->bottom = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + japanesePaddingY;
+				rect->top = ystart - japanesePaddingY;
 			} else {
 #endif
-				rect->bottom = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(2.0f);
-				rect->top = ystart - SCREEN_SCALE_Y(2.0f);
+				rect->bottom = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + paddingY;
+				rect->top = ystart - paddingY;
 #ifdef MORE_LANGUAGES
 			}
 #endif
 		} else {
-			rect->left = xstart - Details.centreSize * 0.5f - SCREEN_SCALE_X(4.0f);
-			rect->right = xstart + Details.centreSize * 0.5f + SCREEN_SCALE_X(4.0f);
+			rect->left = xstart - Details.centreSize * 0.5f - paddingX;
+			rect->right = xstart + Details.centreSize * 0.5f + paddingX;
 #ifdef MORE_LANGUAGES
 			if(IsJapaneseFont()) {
-				rect->bottom = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(4.0f / 2.75f);
-				rect->top = ystart - SCREEN_SCALE_Y(4.0f / 2.75f);
+				rect->bottom = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + japanesePaddingY;
+				rect->top = ystart - japanesePaddingY;
 			} else {
 #endif
-				rect->bottom = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(2.0f);
-				rect->top = ystart - SCREEN_SCALE_Y(2.0f);
+				rect->bottom = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + paddingY;
+				rect->top = ystart - paddingY;
 #ifdef MORE_LANGUAGES
 			}
 #endif
 		}
 	} else {
-		rect->left = xstart - SCREEN_SCALE_X(4.0f);
-		rect->right = Details.backgroundOnlyText
-			? ((float)maxlength < Details.wrapX ? (float)maxlength : Details.wrapX) + SCREEN_SCALE_X(4.0f) : Details.wrapX;
+		rect->left = xstart - paddingX;
+		rect->right = Details.backgroundOnlyText ? ((float)maxlength < Details.wrapX ? (float)maxlength : Details.wrapX) + paddingX : Details.wrapX;
 		// WTF?
 		rect->bottom = ystart - 4.0f + 4.0f;
 #ifdef MORE_LANGUAGES
 		if(IsJapaneseFont())
-			rect->top = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(2.0f + 4.0f / 2.75f);
+			rect->top = (32.0f * Details.scaleY / 2.75f + 2.0f * Details.scaleY) * numLines + ystart + paddingY + japanesePaddingY;
 		else
 #endif
-			rect->top = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + SCREEN_SCALE_Y(4.0f);
+			rect->top = (32.0f * Details.scaleY * 0.5f + 2.0f * Details.scaleY) * numLines + ystart + paddingY * 2.0f;
 	}
 }
 

@@ -2140,6 +2140,7 @@ void CTheScripts::SaveAllScripts(uint8* buf, uint32* size)
 	WriteSaveBuf(buf, script_data_size);
 	WriteSaveBuf(buf, OnAMissionFlag);
 	WriteSaveBuf(buf, LastMissionPassedTime);
+#ifdef FIX_BUGS
 	for (uint32 i = 0; i < MAX_NUM_BUILDING_SWAPS; i++) {
 		CBuilding* pBuilding = BuildingSwapArray[i].m_pBuilding;
 		uint32 type, handle;
@@ -2158,6 +2159,26 @@ void CTheScripts::SaveAllScripts(uint8* buf, uint32* size)
 		WriteSaveBuf(buf, BuildingSwapArray[i].m_nNewModel);
 		WriteSaveBuf(buf, BuildingSwapArray[i].m_nOldModel);
 	}
+#else
+	for(uint32 i = 0; i < MAX_NUM_BUILDING_SWAPS; i++) {
+		CBuilding *pBuilding = BuildingSwapArray[i].m_pBuilding;
+		uint32 type, handle;
+		if(!pBuilding) {
+			type = 0;
+			handle = 0;
+		} else if(pBuilding->GetIsATreadable()) {
+			type = 1;
+			handle = CPools::GetTreadablePool()->GetJustIndex_NoFreeAssert((CTreadable *)pBuilding) + 1;
+		} else {
+			type = 2;
+			handle = CPools::GetBuildingPool()->GetJustIndex_NoFreeAssert(pBuilding) + 1;
+		}
+		WriteSaveBuf(buf, type);
+		WriteSaveBuf(buf, handle);
+		WriteSaveBuf(buf, BuildingSwapArray[i].m_nNewModel);
+		WriteSaveBuf(buf, BuildingSwapArray[i].m_nOldModel);
+	}
+#endif
 	for (uint32 i = 0; i < MAX_NUM_INVISIBILITY_SETTINGS; i++) {
 		CEntity* pEntity = InvisibilitySettingArray[i];
 		uint32 type, handle;

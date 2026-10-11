@@ -29,30 +29,30 @@
 #include "SaveBuf.h"
 #include "FileMgr.h"
 #include "ModelInfo.h"
-#include <unordered_set>
 #include <cstdlib>
 #include <cstring>
 
+#ifdef FIX_BUGS
 #include "DrawBackfacesList.inc"
 
 // -1 forces culling on, +1 forces it off, 0 keeps the entity default.
-static int
-BackfaceCullingOverride(int modelIndex)
+static int32
+BackfaceCullingOverride(int32 modelIndex)
 {
 	static bool loaded = false;
-	static std::unordered_set<int> enabled;
-	static std::unordered_set<int> disabled;
+	static bool enabled[MODELINFOSIZE] = {false};
+	static bool disabled[MODELINFOSIZE] = {false};
 	if (!loaded) {
 		loaded = true;
 		// Users often install only the new EXE, without the optional data file.
-		for (const char *name : kDefaultBackfaceModels) {
-			int id = -1;
+		for(int32 i = 0; i < ARRAY_SIZE(kDefaultBackfaceModels); i++) {
+			const char *name = kDefaultBackfaceModels[i];
+			int32 id = -1;
 			CModelInfo::GetModelInfo(name, &id);
-			if (id >= 0 && id < MODELINFOSIZE)
-				enabled.insert(id);
+			if(id >= 0 && id < MODELINFOSIZE) enabled[id] = true;
 		}
 		// The optional file can add models or override a built-in entry with '-'.
-		int file = CFileMgr::OpenFile("DATA\\DRAWBACKFACES.DAT", "r");
+		int32 file = CFileMgr::OpenFile("DATA\\DRAWBACKFACES.DAT", "r");
 		if (file) {
 			char line[128];
 			while (CFileMgr::ReadLine(file, line, sizeof(line))) {
@@ -66,24 +66,31 @@ BackfaceCullingOverride(int modelIndex)
 				if (*name == '\0') continue;
 				char *numberEnd;
 				long number = strtol(name, &numberEnd, 10);
-				int id = -1;
-				if (*numberEnd == '\0') id = (int)number;
+				int32 id = -1;
+				if(*numberEnd == '\0')
+					id = (int32)number;
 				else CModelInfo::GetModelInfo(name, &id);
-				if (id >= 0 && id < MODELINFOSIZE && CModelInfo::GetModelInfo(id))
-					(exclude ? disabled : enabled).insert(id);
+				if(id >= 0 && id < MODELINFOSIZE && CModelInfo::GetModelInfo(id)) (exclude ? disabled : enabled)[id] = true;
 			}
 			CFileMgr::CloseFile(file);
 		}
 	}
-	if (disabled.count(modelIndex)) return -1;
-	if (enabled.count(modelIndex)) return 1;
+	if(modelIndex < 0 || modelIndex >= MODELINFOSIZE) return 0;
+	if(disabled[modelIndex]) return -1;
+	if(enabled[modelIndex]) return 1;
 	return 0;
 }
 
+#endif
+
 bool
-ModelDrawsBackfaces(int modelIndex)
+ModelDrawsBackfaces(int32 modelIndex)
 {
+#ifdef FIX_BUGS
 	return BackfaceCullingOverride(modelIndex) > 0;
+#else
+	return false;
+#endif
 }
 
 int gBuildings;
@@ -474,28 +481,32 @@ void
 CEntity::Render(void)
 {
 	if(m_rwObject){
-		bool disableBackfaceCulling = IsPed();
+		bool disableBackfaceCulling = false;
+#ifdef FIX_BUGS
+		disableBackfaceCulling = IsPed();
 		if(IsObject()){
 			CObject *object = (CObject*)this;
 			disableBackfaceCulling = disableBackfaceCulling || (object->m_nRefModelIndex != -1 &&
 				object->ObjectCreatedBy == TEMP_OBJECT && object->bUseVehicleColours);
 		}
-		int cullOverride = BackfaceCullingOverride(GetModelIndex());
+		int32 cullOverride = BackfaceCullingOverride(GetModelIndex());
 		if (cullOverride)
 			disableBackfaceCulling = cullOverride > 0;
-		void *oldCullMode = nil;
+		uint32 oldCullMode = rwCULLMODECULLBACK;
 		if(disableBackfaceCulling)
 			RwRenderStateGet(rwRENDERSTATECULLMODE, &oldCullMode);
 		if(disableBackfaceCulling)
 			SetCullMode(rwCULLMODECULLNONE);
+#endif
 		bImBeingRendered = true;
 		if(RwObjectGetType(m_rwObject) == rpATOMIC)
 			RpAtomicRender((RpAtomic*)m_rwObject);
 		else
 			RpClumpRender((RpClump*)m_rwObject);
 		bImBeingRendered = false;
-		if(disableBackfaceCulling)
-			RwRenderStateSet(rwRENDERSTATECULLMODE, oldCullMode);
+#ifdef FIX_BUGS
+		if(disableBackfaceCulling) RwRenderStateSet(rwRENDERSTATECULLMODE, (void *)(uintptr)oldCullMode);
+#endif
 	}
 }
 

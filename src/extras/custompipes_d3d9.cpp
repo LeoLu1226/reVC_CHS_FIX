@@ -615,7 +615,7 @@ AtomicFirstPass(RpAtomic *atomic, int pass, bool drawBackfaces)
 	building->fadeAlpha = 255;
 	building->lighting = !!(atomic->geometry->flags & rw::Geometry::LIGHT);
 	building->drawBackfaces = drawBackfaces;
-	void *oldCullMode = nil;
+	uint32 oldCullMode = rwCULLMODECULLBACK;
 	if (drawBackfaces) {
 		RwRenderStateGet(rwRENDERSTATECULLMODE, &oldCullMode);
 		SetCullMode(rwCULLMODECULLNONE);
@@ -662,8 +662,7 @@ AtomicFirstPass(RpAtomic *atomic, int pass, bool drawBackfaces)
 	}
 	if(defer)
 		numBlendInsts[pass]++;
-	if (drawBackfaces)
-		RwRenderStateSet(rwRENDERSTATECULLMODE, oldCullMode);
+	if(drawBackfaces) RwRenderStateSet(rwRENDERSTATECULLMODE, (void *)(uintptr)oldCullMode);
 }
 
 void
@@ -698,7 +697,7 @@ RenderBlendPass(int pass)
 	int i;
 	for(i = 0; i < numBlendInsts[pass]; i++){
 		BuildingInst *building = &blendInsts[pass][i];
-		void *oldCullMode = nil;
+		uint32 oldCullMode = rwCULLMODECULLBACK;
 		if (building->drawBackfaces) {
 			RwRenderStateGet(rwRENDERSTATECULLMODE, &oldCullMode);
 			SetCullMode(rwCULLMODECULLNONE);
@@ -731,8 +730,7 @@ RenderBlendPass(int pass)
 
 			drawInst(building->instHeader, inst);
 		}
-		if (building->drawBackfaces)
-			RwRenderStateSet(rwRENDERSTATECULLMODE, oldCullMode);
+		if(building->drawBackfaces) RwRenderStateSet(rwRENDERSTATECULLMODE, (void *)(uintptr)oldCullMode);
 	}
 }
 }

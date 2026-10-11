@@ -283,7 +283,9 @@ enum Config {
 #	define TIMEBARS		// print debug timers
 #endif
 
+#ifndef RE3_DISABLE_FIX_BUGS
 #define FIX_BUGS		// fixes bugs that we've came across during reversing. You can undefine this only on release builds.
+#endif
 #define MORE_LANGUAGES		// 为游戏添加更多翻译Add more translations to the game
 #define COMPATIBLE_SAVES // this allows changing structs while keeping saves compatible, and keeps saves compatible between platforms
 #define FIX_INCOMPATIBLE_SAVES // try to fix incompatible saves, requires COMPATIBLE_SAVES
@@ -360,7 +362,9 @@ enum Config {
 // Hud, frontend and radar
 #define PC_MENU
 #define FIX_RADAR			// use radar size from early version before R* broke it
+#ifdef FIX_BUGS
 #define RADIO_OFF_TEXT		// Won't work without FIX_BUGS
+#endif
 
 #ifndef PC_MENU
 #	define PS2_MENU
@@ -446,7 +450,9 @@ static_assert(false, "SUPPORT_XBOX_SCRIPT and SUPPORT_MOBILE_SCRIPT are mutually
                           // originally and making it work in 2d only requires more resource). Will not work on PS2
 #define AUDIO_REFLECTIONS // Enable audio reflections. This is enabled in all vanilla versions
 #define AUDIO_REVERB // Enable audio reverb. It was disabled in PS2 and mobile versions
+#ifdef FIX_BUGS
 #define RADIO_SCROLL_TO_PREV_STATION // Won't work without FIX_BUGS
+#endif
 #define AUDIO_CACHE // cache sound lengths to speed up the cold boot
 #define PS2_AUDIO_CHANNELS // increases the maximum number of audio channels to PS2 value of 43 (PC has 28 originally)
 #define PS2_AUDIO_PATHS // changes audio paths for cutscenes and radio to PS2 paths (needs vbdec on MSS builds)

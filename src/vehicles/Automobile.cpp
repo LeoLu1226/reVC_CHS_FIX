@@ -1366,8 +1366,11 @@ CAutomobile::ProcessControl(void)
 				ReduceHornCounter();
 		}else{
 			if(UsesSiren()){
+#ifdef FIX_BUGS
 				static CAutomobile *hornVehicle = nil;
 				static uint32 hornPressTime = 0;
+				const uint32 sirenTapDuration = 500;
+				const uint32 hornHoldDuration = 60;
 				const uint32 now = CTimer::GetTimeInMilliseconds();
 				const bool hornDown = Pads[0].bHornHistory[Pads[0].iCurrHornHistory];
 				const bool hornWasDown = Pads[0].bHornHistory[(Pads[0].iCurrHornHistory+CPad::HORNHISTORY_SIZE-1) % CPad::HORNHISTORY_SIZE];
@@ -1377,13 +1380,26 @@ CAutomobile::ProcessControl(void)
 						hornVehicle = this;
 						hornPressTime = now;
 					}
-					m_nCarHornTimer = now - hornPressTime >= 60 ? 1 : 0;
+					m_nCarHornTimer = now - hornPressTime >= hornHoldDuration ? 1 : 0;
 				}else{
 					m_nCarHornTimer = 0;
-					if(hornWasDown && hornVehicle == this && now - hornPressTime < 500)
-						m_bSirenOrAlarm = !m_bSirenOrAlarm;
+					if(hornWasDown && hornVehicle == this && now - hornPressTime < sirenTapDuration) m_bSirenOrAlarm = !m_bSirenOrAlarm;
 					hornVehicle = nil;
 				}
+#else
+				if(Pads[0].bHornHistory[Pads[0].iCurrHornHistory]) {
+					if(Pads[0].bHornHistory[(Pads[0].iCurrHornHistory + CPad::HORNHISTORY_SIZE - 1) % CPad::HORNHISTORY_SIZE] &&
+					   Pads[0].bHornHistory[(Pads[0].iCurrHornHistory + CPad::HORNHISTORY_SIZE - 2) % CPad::HORNHISTORY_SIZE])
+						m_nCarHornTimer = 1;
+					else
+						m_nCarHornTimer = 0;
+				} else if(Pads[0].bHornHistory[(Pads[0].iCurrHornHistory + CPad::HORNHISTORY_SIZE - 1) % CPad::HORNHISTORY_SIZE] &&
+				          !Pads[0].bHornHistory[(Pads[0].iCurrHornHistory + 1) % CPad::HORNHISTORY_SIZE]) {
+					m_nCarHornTimer = 0;
+					m_bSirenOrAlarm = !m_bSirenOrAlarm;
+				} else
+					m_nCarHornTimer = 0;
+#endif
 			}else if(GetModelIndex() != MI_VOODOO && !CVehicle::bCheat3 && !carHasNitro){
 				if(!IsAlarmOn()){
 					if(Pads[0].GetHorn())
@@ -2094,26 +2110,46 @@ CAutomobile::PreRender(void)
 
 			switch(GetModelIndex()){
 			case MI_FIRETRUCK:
+#ifdef FIX_BUGS
 				pos1 = CVector(0.95f,  3.2f, 1.4f);
 				pos2 = CVector(-0.95f, 3.2f, 1.4f);
+#else
+				pos1 = CVector(1.1f, 1.7f, 2.0f);
+				pos2 = CVector(-1.1f, 1.7f, 2.0f);
+#endif
 				r1 = 255; g1 = 0; b1 = 0;
 				r2 = 255; g2 = 255; b2 = 0;
 				break;
 			case MI_AMBULAN:
+#ifdef FIX_BUGS
 				pos1 = CVector(0.7f,  0.65f, 1.55f);
 				pos2 = CVector(-0.7f, 0.65f, 1.55f);
+#else
+				pos1 = CVector(1.1f, 0.9f, 1.6f);
+				pos2 = CVector(-1.1f, 0.9f, 1.6f);
+#endif
 				r1 = 255; g1 = 0; b1 = 0;
 				r2 = 255; g2 = 255; b2 = 255;
 				break;
 			case MI_POLICE:
+#ifdef FIX_BUGS
 				pos1 = CVector(0.55f,  -0.4f, 0.95f);
 				pos2 = CVector(-0.55f, -0.4f, 0.95f);
+#else
+				pos1 = CVector(0.7f, -0.4f, 1.0f);
+				pos2 = CVector(-0.7f, -0.4f, 1.0f);
+#endif
 				r1 = 255; g1 = 0; b1 = 0;
 				r2 = 0; g2 = 0; b2 = 255;
 				break;
 			case MI_ENFORCER:
+#ifdef FIX_BUGS
 				pos1 = CVector(0.6f,  1.05f, 1.4f);
 				pos2 = CVector(-0.6f, 1.05f, 1.4f);
+#else
+				pos1 = CVector(1.1f, 0.8f, 1.2f);
+				pos2 = CVector(-1.1f, 0.8f, 1.2f);
+#endif
 				r1 = 255; g1 = 0; b1 = 0;
 				r2 = 0; g2 = 0; b2 = 255;
 				break;
@@ -2186,10 +2222,13 @@ CAutomobile::PreRender(void)
 		}
 		break;
 
+#ifdef FIX_BUGS
 	case MI_FBICAR:
+#endif
 	case MI_FBIRANCH:
 	case MI_VICECHEE:
 		if(m_bSirenOrAlarm){
+#ifdef FIX_BUGS
 			CVector sirenPos;
 			if(GetModelIndex() == MI_FBICAR)
 				sirenPos = CVector(0.4f, 0.8f, 0.25f);
@@ -2198,6 +2237,9 @@ CAutomobile::PreRender(void)
 			else
 				sirenPos = CVector(0.4f, 0.6f, 0.25f);
 			CVector pos = GetMatrix() * sirenPos;
+#else
+			CVector pos = GetMatrix() * CVector(0.4f, 0.6f, 0.3f);
+#endif
 			if(CTimer::GetTimeInMilliseconds() & 0x100 &&
 			   DotProduct(GetForward(), GetPosition() - TheCamera.GetPosition()) < 0.0f)
 				if(GetModelIndex() == MI_VICECHEE)
@@ -2224,8 +2266,12 @@ CAutomobile::PreRender(void)
 	case MI_ZEBRA:
 	case MI_KAUFMAN:
 		if(bTaxiLight){
+#ifdef FIX_BUGS
 			CVector lightOffset = GetModelIndex() == MI_TAXI ? CVector(0.0f, -0.4f, 0.9f) : CVector(0.0f, 0.0f, 0.95f);
 			CVector pos = GetPosition() + Multiply3x3(GetMatrix(), lightOffset);
+#else
+			CVector pos = GetPosition() + GetUp() * 0.95f;
+#endif
 			CCoronas::RegisterCorona((uintptr)this + 21,
 				128, 128, 0, 255,
 				pos, 0.8f, 50.0f,
@@ -4274,6 +4320,10 @@ CAutomobile::VehicleDamage(float impulse, uint16 damagedPiece)
 		}
 
 		float damage = (impulse-minImpulse)*pHandling->fCollisionDamageMultiplier*0.6f*damageMultiplier;
+
+#ifndef FIX_BUGS
+		if(GetModelIndex() == MI_SECURICA && m_pDamageEntity && m_pDamageEntity->GetStatus() == STATUS_PLAYER) damage *= 7.0f;
+#endif
 
 		if(GetModelIndex() == MI_RCGOBLIN || GetModelIndex() == MI_RCRAIDER)
 			damage *= 30.0f;

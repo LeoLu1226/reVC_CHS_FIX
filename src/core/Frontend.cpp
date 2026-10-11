@@ -5843,8 +5843,12 @@ CMenuManager::WaitForUserCD()
 void
 CMenuManager::DrawQuitGameScreen(void)
 {
+#ifdef FIX_BUGS
 	static bool outroFullyVisible = false;
 	static uint32 outroFullyVisibleSince = 0;
+#else
+	static int32 exitSignalTimer = 0;
+#endif
 
 #ifdef FIX_BUGS
 	int alpha = Clamp(m_nMenuFadeAlpha, 0, 255);
@@ -5852,12 +5856,25 @@ CMenuManager::DrawQuitGameScreen(void)
 	int alpha = m_nMenuFadeAlpha;
 #endif
 
+#ifdef FIX_BUGS
 	if (alpha != 255) {
 		outroFullyVisible = false;
 	} else if (!outroFullyVisible) {
 		outroFullyVisible = true;
 		outroFullyVisibleSince = CTimer::GetTimeInMillisecondsPauseMode();
 	}
+#else
+#ifndef MUCH_SHORTER_OUTRO_SCREEN
+	static uint32 lastTickIncrease = 0;
+	if(alpha == 255 && CTimer::GetTimeInMillisecondsPauseMode() - lastTickIncrease > 10) {
+		exitSignalTimer++;
+		lastTickIncrease = CTimer::GetTimeInMillisecondsPauseMode();
+	}
+#else
+	static uint32 firstTick = CTimer::GetTimeInMillisecondsPauseMode();
+	if(alpha == 255 && CTimer::GetTimeInMillisecondsPauseMode() - firstTick > 750) { exitSignalTimer = 150; }
+#endif
+#endif
 	static CSprite2d *splash = nil;
 
 	if (splash == nil)
@@ -5872,7 +5889,11 @@ CMenuManager::DrawQuitGameScreen(void)
 #endif
 
 	splash->Draw(CRect(MENU_X_LEFT_ALIGNED(0.f), 0, MENU_X_RIGHT_ALIGNED(0.f), SCREEN_HEIGHT), CRGBA(255, 255, 255, alpha));
+#ifdef FIX_BUGS
 	if (outroFullyVisible && CTimer::GetTimeInMillisecondsPauseMode() - outroFullyVisibleSince >= 2500)
+#else
+	if(alpha == 255 && exitSignalTimer == 150)
+#endif
 		RsEventHandler(rsQUITAPP, nil);
 
 	m_bShowMouse = false;

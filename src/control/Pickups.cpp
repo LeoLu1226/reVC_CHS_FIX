@@ -1049,7 +1049,9 @@ CPickups::DoPickUpEffects(CEntity *entity)
 			doInnerGlow = true;
 			doOuterGlow = false;
 		} else if (entity->GetModelIndex() == MI_PICKUP_REVENUE) {
+#ifdef FIX_BUGS
 			colorId = 37;
+#endif
 			doInnerGlow = true;
 			doOuterGlow = false;
 		} else if (entity->GetModelIndex() == MI_PICKUP_SAVEGAME) {
@@ -1061,8 +1063,10 @@ CPickups::DoPickUpEffects(CEntity *entity)
 			doInnerGlow = true;
 		} else {
 			colorId = WeaponForModel(entity->GetModelIndex());
+#ifdef FIX_BUGS
 			if (entity->GetModelIndex() == MI_MINIGUN2)
 				doOuterGlow = false;
+#endif
 		}
 
 		const CVector& pos = pickup->m_vecPos;

@@ -376,16 +376,15 @@ CCoronas::Render(void)
 					for(; flare->texture; flare++){
 						RwRenderStateSet(rwRENDERSTATETEXTURERASTER, RwTextureGetRaster(gpCoronaTexture[flare->texture + 4]));
 						CSprite::RenderOneXLUSprite(
-							(spriteCoors.x - (screenw/2)) * flare->position + (screenw/2),
-							(spriteCoors.y - (screenh/2)) * flare->position + (screenh/2),
-							spriteCoors.z,
-							SCREEN_SCALE_X(4.0f*flare->size * spritew/spriteh),
-							SCREEN_SCALE_Y(4.0f*flare->size),
-							(flare->red * aCoronas[i].red)>>8,
-							(flare->green * aCoronas[i].green)>>8,
-							(flare->blue * aCoronas[i].blue)>>8,
-							(totalFade * flare->alpha)>>8,
-							recipz, 255);
+						    (spriteCoors.x - (screenw / 2)) * flare->position + (screenw / 2),
+						    (spriteCoors.y - (screenh / 2)) * flare->position + (screenh / 2), spriteCoors.z,
+#ifdef FIX_BUGS
+						    SCREEN_SCALE_X(4.0f * flare->size * spritew / spriteh), SCREEN_SCALE_Y(4.0f * flare->size),
+#else
+						    4.0f * flare->size * spritew / spriteh, 4.0f * flare->size,
+#endif
+						    (flare->red * aCoronas[i].red) >> 8, (flare->green * aCoronas[i].green) >> 8,
+						    (flare->blue * aCoronas[i].blue) >> 8, (totalFade * flare->alpha) >> 8, recipz, 255);
 					}
 				}
 			}

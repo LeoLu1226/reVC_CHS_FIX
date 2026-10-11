@@ -1003,9 +1003,13 @@ int8 CRunningScript::ProcessCommands1100To1199(int32 command)
 		// PC shit
 		static int nCounter = 0;
 		nCounter = Max(0, nCounter - 1);
+#ifdef FIX_BUGS
 		bool bUsingAimingCamera = CClassicAxis::Enabled() ? CClassicAxis::Aiming(pPed) :
 			(CCamera::m_bUseMouse3rdPerson || TheCamera.Using1stPersonWeaponMode());
 		if (!pPed->GetWeapon()->IsTypeMelee() && !bTargetting && bUsingAimingCamera) {
+#else
+		if(!pPed->GetWeapon()->IsTypeMelee() && !bTargetting) {
+#endif
 			if ((pTestedPed->GetPosition() - TheCamera.GetPosition()).Magnitude() < 10.0f) {
 				CVector vTestedPos(pTestedPed->GetPosition().x, pTestedPed->GetPosition().y, pTestedPed->GetPosition().z + 0.4);
 				CVector vScreenPos;

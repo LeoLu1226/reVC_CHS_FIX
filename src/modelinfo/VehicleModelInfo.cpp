@@ -81,34 +81,36 @@ RwObjectNameIdAssocation carIds[] = {
 	{ nil, 0, 0 }
 };
 
-RwObjectNameIdAssocation boatIds[] = {
-	{ "boat_moving_hi",	BOAT_MOVING,	0 },
-	{ "boat_moving_high",	BOAT_MOVING,	0 },
-	{ "boat_rudder_hi",	BOAT_RUDDER,	0 },
-	{ "boat_flap_left",	BOAT_FLAP_LEFT,	0 },
-	{ "boat_flap_right",	BOAT_FLAP_RIGHT,	0 },
-	{ "boat_rearflap_left",	BOAT_REARFLAP_LEFT,	0 },
-	{ "boat_rearflap_right",	BOAT_REARFLAP_RIGHT,	0 },
+RwObjectNameIdAssocation boatIds[] = {{"boat_moving_hi", BOAT_MOVING, 0},
 #ifdef FIX_BUGS
-	// let's just accept both
-	{ "windscreen",		BOAT_WINDSCREEN,	VEHICLE_FLAG_WINDSCREEN | VEHICLE_FLAG_DRAWLAST },
-	{ "windscreen_hi_ok",		BOAT_WINDSCREEN,	VEHICLE_FLAG_WINDSCREEN | VEHICLE_FLAG_DRAWLAST },
+                                      {"boat_moving_high", BOAT_MOVING, 0},
+#endif
+                                      {"boat_rudder_hi", BOAT_RUDDER, 0},
+                                      {"boat_flap_left", BOAT_FLAP_LEFT, 0},
+                                      {"boat_flap_right", BOAT_FLAP_RIGHT, 0},
+                                      {"boat_rearflap_left", BOAT_REARFLAP_LEFT, 0},
+                                      {"boat_rearflap_right", BOAT_REARFLAP_RIGHT, 0},
+#ifdef FIX_BUGS
+                                      // let's just accept both
+                                      {"windscreen", BOAT_WINDSCREEN, VEHICLE_FLAG_WINDSCREEN | VEHICLE_FLAG_DRAWLAST},
+                                      {"windscreen_hi_ok", BOAT_WINDSCREEN, VEHICLE_FLAG_WINDSCREEN | VEHICLE_FLAG_DRAWLAST},
 #else
 #ifdef GTA_PS2
-	{ "windscreen",		BOAT_WINDSCREEN,	VEHICLE_FLAG_WINDSCREEN | VEHICLE_FLAG_DRAWLAST },
+                                      {"windscreen", BOAT_WINDSCREEN, VEHICLE_FLAG_WINDSCREEN | VEHICLE_FLAG_DRAWLAST},
 #else
-	{ "windscreen_hi_ok",		BOAT_WINDSCREEN,	VEHICLE_FLAG_WINDSCREEN | VEHICLE_FLAG_DRAWLAST },
+                                      {"windscreen_hi_ok", BOAT_WINDSCREEN, VEHICLE_FLAG_WINDSCREEN | VEHICLE_FLAG_DRAWLAST},
 #endif
 #endif
-	{ "ped_frontseat",	BOAT_POS_FRONTSEAT,	VEHICLE_FLAG_POS | CLUMP_FLAG_NO_HIERID },
-	{ "extra1", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
-	{ "extra2", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
-	{ "extra3", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
-	{ "extra4", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
-	{ "extra5", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
-	{ "extra6", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID },
-	{ nil, 0, 0 }
-};
+                                      {"ped_frontseat", BOAT_POS_FRONTSEAT, VEHICLE_FLAG_POS | CLUMP_FLAG_NO_HIERID},
+#ifdef FIX_BUGS
+                                      {"extra1", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID},
+                                      {"extra2", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID},
+                                      {"extra3", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID},
+                                      {"extra4", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID},
+                                      {"extra5", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID},
+                                      {"extra6", 0, VEHICLE_FLAG_DRAWLAST | VEHICLE_FLAG_COMP | CLUMP_FLAG_NO_HIERID},
+#endif
+                                      {nil, 0, 0}};
 
 RwObjectNameIdAssocation trainIds[] = {
 	{ "door_lhs_dummy",	TRAIN_DOOR_LHS,	VEHICLE_FLAG_LEFT | VEHICLE_FLAG_COLLAPSE },
@@ -214,9 +216,12 @@ CVehicleModelInfo::CreateInstance(void)
 	clump = (RpClump*)CClumpModelInfo::CreateInstance();
 	if(m_numComps != 0){
 		clumpframe = RpClumpGetFrame(clump);
-		RwFrame *componentParent = m_vehicleType == VEHICLE_TYPE_BIKE ? GetFrameFromId(clump, BIKE_CHASSIS) : clumpframe;
+		RwFrame *componentParent = clumpframe;
+#ifdef FIX_BUGS
+		if(m_vehicleType == VEHICLE_TYPE_BIKE) componentParent = GetFrameFromId(clump, BIKE_CHASSIS);
 		if(componentParent == nil)
 			componentParent = clumpframe;
+#endif
 
 		comp1 = ChooseComponent();
 		if(comp1 != -1 && m_comps[comp1]){
@@ -246,9 +251,11 @@ CVehicleModelInfo::CreateInstance(void)
 	}else{
 		ms_compsUsed[0] = -1;
 		ms_compsUsed[1] = -1;
+#ifdef FIX_BUGS
 		// A model without extras must still consume the one-shot request.
 		ms_compsToUse[0] = -2;
 		ms_compsToUse[1] = -2;
+#endif
 	}
 	return (RwObject*)clump;
 }
@@ -1141,12 +1148,14 @@ CVehicleModelInfo::SetEnvironmentMap(void)
 	}
 
 	RpClumpForAllAtomics(m_clump, SetEnvironmentMapCB, nil);
+#ifdef FIX_BUGS
 	for(i = 0; i < m_numComps; i++){
 		SetEnvironmentMapCB(m_comps[i], nil);
 #ifdef EXTENDED_PIPELINES
 		CustomPipes::AttachVehiclePipe(m_comps[i]);
 #endif
 	}
+#endif
 	if(m_wheelId != -1){
 		wheelmi = (CSimpleModelInfo*)CModelInfo::GetModelInfo(m_wheelId);
 		for(i = 0; i < wheelmi->m_numAtomics; i++)

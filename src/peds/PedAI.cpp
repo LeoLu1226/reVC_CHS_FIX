@@ -1618,9 +1618,11 @@ CPed::ProcessObjective(void)
 					m_objective = OBJECTIVE_NONE;
 					ClearObjective();
 				}
-				break;
-			}
-			case OBJECTIVE_WANDER:
+#ifdef FIX_BUGS
+			        break;
+#endif
+		        }
+		        case OBJECTIVE_WANDER:
 				if (CTimer::GetTimeInMilliseconds() > m_leaveCarTimer && !bInVehicle) {
 					m_leaveCarTimer = 0;
 					m_objective = OBJECTIVE_NONE;

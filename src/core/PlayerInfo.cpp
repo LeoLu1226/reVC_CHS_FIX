@@ -582,8 +582,10 @@ CPlayerInfo::LoadPlayerInfo(uint8 *buf, uint32 size)
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_nMaxHealth);
 	// Repair legacy 250/255 caps, including uint8 overflow
 	// after the original game's +50 maximum-health rewards. Preserve other caps.
+#ifdef FIX_BUGS
 	uint8 &maxHealth = CWorld::Players[CWorld::PlayerInFocus].m_nMaxHealth;
 	maxHealth = RestorePlayerMaxHealth(maxHealth);
+#endif
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_nMaxArmour);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_bGetOutOfJailFree);
 	CopyFromBuf(buf, CWorld::Players[CWorld::PlayerInFocus].m_bGetOutOfHospitalFree);

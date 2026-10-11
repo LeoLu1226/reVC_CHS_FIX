@@ -41,11 +41,15 @@
 static void
 DrawScriptSprite(CSprite2d &sprite, const CRect &rect, const CRGBA &color)
 {
-	void *oldFilter;
+#ifdef FIX_BUGS
+	uint32 oldFilter = rwFILTERLINEAR;
 	RwRenderStateGet(rwRENDERSTATETEXTUREFILTER, &oldFilter);
 	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
+#endif
 	sprite.Draw(rect, color);
-	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, oldFilter);
+#ifdef FIX_BUGS
+	RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void *)(uintptr)oldFilter);
+#endif
 }
 
 static CRect
@@ -53,8 +57,12 @@ ScaleScriptRectangle(const CRect &rect)
 {
 	// Script rectangles use the same 640x448 coordinates as script text.
 	// Their vertical endpoints are stored in Rockstar's reversed order.
+#ifdef FIX_BUGS
 	return CRect(SCALE_AND_CENTER_X(rect.left), SCREEN_SCALE_Y(rect.bottom),
 		SCALE_AND_CENTER_X(rect.right), SCREEN_SCALE_Y(rect.top));
+#else
+	return CRect(rect.left, rect.bottom, rect.right, rect.top);
+#endif
 }
 
 bool gDontShrinkRadardisc = false;
@@ -125,7 +133,11 @@ float CHud::OddJob2OffTimer;
 bool CHud::CounterOnLastFrame[NUMONSCREENCOUNTERS];
 float CHud::OddJob2XOffset;
 uint16 CHud::CounterFlashTimer[NUMONSCREENCOUNTERS];
+#ifdef FIX_BUGS
 float CHud::OddJob2Timer;
+#else
+uint16 CHud::OddJob2Timer;
+#endif
 bool CHud::TimerOnLastFrame;
 int16 CHud::OddJob2On;
 uint16 CHud::TimerFlashTimer;
@@ -541,18 +553,31 @@ void CHud::Draw()
 			*/
 
 			if (FrontEndMenuManager.m_PrefsShowHud) {
+#ifdef FIX_BUGS
 				uint32 weaponIconFilter = rwFILTERLINEAR;
 				RwRenderStateGet(rwRENDERSTATETEXTUREFILTER, &weaponIconFilter);
 				RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
+#endif
 				if (weaponInfo->m_nModelId <= 0) {
+#ifndef FIX_BUGS
+					RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void *)rwFILTERLINEAR);
+#endif
 					if (FrontEndMenuManager.m_PrefsShowHud)
-						Sprites[WeaponType].Draw(
-							CRect(SCREEN_SCALE_FROM_RIGHT(99.0f), SCREEN_SCALE_Y(27.0f), SCREEN_SCALE_FROM_RIGHT(35.0f), SCREEN_SCALE_Y(91.0f)),
-							CRGBA(255, 255, 255, alpha),
-							0.0f, 0.0f,
-							1.0f, 0.0f,
-							0.0f, 1.0f,
-							1.0f, 1.0f);
+						Sprites[WeaponType].Draw(CRect(SCREEN_SCALE_FROM_RIGHT(99.0f), SCREEN_SCALE_Y(27.0f),
+						                               SCREEN_SCALE_FROM_RIGHT(35.0f), SCREEN_SCALE_Y(91.0f)),
+						                         CRGBA(255, 255, 255, alpha),
+#ifdef FIX_BUGS
+						                         0.0f, 0.0f,
+#else
+						                         0.015f, 0.015f,
+#endif
+						                         1.0f, 0.0f,
+#ifdef FIX_BUGS
+						                         0.0f, 1.0f,
+#else
+						                         0.015f, 1.0f,
+#endif
+						                         1.0f, 1.0f);
 				} else {
 					CBaseModelInfo *weaponModel = CModelInfo::GetModelInfo(weaponInfo->m_nModelId);
 					RwTexDictionary *weaponTxd = CTxdStore::GetSlot(weaponModel->GetTxdSlot())->texDict;
@@ -582,7 +607,9 @@ void CHud::Draw()
 						}
 					}
 				}
+#ifdef FIX_BUGS
 				RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)(uintptr)weaponIconFilter);
+#endif
 
 				CFont::SetBackgroundOff();
 				CFont::SetScale(SCREEN_SCALE_X(0.5f), SCREEN_SCALE_Y(0.8f));
@@ -1596,10 +1623,15 @@ void CHud::DrawAfterFade()
 	}
 
 	// Oddjob result
+#ifdef FIX_BUGS
 	const float oddJobElapsedMs = CTimer::GetTimeStepInSeconds() * 1000.0f;
 	// The original slide steps were per frame. Keep their 30 FPS timing at any
 	// frame rate so vehicle-side-mission names do not flash at high FPS.
 	const float oddJobFrameScale = Min(oddJobElapsedMs * (30.0f / 1000.0f), 3.0f);
+#else
+	const float oddJobElapsedMs = CTimer::GetTimeStepInMilliseconds();
+	const float oddJobFrameScale = 1.0f;
+#endif
 	if (OddJob2OffTimer > 0)
 		OddJob2OffTimer -= oddJobElapsedMs;
 

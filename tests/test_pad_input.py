@@ -163,7 +163,7 @@ if not vc:
 for sequence, action in fixtures:
     cpp += f'Code(pad, {json.dumps(sequence)}, {json.dumps(action)});\n'
 if vc:
-    cpp = '#include "PlayerHealth.h"\n'+cpp
+    cpp = '#include <stdint.h>\ntypedef uint8_t uint8;\n#include "PlayerHealth.h"\n'+cpp
     cpp += '''
     assert(RestorePlayerMaxHealth(250) == 100);
     assert(RestorePlayerMaxHealth(255) == 100);

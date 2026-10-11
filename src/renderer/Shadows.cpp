@@ -2000,8 +2000,14 @@ CShadows::CastShadowEntityXY(CEntity *pEntity,  float fStartX, float fStartY, fl
 						int32 idx = j + 10;
 
 						CVector p = List[idx];
-						
+
+#ifdef FIX_BUGS
 						List[idx] = pEntity->GetMatrix() * p;
+#else
+						List[idx].x = p.y * pEntity->GetForward().x + p.x * pEntity->GetRight().x + pEntity->GetPosition().x;
+						List[idx].y = p.y * pEntity->GetForward().y + p.x * pEntity->GetRight().y + pEntity->GetPosition().y;
+						List[idx].z = p.z + pEntity->GetPosition().z;
+#endif
 					}
 
 					

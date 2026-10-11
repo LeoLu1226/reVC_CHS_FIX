@@ -91,7 +91,11 @@ public:
 	static bool CounterOnLastFrame[NUMONSCREENCOUNTERS];
 	static float OddJob2XOffset;
 	static uint16 CounterFlashTimer[NUMONSCREENCOUNTERS];
+#ifdef FIX_BUGS
 	static float OddJob2Timer;
+#else
+	static uint16 OddJob2Timer;
+#endif
 	static bool TimerOnLastFrame;
 	static int16 OddJob2On;
 	static uint16 TimerFlashTimer;

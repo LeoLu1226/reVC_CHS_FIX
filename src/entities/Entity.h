@@ -6,7 +6,8 @@
 struct CReference;
 class CPtrList;
 
-bool ModelDrawsBackfaces(int modelIndex);
+bool
+ModelDrawsBackfaces(int32 modelIndex);
 
 enum eEntityType
 {
