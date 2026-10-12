@@ -199,7 +199,7 @@ CCamera::Init(void)
 		m_fFLOATingFadeMusic = 0.0f;
 		if(m_fMouseAccelHorzntl == 0) 
 		{
-			m_fMouseAccelVertical = 0.0025f;
+			m_fMouseAccelVertical = 0.003f;
 			m_fMouseAccelHorzntl = 0.0025f;
 		}
 	}

@@ -3011,10 +3011,18 @@ CMenuManager::InitialiseChangedLanguageSettings()
 
 		switch (m_PrefsLanguage) {
 		case LANGUAGE_FRENCH:
+#ifndef FIX_BUGS
 			CGame::frenchGame = true;
+#else
+			CGame::frenchGame = false;
+#endif
 			break;
 		case LANGUAGE_GERMAN:
+#ifndef FIX_BUGS
 			CGame::germanGame = true;
+#else
+			CGame::germanGame = false;
+#endif
 			break;
 #ifdef MORE_LANGUAGES
 		case LANGUAGE_RUSSIAN:

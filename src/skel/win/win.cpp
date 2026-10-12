@@ -11,7 +11,6 @@
 #include <windowsx.h>
 #include <basetsd.h>
 
-#include <regstr.h>
 #include <shlobj.h>
 
 #include <dbt.h>
@@ -197,34 +196,16 @@ void _psCreateFolder(LPCSTR path)
 const char *_psGetUserFilesFolder()
 {
 #ifdef USE_MY_DOCUMENTS
-	HKEY hKey = NULL;
+	static CHAR szUserFiles[MAX_PATH];
+	static const CHAR userFilesSubdir[] = "\\GTA Vice City User Files";
 
-	static CHAR szUserFiles[256];
-
-	if ( RegOpenKeyEx(HKEY_CURRENT_USER,
-						REGSTR_PATH_SPECIAL_FOLDERS,
-						REG_OPTION_RESERVED,
-						KEY_READ,
-						&hKey) == ERROR_SUCCESS )
-	{
-		DWORD KeyType;
-		DWORD KeycbData = sizeof(szUserFiles);
-		if ( RegQueryValueEx(hKey,
-							"Personal",
-							NULL,
-							&KeyType,
-							(LPBYTE)szUserFiles,
-							&KeycbData) == ERROR_SUCCESS )
-		{
-			RegCloseKey(hKey);
-			strcat(szUserFiles, "\\GTA Vice City User Files");
-			_psCreateFolder(szUserFiles);
-			return szUserFiles;
-		}	
-
-		RegCloseKey(hKey);		
+	if(SUCCEEDED(SHGetFolderPathA(nil, CSIDL_MYDOCUMENTS, nil, SHGFP_TYPE_CURRENT, szUserFiles)) &&
+	   strlen(szUserFiles) + sizeof(userFilesSubdir) <= sizeof(szUserFiles)) {
+		strcat(szUserFiles, userFilesSubdir);
+		_psCreateFolder(szUserFiles);
+		return szUserFiles;
 	}
-	
+
 	strcpy(szUserFiles, "data");
 	return szUserFiles;
 #else
@@ -674,16 +655,40 @@ psInitialize(void)
 		CMenuManager::m_PrefsLanguage = CMenuManager::LANGUAGE_SPANISH;
 	else if ( lang  == LANG_GERMAN )
 	{
+#ifndef FIX_BUGS
 		CGame::germanGame = true;
+#else
+		CGame::germanGame = false;
+#endif
+#ifndef FIX_BUGS
 		CGame::nastyGame = false;
+#else
+		CGame::nastyGame = true;
+#endif
+#ifndef FIX_BUGS
 		CMenuManager::m_PrefsAllowNastyGame = false;
+#else
+		CMenuManager::m_PrefsAllowNastyGame = true;
+#endif
 		CMenuManager::m_PrefsLanguage = CMenuManager::LANGUAGE_GERMAN;
 	}
 	else if ( lang  == LANG_FRENCH )
 	{
+#ifndef FIX_BUGS
 		CGame::frenchGame = true;
+#else
+		CGame::frenchGame = false;
+#endif
+#ifndef FIX_BUGS
 		CGame::nastyGame = false;
+#else
+		CGame::nastyGame = true;
+#endif
+#ifndef FIX_BUGS
 		CMenuManager::m_PrefsAllowNastyGame = false;
+#else
+		CMenuManager::m_PrefsAllowNastyGame = true;
+#endif
 		CMenuManager::m_PrefsLanguage = CMenuManager::LANGUAGE_FRENCH;
 	}
 	else
@@ -1839,26 +1844,54 @@ void InitialiseLanguage()
 		|| primSystemLCID == LANG_GERMAN
 		|| primLayout	  == LANG_GERMAN )
 	{
+#ifndef FIX_BUGS
 		CGame::nastyGame = false;
+#else
+		CGame::nastyGame = true;
+#endif
+#ifndef FIX_BUGS
 		FrontEndMenuManager.m_PrefsAllowNastyGame = false;
+#else
+		FrontEndMenuManager.m_PrefsAllowNastyGame = true;
+#endif
+#ifndef FIX_BUGS
 		CGame::germanGame = true;
+#else
+		CGame::germanGame = false;
+#endif
 	}
 	
 	if (   primUserLCID	  == LANG_FRENCH
 		|| primSystemLCID == LANG_FRENCH
 		|| primLayout	  == LANG_FRENCH )
 	{
+#ifndef FIX_BUGS
 		CGame::nastyGame = false;
+#else
+		CGame::nastyGame = true;
+#endif
+#ifndef FIX_BUGS
 		FrontEndMenuManager.m_PrefsAllowNastyGame = false;
+#else
+		FrontEndMenuManager.m_PrefsAllowNastyGame = true;
+#endif
+#ifndef FIX_BUGS
 		CGame::frenchGame = true;
+#else
+		CGame::frenchGame = false;
+#endif
 	}
 	
 	if (   subUserLCID	 == SUBLANG_ENGLISH_AUS
 		|| subSystemLCID == SUBLANG_ENGLISH_AUS
 		|| subLayout	 == SUBLANG_ENGLISH_AUS )
+#ifndef FIX_BUGS
 		CGame::noProstitutes = true;
+#else
+		CGame::noProstitutes = false;
+#endif
 
-#ifdef NASTY_GAME
+#if defined(NASTY_GAME) || defined(FIX_BUGS)
 	CGame::nastyGame = true;
 	FrontEndMenuManager.m_PrefsAllowNastyGame = true;
 	CGame::noProstitutes = false;

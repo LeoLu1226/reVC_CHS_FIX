@@ -1,6 +1,28 @@
 #include <csignal>
 #define WITHWINDOWS
+#include "Localization.h"
 #include "common.h"
+
+int32 Localization::Units = Localization::UNITS_SYSTEM;
+
+bool
+Localization::UsesMetricUnits(void)
+{
+#ifdef FIX_BUGS
+	if(Units == UNITS_METRIC || Units == UNITS_IMPERIAL) return ResolveMetricUnits(Units, 0, false);
+	uint32 systemMeasurement = 0;
+	bool localeAvailable = false;
+#ifdef _WIN32
+	localeAvailable =
+	    GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_IMEASURE | LOCALE_RETURN_NUMBER, (char *)&systemMeasurement, sizeof(systemMeasurement)) != 0;
+#endif
+	return ResolveMetricUnits(Units, systemMeasurement, localeAvailable);
+#elif defined(USE_MEASUREMENTS_IN_METERS)
+	return true;
+#else
+	return false;
+#endif
+}
 #include "ParticleEx.h"
 #if defined DETECT_JOYSTICK_MENU && defined XINPUT
 #include <xinput.h>
@@ -557,6 +579,11 @@ bool LoadINISettings()
 	ReadIniIfExists("General", "SkinFile", FrontEndMenuManager.m_PrefsSkinFile, 256);
 	ReadIniIfExists("Controller", "Method", &FrontEndMenuManager.m_ControlMethod);
 	ReadIniIfExists("General", "Language", &FrontEndMenuManager.m_PrefsLanguage);
+#ifdef FIX_BUGS
+	ReadIniIfExists("General", "Units", &Localization::Units);
+	if(Localization::Units < Localization::UNITS_SYSTEM || Localization::Units > Localization::UNITS_IMPERIAL)
+		Localization::Units = Localization::UNITS_SYSTEM;
+#endif
 	ReadIniIfExists("Display", "ShowHud", &FrontEndMenuManager.m_PrefsShowHud);
 	ReadIniIfExists("Display", "RadarMode", &FrontEndMenuManager.m_PrefsRadarMode);
 	ReadIniIfExists("Display", "ShowLegends", &FrontEndMenuManager.m_PrefsShowLegends);
@@ -686,6 +713,9 @@ void SaveINISettings()
 	StoreIni("General", "SkinFile", FrontEndMenuManager.m_PrefsSkinFile, 256);
 	StoreIni("Controller", "Method", FrontEndMenuManager.m_ControlMethod);
 	StoreIni("General", "Language", FrontEndMenuManager.m_PrefsLanguage);
+#ifdef FIX_BUGS
+	StoreIni("General", "Units", Localization::Units);
+#endif
 	StoreIni("Display", "ShowHud", FrontEndMenuManager.m_PrefsShowHud);
 	StoreIni("Display", "RadarMode", FrontEndMenuManager.m_PrefsRadarMode);
 	StoreIni("Display", "ShowLegends", FrontEndMenuManager.m_PrefsShowLegends);

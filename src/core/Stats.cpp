@@ -1,3 +1,4 @@
+#include "Localization.h"
 #include "common.h"
 
 #include "Stats.h"
@@ -1063,15 +1064,19 @@ CStats::ConstructStatLine(int rowIdx)
 ;
 	STAT_LINE_1(int, "ACCURA", RoundsFiredByPlayer == 0 ? 0 : (BulletsThatHit * 100.0f / (float)RoundsFiredByPlayer), 2);
 
+#ifdef FIX_BUGS
+	switch(Localization::UsesMetricUnits() ? CMenuManager::LANGUAGE_FRENCH : CMenuManager::LANGUAGE_AMERICAN) {
+#else
 	switch (FrontEndMenuManager.m_PrefsLanguage) {
-		case CMenuManager::LANGUAGE_AMERICAN:
-#ifndef USE_MEASUREMENTS_IN_METERS
-			STAT_LINE_1(float, "FEST_DF", DistanceTravelledOnFoot * MILES_IN_METER, 1);
-			STAT_LINE_1(float, "FEST_DC", DistanceTravelledByCar * MILES_IN_METER, 1);
-			STAT_LINE_1(float, "DISTBIK", DistanceTravelledByBike * MILES_IN_METER, 1);
-			STAT_LINE_1(float, "DISTBOA", DistanceTravelledByBoat * MILES_IN_METER, 1);
-			STAT_LINE_1(float, "DISTGOL", DistanceTravelledByGolfCart * MILES_IN_METER, 1);
-			STAT_LINE_1(float, "DISTHEL", DistanceTravelledByHelicoptor * MILES_IN_METER, 1);
+#endif
+	case CMenuManager::LANGUAGE_AMERICAN:
+#if defined(FIX_BUGS) || !defined(USE_MEASUREMENTS_IN_METERS)
+		STAT_LINE_1(float, "FEST_DF", DistanceTravelledOnFoot *MILES_IN_METER, 1);
+		STAT_LINE_1(float, "FEST_DC", DistanceTravelledByCar *MILES_IN_METER, 1);
+		STAT_LINE_1(float, "DISTBIK", DistanceTravelledByBike *MILES_IN_METER, 1);
+		STAT_LINE_1(float, "DISTBOA", DistanceTravelledByBoat *MILES_IN_METER, 1);
+		STAT_LINE_1(float, "DISTGOL", DistanceTravelledByGolfCart *MILES_IN_METER, 1);
+		STAT_LINE_1(float, "DISTHEL", DistanceTravelledByHelicoptor *MILES_IN_METER, 1);
 #ifdef FIX_BUGS
 			STAT_LINE_1(float, "TOT_DIS", (DistanceTravelledOnFoot + DistanceTravelledByCar + DistanceTravelledByBoat + DistanceTravelledByBike
 				+ DistanceTravelledByGolfCart + DistanceTravelledByHelicoptor + DistanceTravelledByPlane) * MILES_IN_METER, 1);
