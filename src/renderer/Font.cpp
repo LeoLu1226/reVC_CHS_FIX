@@ -1,6 +1,7 @@
 #include "common.h"
 
 #include "Font.h"
+#include "FontHelpBounds.h"
 #include "Sprite2d.h"
 #include "TxdStore.h"
 #ifdef BUTTON_ICONS
@@ -298,6 +299,9 @@ IsZeroWidthChar(wchar c)
 const CharPos &
 GetCharPos(uint32 chr, bool slant)
 {
+#ifdef FIX_BUGS
+	gHelpTextBounds.Reset();
+#endif
 #ifdef _WIN32
 	if(CHSFont::Inited())
 		return CHSFont::GetSlot(chr, slant); // 动态字库：按需渲染，永不少字
@@ -439,6 +443,9 @@ void CFont::Initialise(void)
 void
 CFont::LoadButtons(const char *txdPath)
 {
+#ifdef FIX_BUGS
+	gHelpTextBounds.Reset();
+#endif
 	if(int file = CFileMgr::OpenFile(txdPath)) {
 		CFileMgr::CloseFile(file);
 		if(ButtonsSlot == -1)
@@ -487,6 +494,9 @@ uint8 clickNUM = 0;
 void
 CFont::ReloadFonts(uint8 set)
 {
+#ifdef FIX_BUGS
+	gHelpTextBounds.Reset();
+#endif
 	if(Slot != -1 && LanguageSet != set) {
 		LanguageSet = set;
 		Sprite[0].Delete();
@@ -567,6 +577,9 @@ CFont::ReloadFonts(uint8 set)
 void
 CFont::Shutdown(void)
 {
+#ifdef FIX_BUGS
+	gHelpTextBounds.Reset();
+#endif
 #ifdef BUTTON_ICONS
 	if(ButtonsSlot != -1) {
 		for(int i = 0; i < MAX_BUTTON_ICONS; i++) ButtonSprite[i].Delete();
@@ -627,6 +640,12 @@ CFont::DrawButton(float x, float y)
 		rect.top = RenderState.scaleY + RenderState.scaleY + y;
 		rect.right = RenderState.scaleY * 17.0f + x;
 		rect.bottom = RenderState.scaleY * 19.0f + y;
+#ifdef FIX_BUGS
+		if(gHelpTextBounds.active) {
+			gHelpTextBounds.Capture(RwTextureGetRaster(ButtonSprite[PS2Symbol].m_pTexture), rect, 0.0f, 0.0f, 1.0f, 1.0f);
+			return;
+		}
+#endif
 
 		int vertexAlphaState;
 		void *raster;
@@ -665,6 +684,9 @@ CFont::PrintCharDispatcher(float arg_x, float arg_y, uint32 arg_char)
 		//CSprite2d::RenderVertexBuffer();
 	}
 }
+static void
+AddHelpFontSprite(const CRect &rect, const CRGBA &color, float u0, float v0, float u1, float v1, float u3, float v3, float u2, float v2);
+
 void
 CFont::PrintCHSChar(float arg_x, float arg_y, uint32 arg_char)
 {
@@ -693,8 +715,22 @@ CFont::PrintCHSChar(float arg_x, float arg_y, uint32 arg_char)
 	const float v1 = pos.rowIndex * rRowsCount;
 	const float u2 = (pos.columnIndex + 1) * rColumnsCount - ufix;
 	const float v2 = (pos.rowIndex + 1) * rRowsCount - vfix;
-	CSprite2d::AddToBuffer(rect, RenderState.color, u1, v1, u2, v1, u1, v2, u2, v2);
+	AddHelpFontSprite(rect, RenderState.color, u1, v1, u2, v1, u1, v2, u2, v2);
 }
+static void
+AddHelpFontSprite(const CRect &rect, const CRGBA &color, float u0, float v0, float u1, float v1, float u3, float v3, float u2, float v2)
+{
+#ifdef FIX_BUGS
+	if(gHelpTextBounds.active) {
+		RwRaster *raster = nil;
+		RwRenderStateGet(rwRENDERSTATETEXTURERASTER, &raster);
+		gHelpTextBounds.Capture(raster, rect, u0, v0, u2, v2);
+		return;
+	}
+#endif
+	CSprite2d::AddToBuffer(rect, color, u0, v0, u1, v1, u3, v3, u2, v2);
+}
+
 void
 CFont::PrintChar(float x, float y, wchar c)
 {
@@ -724,21 +760,18 @@ CFont::PrintChar(float x, float y, wchar c)
 #else
 			if(c < 193) {
 #endif
-				CSprite2d::AddToBuffer(CRect(x, y, x + 32.0f * RenderState.scaleX * 1.0f, y + 40.0f * RenderState.scaleY * 0.5f),
-				                       RenderState.color, xoff / 16.0f, yoff / 12.8f + 0.0021f, (xoff + 1.0f) / 16.0f - 0.001f,
-				                       yoff / 12.8f + 0.0021f, xoff / 16.0f, (yoff + 1.0f) / 12.8f - 0.0021f, (xoff + 1.0f) / 16.0f - 0.001f,
-				                       (yoff + 1.0f) / 12.8f - 0.0021f);
+				AddHelpFontSprite(CRect(x, y, x + 32.0f * RenderState.scaleX * 1.0f, y + 40.0f * RenderState.scaleY * 0.5f), RenderState.color,
+				                  xoff / 16.0f, yoff / 12.8f + 0.0021f, (xoff + 1.0f) / 16.0f - 0.001f, yoff / 12.8f + 0.0021f, xoff / 16.0f,
+				                  (yoff + 1.0f) / 12.8f - 0.0021f, (xoff + 1.0f) / 16.0f - 0.001f, (yoff + 1.0f) / 12.8f - 0.0021f);
 			} else {
-				CSprite2d::AddToBuffer(CRect(x, y, x + 32.0f * RenderState.scaleX * 1.0f, y + 33.0f * RenderState.scaleY * 0.5f),
-				                       RenderState.color, xoff / 16.0f, yoff / 12.8f + 0.0021f, (xoff + 1.0f) / 16.0f - 0.001f,
-				                       yoff / 12.8f + 0.0021f, xoff / 16.0f, (yoff + 1.0f) / 12.8f - 0.017f, (xoff + 1.0f) / 16.0f - 0.001f,
-				                       (yoff + 1.0f) / 12.8f - 0.017f);
+				AddHelpFontSprite(CRect(x, y, x + 32.0f * RenderState.scaleX * 1.0f, y + 33.0f * RenderState.scaleY * 0.5f), RenderState.color,
+				                  xoff / 16.0f, yoff / 12.8f + 0.0021f, (xoff + 1.0f) / 16.0f - 0.001f, yoff / 12.8f + 0.0021f, xoff / 16.0f,
+				                  (yoff + 1.0f) / 12.8f - 0.017f, (xoff + 1.0f) / 16.0f - 0.001f, (yoff + 1.0f) / 12.8f - 0.017f);
 			}
 		} else
-			CSprite2d::AddToBuffer(CRect(x, y, x + 32.0f * RenderState.scaleX * 1.0f, y + 40.0f * RenderState.scaleY * 0.5f), RenderState.color,
-			                       xoff / 16.0f, yoff / 12.8f + 0.00055f, (xoff + 1.0f) / 16.0f - 0.001f, yoff / 12.8f + 0.0021f + 0.01f,
-			                       xoff / 16.0f, (yoff + 1.0f) / 12.8f - 0.009f, (xoff + 1.0f) / 16.0f - 0.001f,
-			                       (yoff + 1.0f) / 12.8f - 0.0021f + 0.01f);
+			AddHelpFontSprite(CRect(x, y, x + 32.0f * RenderState.scaleX * 1.0f, y + 40.0f * RenderState.scaleY * 0.5f), RenderState.color,
+			                  xoff / 16.0f, yoff / 12.8f + 0.00055f, (xoff + 1.0f) / 16.0f - 0.001f, yoff / 12.8f + 0.0021f + 0.01f, xoff / 16.0f,
+			                  (yoff + 1.0f) / 12.8f - 0.009f, (xoff + 1.0f) / 16.0f - 0.001f, (yoff + 1.0f) / 12.8f - 0.0021f + 0.01f);
 #ifdef MORE_LANGUAGES
 
 			/*}else if (IsJapaneseFont()) {
@@ -766,9 +799,9 @@ CFont::PrintChar(float x, float y, wchar c)
 #endif
 	} else {
 		if(bDontPrint) return;
-		CSprite2d::AddToBuffer(CRect(x, y, x + 32.0f * RenderState.scaleX * w, y + 32.0f * RenderState.scaleY * 0.5f), RenderState.color, xoff / 16.0f,
-		                       yoff / 16.0f, (xoff + w) / 16.0f, yoff / 16.0f, xoff / 16.0f, (yoff + 1.0f) / 16.0f, (xoff + w) / 16.0f - 0.0001f,
-		                       (yoff + 1.0f) / 16.0f - 0.0001f);
+		AddHelpFontSprite(CRect(x, y, x + 32.0f * RenderState.scaleX * w, y + 32.0f * RenderState.scaleY * 0.5f), RenderState.color, xoff / 16.0f,
+		                  yoff / 16.0f, (xoff + w) / 16.0f, yoff / 16.0f, xoff / 16.0f, (yoff + 1.0f) / 16.0f, (xoff + w) / 16.0f - 0.0001f,
+		                  (yoff + 1.0f) / 16.0f - 0.0001f);
 	}
 }
 
@@ -1385,6 +1418,85 @@ WcharTOWstring(const wchar *ws)
 // 这里假设 wchar 与 wchar_t 兼容，否则需要逐字符转换
 	return std::wstring(reinterpret_cast<const wchar_t *>(ws));
 }
+#ifdef FIX_BUGS
+void
+CFont::PrintHelpString(float x, float y, wchar *text)
+{
+	if(!*text || *text == '*') return;
+	// Colour/fade changes do not change geometry. Keep the measured bounds
+	// while the same help message fades, and invalidate on font reloads.
+	static std::vector<wchar> previousText;
+	static std::vector<float> previousLayout;
+	static uint32 previousGeneration = ~0u;
+	static CRect measured;
+	static bool hasInk = false;
+	const CFontDetails saved = Details;
+	std::vector<wchar> message(text, text + UnicodeStrlen(text) + 1);
+	std::vector<float> layout = {saved.scaleX,
+	                             saved.scaleY,
+	                             saved.wrapX - x,
+	                             (float)saved.style,
+	                             (float)saved.proportional,
+	                             (float)saved.dropShadowPosition,
+	                             saved.slant,
+	                             saved.slant != 0.0f ? saved.slantRefX - x : 0.0f,
+	                             saved.slant != 0.0f ? saved.slantRefY - y : 0.0f,
+	                             (float)saved.bank,
+	                             (float)SCREEN_WIDTH,
+	                             (float)SCREEN_HEIGHT};
+#ifdef MORE_LANGUAGES
+	layout.push_back((float)LanguageSet);
+#endif
+	layout.push_back((float)saved.bFontHalfTexture);
+	if(message != previousText || layout != previousLayout || previousGeneration != gHelpTextBounds.generation) {
+		DrawFonts(); // Flush preceding HUD text before collecting this message.
+		Details = saved;
+		const CFontRenderState savedRenderState = RenderState;
+#ifdef MORE_LANGUAGES
+		const bool16 savedNewLine = NewLine;
+#endif
+#ifdef BUTTON_ICONS
+		const int savedSymbol = PS2Symbol;
+#endif
+		Details.background = false;
+		gHelpTextBounds.Begin();
+		std::vector<wchar> copy = message; // Native layout may remove trailing spaces.
+		PrintString(x, y, copy.data());
+		DrawFonts();
+		gHelpTextBounds.End();
+		hasInk = gHelpTextBounds.valid;
+		if(hasInk) {
+			measured = gHelpTextBounds.bounds;
+			measured.left -= x;
+			measured.right -= x;
+			measured.top -= y;
+			measured.bottom -= y;
+		}
+		Details = saved;
+		RenderState = savedRenderState;
+#ifdef MORE_LANGUAGES
+		NewLine = savedNewLine;
+#endif
+#ifdef BUTTON_ICONS
+		PS2Symbol = savedSymbol;
+#endif
+		previousText = message;
+		previousLayout = layout;
+		previousGeneration = gHelpTextBounds.generation;
+	}
+	if(hasInk) {
+		const float paddingX = SCREEN_SCALE_X(4.0f);
+		const float paddingY = SCREEN_SCALE_Y(2.0f);
+		CSprite2d::DrawRect(
+		    CRect(x + measured.left - paddingX, y + measured.top - paddingY, x + measured.right + paddingX, y + measured.bottom + paddingY),
+		    saved.backgroundColor);
+	}
+	Details.background = false;
+	PrintString(x, y, message.data());
+	Details.background = saved.background;
+}
+#endif
+
 void CFont::PrintString(float xstart, float ystart, wchar *s)
 {
 	//std::wstring ws = (wchar_t *)s;

@@ -168,8 +168,10 @@ public:
 	static void PrintChar(float x, float y, wchar c);
 	static void PrintString_Chs(float arg_x, float arg_y, wchar *arg_text);
 	static void PrintString(float x, float y, wchar *s);
+#ifdef FIX_BUGS
+	static void PrintHelpString(float x, float y, wchar *s);
+#endif
 
-	
 #ifdef XBOX_SUBTITLES
 	static void PrintStringFromBottom(float x, float y, wchar *str);
 	static void PrintOutlinedString(float x, float y, wchar *str, float outlineStrength, bool fromBottom, CRGBA outlineColor);
