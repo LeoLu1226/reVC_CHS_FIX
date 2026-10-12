@@ -665,6 +665,19 @@ CFont::PrintCharDispatcher(float arg_x, float arg_y, uint32 arg_char)
 		//CSprite2d::RenderVertexBuffer();
 	}
 }
+static float
+ChineseGlyphYOffset(float scaleY, float displayScale, int16 style, bool halfTexture)
+{
+	float alignmentHeight = style == FONT_HEADING ? 16.0f : 18.0f;
+#ifdef FIX_BUGS
+	// SetFontStyle maps HEADING to STANDARD plus the half-texture flag.
+	// Its Latin capitals/digits are centred in a 20-unit quad, not the
+	// ordinary STANDARD ink's 18-unit alignment region.
+	if(halfTexture) alignmentHeight = 20.0f;
+#endif
+	return scaleY * (alignmentHeight - 16.0f * displayScale) * 0.5f;
+}
+
 void
 CFont::PrintCHSChar(float arg_x, float arg_y, uint32 arg_char)
 {
@@ -682,11 +695,7 @@ CFont::PrintCHSChar(float arg_x, float arg_y, uint32 arg_char)
 	// Atlas cells are square: screen-space X and Y must use the same scale.
 	const float displayScale = RenderState.slant != 0.0f ? CHS_SLANTED_DISPLAY_SCALE : CHS_DISPLAY_SCALE;
 	const float charSize = RenderState.scaleY * 16.0f * displayScale;
-	// The BANK/STANDARD glyph ink sits slightly above the centre of its
-	// 20-unit quad. Use the midpoint between top-alignment and quad-centering
-	// for CJK, while leaving the 16-unit HEADING baseline unchanged.
-	const float alignmentHeight = RenderState.style == FONT_HEADING ? 16.0f : 18.0f;
-	const float yOffset = RenderState.scaleY * (alignmentHeight - 16.0f * displayScale) * 0.5f;
+	const float yOffset = ChineseGlyphYOffset(RenderState.scaleY, displayScale, RenderState.style, RenderState.bFontHalfTexture);
 	CRect rect(arg_x, arg_y + yOffset, arg_x + charSize, arg_y + yOffset + charSize);
 
 	const float u1 = pos.columnIndex * rColumnsCount;
