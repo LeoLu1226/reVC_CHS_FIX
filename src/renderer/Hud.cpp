@@ -1419,11 +1419,7 @@ void CHud::Draw()
 					wchar currentHelp[HELP_MSG_LENGTH];
 					CMessages::WideStringCopy(currentHelp, m_HelpMessageToPrint, HELP_MSG_LENGTH);
 					CMessages::InsertPlayerControlKeysInString(currentHelp);
-#ifdef FIX_BUGS
-					CFont::PrintHelpString(SCREEN_SCALE_X(34.0f), SCREEN_SCALE_Y(28.0f + (150.0f - PagerXOffset) * 0.6f), currentHelp);
-#else
 					CFont::PrintString(SCREEN_SCALE_X(34.0f), SCREEN_SCALE_Y(28.0f + (150.0f - PagerXOffset) * 0.6f), currentHelp);
-#endif
 					CFont::SetAlphaFade(255.0f);
 					CFont::SetWrapx(SCREEN_WIDTH);
 				}
