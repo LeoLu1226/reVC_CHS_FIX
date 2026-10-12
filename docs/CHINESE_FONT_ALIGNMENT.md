@@ -4,12 +4,13 @@ Vice City's FONT_HEADING is represented internally as FONT_STANDARD with
 bFontHalfTexture enabled. Testing RenderState.style against FONT_HEADING
 therefore cannot identify the heading used by menu entries and option values.
 
-Under FIX_BUGS the dynamic Chinese glyph positioning now checks the actual
+The dynamic Chinese glyph positioning now checks the actual
 half-texture flag and centres the square Chinese cell in the heading's
 20-unit region. At the normal Chinese display scale this changes its Y offset
 from one to two units times scaleY, aligning it with the atlas capitals/digits.
 Ordinary STANDARD/BANK positioning and slanted zone/vehicle names are unchanged.
-The original positioning remains available with FIX_BUGS disabled.
+This is part of the Chinese font renderer, independent of FIX_BUGS. The same
+heading alignment is applied whether native bug fixes are enabled or disabled.
 
 Chinese continues to use its runtime-generated atlas and configured font face.
 No font files, ini options, font sizes, horizontal advances, text boxes or re3

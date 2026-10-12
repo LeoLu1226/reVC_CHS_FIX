@@ -36,15 +36,11 @@ int main() {
  CFont::SetFontStyle(FONT_HEADING);
  assert(CFont::Details.style == FONT_STANDARD && CFont::Details.bFontHalfTexture);
  const float heading = ChineseGlyphYOffset(1,1,CFont::Details.style,CFont::Details.bFontHalfTexture);
-#ifdef FIX_BUGS
  assert(near(heading,2));
  // Actual menu atlas capitals are centred at about 10 units. The current
  // dynamic font's 56px CJK centre is 31.267 inside its cropped 62.976px cell.
  const float cjkCentre = heading + 16.0f * 31.267f / 62.976f;
  assert(std::fabs(cjkCentre-10.027f)<0.2f);
-#else
- assert(near(heading,1));
-#endif
  CFont::SetFontStyle(FONT_STANDARD);
  assert(!CFont::Details.bFontHalfTexture);
  assert(near(ChineseGlyphYOffset(1,1,CFont::Details.style,false),1));

@@ -669,12 +669,10 @@ static float
 ChineseGlyphYOffset(float scaleY, float displayScale, int16 style, bool halfTexture)
 {
 	float alignmentHeight = style == FONT_HEADING ? 16.0f : 18.0f;
-#ifdef FIX_BUGS
 	// SetFontStyle maps HEADING to STANDARD plus the half-texture flag.
 	// Its Latin capitals/digits are centred in a 20-unit quad, not the
 	// ordinary STANDARD ink's 18-unit alignment region.
 	if(halfTexture) alignmentHeight = 20.0f;
-#endif
 	return scaleY * (alignmentHeight - 16.0f * displayScale) * 0.5f;
 }
 
