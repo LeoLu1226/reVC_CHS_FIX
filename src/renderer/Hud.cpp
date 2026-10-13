@@ -886,20 +886,24 @@ void CHud::Draw()
 					CFont::SetPropOn();
 					CFont::SetBackgroundOff();
 
-					if (FrontEndMenuManager.m_PrefsLanguage == CMenuManager::LANGUAGE_SPANISH)
+					// Preserve 90% of the former CJK size, including its 1.35
+					// slanted-cell multiplier, while selecting the upright face.
+					if (CFont::IsChinese())
+						CFont::SetScale(SCREEN_SCALE_X(1.7f * 0.9f), SCREEN_SCALE_Y(1.8f * 1.35f * 0.9f));
+					else if (FrontEndMenuManager.m_PrefsLanguage == CMenuManager::LANGUAGE_SPANISH)
 						CFont::SetScale(SCREEN_SCALE_X(1.7f * 0.8f), SCREEN_SCALE_Y(1.8f));
 					else
 						CFont::SetScale(SCREEN_SCALE_X(1.7f), SCREEN_SCALE_Y(1.8f));
 
 					CFont::SetSlantRefPoint(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(128.0f));
-					CFont::SetSlant(0.15f);
+					CFont::SetSlant(CFont::IsChinese() ? 0.0f : 0.15f);
 
 					CFont::SetRightJustifyOn();
 					CFont::SetRightJustifyWrap(0.0f);
 					CFont::SetBackGroundOnlyTextOff();
 					CFont::SetDropShadowPosition(2);
 					CFont::SetDropColor(CRGBA(0, 0, 0, fZoneAlpha));
-					CFont::SetFontStyle(FONT_BANK);
+					CFont::SetFontStyle(CFont::IsChinese() ? FONT_STANDARD : FONT_BANK);
 					CFont::SetColor(CRGBA(ZONE_COLOR.r, ZONE_COLOR.g, ZONE_COLOR.b, fZoneAlpha));
 
 					if (!CTheScripts::bPlayerIsInTheStatium)
@@ -986,18 +990,20 @@ void CHud::Draw()
 					CFont::SetPropOn();
 					CFont::SetBackgroundOff();
 
-					if (FrontEndMenuManager.m_PrefsLanguage != CMenuManager::LANGUAGE_ITALIAN && FrontEndMenuManager.m_PrefsLanguage != CMenuManager::LANGUAGE_SPANISH)
+					if (CFont::IsChinese())
+						CFont::SetScale(SCREEN_SCALE_X(1.7f * 0.9f), SCREEN_SCALE_Y(1.8f * 1.35f * 0.9f));
+					else if (FrontEndMenuManager.m_PrefsLanguage != CMenuManager::LANGUAGE_ITALIAN && FrontEndMenuManager.m_PrefsLanguage != CMenuManager::LANGUAGE_SPANISH)
 						CFont::SetScale(SCREEN_SCALE_X(1.7f), SCREEN_SCALE_Y(1.8f));
 					else
 						CFont::SetScale(SCREEN_SCALE_X(1.7f * 0.85f), SCREEN_SCALE_Y(1.8f));
 
 					CFont::SetSlantRefPoint(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(105.0f));
-					CFont::SetSlant(0.15f);
+					CFont::SetSlant(CFont::IsChinese() ? 0.0f : 0.15f);
 
 					CFont::SetRightJustifyOn();
 					CFont::SetRightJustifyWrap(0.0f);
 					CFont::SetBackGroundOnlyTextOff();
-					CFont::SetFontStyle(FONT_BANK);
+					CFont::SetFontStyle(CFont::IsChinese() ? FONT_STANDARD : FONT_BANK);
 					CFont::SetDropShadowPosition(2);
 					CFont::SetColor(CRGBA(VEHICLE_COLOR.r, VEHICLE_COLOR.g, VEHICLE_COLOR.b, fVehicleAlpha));
 					CFont::SetDropColor(CRGBA(0, 0, 0, fVehicleAlpha));
