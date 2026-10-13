@@ -1008,7 +1008,13 @@ void CHud::Draw()
 					CFont::SetColor(CRGBA(VEHICLE_COLOR.r, VEHICLE_COLOR.g, VEHICLE_COLOR.b, fVehicleAlpha));
 					CFont::SetDropColor(CRGBA(0, 0, 0, fVehicleAlpha));
 
-					CFont::PrintStringFromBottom(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(105.0f), m_pVehicleNameToPrint);
+					// Slanted native text uses the slant reference as its Y origin.
+					// Upright Chinese must use that same anchor directly: the bottom
+					// helper would otherwise move it up by a complete line height.
+					if (CFont::IsChinese())
+						CFont::PrintString(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(105.0f), m_pVehicleNameToPrint);
+					else
+						CFont::PrintStringFromBottom(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(105.0f), m_pVehicleNameToPrint);
 
 					CFont::SetSlant(0.f);
 				}
