@@ -95,6 +95,9 @@ CRGBA ODDJOB_COLOR(0, 207, 133, 255);
 CRGBA ODDJOB2_COLOR(97, 194, 247, 255);
 CRGBA MISSIONTITLE_COLOR(220, 172, 2, 255);
 
+static const float CHINESE_NAME_SCALE_X = 1.7f * 0.9f;
+static const float CHINESE_NAME_SCALE_Y = 1.8f * 1.35f * 0.9f;
+
 wchar CHud::m_HelpMessage[HELP_MSG_LENGTH];
 wchar CHud::m_LastHelpMessage[HELP_MSG_LENGTH];
 uint32 CHud::m_HelpMessageState;
@@ -889,7 +892,7 @@ void CHud::Draw()
 					// Preserve 90% of the former CJK size, including its 1.35
 					// slanted-cell multiplier, while selecting the upright face.
 					if (CFont::IsChinese())
-						CFont::SetScale(SCREEN_SCALE_X(1.7f * 0.9f), SCREEN_SCALE_Y(1.8f * 1.35f * 0.9f));
+						CFont::SetScale(SCREEN_SCALE_X(CHINESE_NAME_SCALE_X), SCREEN_SCALE_Y(CHINESE_NAME_SCALE_Y));
 					else if (FrontEndMenuManager.m_PrefsLanguage == CMenuManager::LANGUAGE_SPANISH)
 						CFont::SetScale(SCREEN_SCALE_X(1.7f * 0.8f), SCREEN_SCALE_Y(1.8f));
 					else
@@ -906,8 +909,13 @@ void CHud::Draw()
 					CFont::SetFontStyle(CFont::IsChinese() ? FONT_STANDARD : FONT_BANK);
 					CFont::SetColor(CRGBA(ZONE_COLOR.r, ZONE_COLOR.g, ZONE_COLOR.b, fZoneAlpha));
 
-					if (!CTheScripts::bPlayerIsInTheStatium)
-						CFont::PrintStringFromBottom(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(128.0f), m_ZoneToPrint);
+					if(!CTheScripts::bPlayerIsInTheStatium) {
+						if(CFont::IsChinese())
+							CFont::PrintString(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(128.0f), m_ZoneToPrint);
+						else
+							CFont::PrintStringFromBottom(SCREEN_SCALE_FROM_RIGHT(32.0f), SCREEN_SCALE_FROM_BOTTOM(128.0f),
+							                             m_ZoneToPrint);
+					}
 
 					CFont::SetSlant(0.f);
 				} else {
@@ -991,7 +999,7 @@ void CHud::Draw()
 					CFont::SetBackgroundOff();
 
 					if (CFont::IsChinese())
-						CFont::SetScale(SCREEN_SCALE_X(1.7f * 0.9f), SCREEN_SCALE_Y(1.8f * 1.35f * 0.9f));
+						CFont::SetScale(SCREEN_SCALE_X(CHINESE_NAME_SCALE_X), SCREEN_SCALE_Y(CHINESE_NAME_SCALE_Y));
 					else if (FrontEndMenuManager.m_PrefsLanguage != CMenuManager::LANGUAGE_ITALIAN && FrontEndMenuManager.m_PrefsLanguage != CMenuManager::LANGUAGE_SPANISH)
 						CFont::SetScale(SCREEN_SCALE_X(1.7f), SCREEN_SCALE_Y(1.8f));
 					else
@@ -1716,11 +1724,14 @@ void CHud::DrawAfterFade()
 			CFont::SetPropOn();
 			CFont::SetRightJustifyWrap(SCALE_AND_CENTER_X(0.0f));
 			CFont::SetRightJustifyOn();
-			CFont::SetFontStyle(FONT_BANK);
-			const float titleScale = CFont::IsChinese() ? 1.35f : 1.0f;
-			const float titleScaleX = CFont::IsChinese() ? 1.7f * titleScale :
-				(FrontEndMenuManager.m_PrefsLanguage == CMenuManager::LANGUAGE_AMERICAN ? 1.7f : 1.5f);
-			CFont::SetScale(SCREEN_SCALE_X(titleScaleX), SCREEN_SCALE_Y(1.8f * titleScale));
+			CFont::SetFontStyle(CFont::IsChinese() ? FONT_STANDARD : FONT_BANK);
+			if(CFont::IsChinese()) {
+				CFont::SetSlant(0.0f);
+				CFont::SetScale(SCREEN_SCALE_X(CHINESE_NAME_SCALE_X), SCREEN_SCALE_Y(CHINESE_NAME_SCALE_Y));
+			} else {
+				const float titleScaleX = FrontEndMenuManager.m_PrefsLanguage == CMenuManager::LANGUAGE_AMERICAN ? 1.7f : 1.5f;
+				CFont::SetScale(SCREEN_SCALE_X(titleScaleX), SCREEN_SCALE_Y(1.8f));
+			}
 
 			if (BigMessageX[1] >= SCREEN_SCALE_FROM_RIGHT(20.0f)) {
 				BigMessageInUse[1] += CTimer::GetTimeStep();
